@@ -1,6 +1,6 @@
 /**
  * AniVerse - Centralized Supabase Client
- * Version: 1.0.0
+ * Version: 2.0.0 – Full DB & Storage Support
  */
 
 // ============================================================
@@ -50,59 +50,16 @@ function clearSupabaseStorage() {
 // ============================================================
 
 const Auth = {
-    /**
-     * Sign up a new user with duplicate username check
-     */
     async signUp({ email, password, username, displayName, country, birthDate }) {
         try {
-            if (!email || !password) {
-                throw new Error('Email and password are required');
-            }
-            if (password.length < 8) {
-                throw new Error('Password must be at least 8 characters');
-            }
-            if (!username || username.length < 3) {
-                throw new Error('Username must be at least 3 characters');
+            if (!email || !password) throw new Error('Email and password are required');
+            if (password.length < 8) throw new Error('Password must be at least 8 characters');
+            if (!username || username.length < 3) throw new Error('Username must be at least 3 characters');
+            if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
+                throw new Error('Username must be 3-30 characters, alphanumeric and underscore only');
             }
 
             console.log('[Auth] Signing up user:', email);
-            console.log('[Auth] Username:', username);
-
-            // ✅ CHECK DUPLICATE USERNAME
-            try {
-                const { data: existingUser, error: checkError } = await supabaseClient
-                    .from('profiles')
-                    .select('username')
-                    .eq('username', username)
-                    .maybeSingle();
-
-                if (checkError) {
-                    console.warn('[Auth] Username check error (RLS may be blocking):', checkError);
-                    // If RLS is blocking, try using RPC function
-                    try {
-                        const { data: exists, error: rpcError } = await supabaseClient.rpc('check_username_exists', {
-                            username: username
-                        });
-                        if (rpcError) {
-                            console.warn('[Auth] RPC username check failed:', rpcError);
-                        } else if (exists === true) {
-                            throw new Error('Username already taken. Please choose another.');
-                        }
-                    } catch (rpcErr) {
-                        console.warn('[Auth] RPC username check error:', rpcErr);
-                        // If RPC also fails, proceed with signup but handle duplicate later
-                    }
-                } else if (existingUser) {
-                    throw new Error('Username already taken. Please choose another.');
-                }
-            } catch (checkErr) {
-                if (checkErr.message.includes('Username already taken')) {
-                    throw checkErr;
-                }
-                console.warn('[Auth] Username check warning:', checkErr);
-                // Continue with signup if check fails due to RLS
-            }
-
             clearSupabaseStorage();
 
             const response = await supabaseClient.auth.signUp({
@@ -110,7 +67,7 @@ const Auth = {
                 password,
                 options: {
                     data: {
-                        username: username,
+                        username,
                         display_name: displayName || username,
                         country: country || null,
                         birth_date: birthDate || null
@@ -118,15 +75,8 @@ const Auth = {
                 }
             });
 
-            console.log('[Auth] Signup response:', {
-                hasData: !!response.data,
-                hasError: !!response.error,
-                user: response.data?.user?.id || 'none',
-                errorMessage: response.error?.message || 'none'
-            });
-
             if (response.error) {
-                let errorMessage = response.error.message || 'Signup failed. Please try again.';
+                let errorMessage = response.error.message || 'Signup failed.';
                 if (errorMessage.includes('User already registered')) {
                     errorMessage = 'An account with this email already exists. Please log in instead.';
                 }
@@ -142,32 +92,40 @@ const Auth = {
 
             console.log('[Auth] User created successfully:', response.data.user.id);
 
-            // Fallback: manually create profile if trigger failed
-            try {
-                await new Promise(resolve => setTimeout(resolve, 500));
-                const { data: existing } = await supabaseClient
-                    .from('profiles')
-                    .select('id')
-                    .eq('id', response.data.user.id)
-                    .maybeSingle();
+            // Fallback profile creation
+            let profileCreated = false;
+            let retryCount = 0;
+            const maxRetries = 3;
 
-                if (!existing) {
-                    await supabaseClient
+            while (!profileCreated && retryCount < maxRetries) {
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 500 * (retryCount + 1)));
+                    const { data: existing } = await supabaseClient
                         .from('profiles')
-                        .insert({
-                            id: response.data.user.id,
-                            username: username,
-                            display_name: displayName || username,
-                            email: email,
-                            created_at: new Date().toISOString()
-                        });
-                    console.log('[Auth] Profile created (fallback)');
-                }
-            } catch (profileError) {
-                console.warn('[Auth] Manual profile creation fallback failed:', profileError);
-            }
+                        .select('id')
+                        .eq('id', response.data.user.id)
+                        .maybeSingle();
 
-            clearSupabaseStorage();
+                    if (!existing) {
+                        await supabaseClient
+                            .from('profiles')
+                            .insert({
+                                id: response.data.user.id,
+                                username,
+                                display_name: displayName || username,
+                                email,
+                                country: country || null,
+                                birth_date: birthDate || null,
+                                created_at: new Date().toISOString()
+                            });
+                        console.log('[Auth] Profile created (fallback)');
+                    }
+                    profileCreated = true;
+                } catch (profileError) {
+                    console.warn(`[Auth] Profile creation attempt ${retryCount + 1} failed:`, profileError);
+                    retryCount++;
+                }
+            }
 
             return {
                 user: response.data.user,
@@ -177,41 +135,20 @@ const Auth = {
 
         } catch (error) {
             console.error('[Auth] Signup error:', error);
-            return {
-                user: null,
-                session: null,
-                error: error.message || 'Signup failed. Please try again.'
-            };
+            return { user: null, session: null, error: error.message || 'Signup failed. Please try again.' };
         }
     },
 
-    /**
-     * Sign in a user
-     */
     async signIn({ email, password }) {
         try {
-            if (!email || !password) {
-                throw new Error('Email and password are required');
-            }
-
+            if (!email || !password) throw new Error('Email and password are required');
             console.log('[Auth] Signing in user:', email);
-
             clearSupabaseStorage();
 
-            const response = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-            console.log('[Auth] Login response:', {
-                hasData: !!response.data,
-                hasError: !!response.error,
-                user: response.data?.user?.id || 'none'
-            });
+            const response = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (response.error) {
-                console.error('[Auth] Login error:', response.error);
-                let errorMessage = response.error.message || 'Login failed. Please try again.';
+                let errorMessage = response.error.message || 'Login failed.';
                 if (errorMessage.includes('Invalid login credentials')) {
                     errorMessage = 'Invalid email or password';
                 }
@@ -227,7 +164,7 @@ const Auth = {
 
             console.log('[Auth] Login successful for:', response.data.user.id);
 
-            // Update last seen
+            // Update last seen (silent fail)
             try {
                 await supabaseClient
                     .from('profiles')
@@ -235,20 +172,13 @@ const Auth = {
                     .eq('id', response.data.user.id);
             } catch (e) { /* ignore */ }
 
-            return {
-                user: response.data.user,
-                session: response.data.session,
-                error: null
-            };
+            return { user: response.data.user, session: response.data.session, error: null };
         } catch (error) {
             console.error('[Auth] Login error:', error);
             return { user: null, session: null, error: error.message || 'Login failed. Please try again.' };
         }
     },
 
-    /**
-     * Sign out the current user
-     */
     async signOut() {
         try {
             console.log('[Auth] Signing out');
@@ -262,9 +192,6 @@ const Auth = {
         }
     },
 
-    /**
-     * Get current user with profile
-     */
     async getCurrentUser() {
         try {
             console.log('[Auth] Getting current user...');
@@ -282,19 +209,21 @@ const Auth = {
 
             console.log('[Auth] User found:', user.id);
 
-            // Load profile
             let profile = null;
-            try {
-                const { data, error: pErr } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .maybeSingle();
-                if (!pErr && data) {
-                    profile = data;
-                }
-            } catch (e) {
-                console.warn('[Auth] Profile fetch error:', e);
+            let retryCount = 0;
+            const maxRetries = 3;
+
+            while (!profile && retryCount < maxRetries) {
+                try {
+                    if (retryCount > 0) await new Promise(resolve => setTimeout(resolve, 300 * retryCount));
+                    const { data, error: pErr } = await supabaseClient
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', user.id)
+                        .maybeSingle();
+                    if (!pErr && data) profile = data;
+                } catch (e) { /* ignore */ }
+                retryCount++;
             }
 
             return { user, profile, error: null };
@@ -304,26 +233,16 @@ const Auth = {
         }
     },
 
-    /**
-     * Get current session
-     */
     async getSession() {
         try {
             const { data: { session }, error } = await supabaseClient.auth.getSession();
-            if (error) {
-                console.error('[Auth] Get session error:', error);
-                return { session: null, error: error.message };
-            }
+            if (error) throw new Error(error.message);
             return { session, error: null };
         } catch (error) {
-            console.error('[Auth] Get session error:', error);
             return { session: null, error: error.message };
         }
     },
 
-    /**
-     * Update user profile
-     */
     async updateProfile(updates) {
         try {
             const { user } = await this.getCurrentUser();
@@ -361,9 +280,101 @@ const Auth = {
         }
     },
 
-    /**
-     * Listen to auth state changes
-     */
+    // --- FRIEND REQUESTS ---
+    async sendFriendRequest(receiverId) {
+        try {
+            const { user } = await this.getCurrentUser();
+            if (!user) throw new Error('Not authenticated');
+
+            // Check if already friends or request pending
+            const { data: existing, error: checkError } = await supabaseClient
+                .from('friend_requests')
+                .select('id, status')
+                .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+                .or(`sender_id.eq.${receiverId},receiver_id.eq.${receiverId}`)
+                .maybeSingle();
+
+            if (checkError) throw new Error(checkError.message);
+            if (existing) {
+                if (existing.status === 'pending') throw new Error('Friend request already pending.');
+                if (existing.status === 'accepted') throw new Error('You are already friends.');
+                throw new Error('Request already exists.');
+            }
+
+            const { data, error } = await supabaseClient
+                .from('friend_requests')
+                .insert({ sender_id: user.id, receiver_id: receiverId, status: 'pending' })
+                .select()
+                .single();
+
+            if (error) throw new Error(error.message);
+            return { data, error: null };
+        } catch (error) {
+            return { data: null, error: error.message };
+        }
+    },
+
+    // --- MESSAGES ---
+    async sendMessage({ receiverId, content, replyToId = null }) {
+        try {
+            const { user } = await this.getCurrentUser();
+            if (!user) throw new Error('Not authenticated');
+            if (!content || !content.trim()) throw new Error('Message cannot be empty');
+
+            // Find or create conversation
+            let conversationId = await this._getOrCreateConversation(user.id, receiverId);
+
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .insert({
+                    conversation_id: conversationId,
+                    sender_id: user.id,
+                    receiver_id: receiverId,
+                    content: content.trim(),
+                    reply_to_id: replyToId
+                })
+                .select()
+                .single();
+
+            if (error) throw new Error(error.message);
+
+            // Update conversation last message
+            await supabaseClient
+                .from('conversations')
+                .update({ last_message_id: data.id, last_message_at: data.created_at })
+                .eq('id', conversationId);
+
+            return { data, error: null };
+        } catch (error) {
+            return { data: null, error: error.message };
+        }
+    },
+
+    async _getOrCreateConversation(userId1, userId2) {
+        // Find existing conversation
+        const { data, error } = await supabaseClient
+            .from('conversations')
+            .select('id')
+            .or(`participant1_id.eq.${userId1},participant1_id.eq.${userId2}`)
+            .or(`participant2_id.eq.${userId1},participant2_id.eq.${userId2}`)
+            .maybeSingle();
+
+        if (data) return data.id;
+
+        // Create new
+        const { data: newConvo, error: createError } = await supabaseClient
+            .from('conversations')
+            .insert({
+                participant1_id: userId1 < userId2 ? userId1 : userId2,
+                participant2_id: userId1 < userId2 ? userId2 : userId1
+            })
+            .select()
+            .single();
+
+        if (createError) throw new Error(createError.message);
+        return newConvo.id;
+    },
+
     onAuthStateChange(callback) {
         return supabaseClient.auth.onAuthStateChange((event, session) => {
             console.log('[Auth] State change:', event);
@@ -376,15 +387,278 @@ const Auth = {
 };
 
 // ============================================================
+// DATABASE MODULE
+// ============================================================
+
+const DB = {
+    async getFriends(userId, options = {}) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('friends')
+                .select(`
+                    id,
+                    user_id,
+                    friend_id,
+                    profiles_user:user_id (id, username, display_name, avatar_url, is_online, level),
+                    profiles_friend:friend_id (id, username, display_name, avatar_url, is_online, level)
+                `)
+                .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+                .order('created_at', { ascending: false });
+
+            if (error) throw new Error(error.message);
+
+            // Map to friend objects
+            const friends = data.map(item => {
+                const isUser1 = item.user_id === userId;
+                const friend = isUser1 ? item.profiles_friend : item.profiles_user;
+                return { ...friend, is_online: friend.is_online || false };
+            });
+
+            return { friends, error: null };
+        } catch (error) {
+            return { friends: null, error: error.message };
+        }
+    },
+
+    async getFriendRequests(userId, type = 'received') {
+        try {
+            const column = type === 'received' ? 'receiver_id' : 'sender_id';
+            const { data, error } = await supabaseClient
+                .from('friend_requests')
+                .select(`
+                    *,
+                    sender:profiles!sender_id (id, username, display_name, avatar_url),
+                    receiver:profiles!receiver_id (id, username, display_name, avatar_url)
+                `)
+                .eq(column, userId)
+                .eq('status', 'pending')
+                .order('created_at', { ascending: false });
+
+            if (error) throw new Error(error.message);
+            return { requests: data, error: null };
+        } catch (error) {
+            return { requests: null, error: error.message };
+        }
+    },
+
+    async getMessages(conversationId, options = {}) {
+        try {
+            const limit = options.limit || 50;
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .select(`
+                    *,
+                    sender:profiles!sender_id (id, username, display_name, avatar_url)
+                `)
+                .eq('conversation_id', conversationId)
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) throw new Error(error.message);
+            return { messages: data.reverse(), error: null };
+        } catch (error) {
+            return { messages: null, error: error.message };
+        }
+    },
+
+    async getConversations(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('conversations')
+                .select(`
+                    *,
+                    participant1:profiles!participant1_id (id, username, display_name, avatar_url, is_online),
+                    participant2:profiles!participant2_id (id, username, display_name, avatar_url, is_online),
+                    last_message:messages!last_message_id (id, content, created_at, sender_id)
+                `)
+                .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+                .order('last_message_at', { ascending: false, nulls_last: true });
+
+            if (error) throw new Error(error.message);
+            return { conversations: data, error: null };
+        } catch (error) {
+            return { conversations: null, error: error.message };
+        }
+    },
+
+    async getUserGuilds(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('guild_members')
+                .select(`
+                    guild_id,
+                    role_id,
+                    joined_at,
+                    guilds!inner (id, name, slug, logo_url, category, visibility, level, is_official)
+                `)
+                .eq('user_id', userId);
+
+            if (error) throw new Error(error.message);
+            const guilds = data.map(item => item.guilds);
+            return { guilds, error: null };
+        } catch (error) {
+            return { guilds: null, error: error.message };
+        }
+    },
+
+    async getGuildPosts(guildId, options = {}) {
+        try {
+            const limit = options.limit || 20;
+            const { data, error } = await supabaseClient
+                .from('guild_posts')
+                .select(`
+                    *,
+                    author:profiles!author_id (id, username, display_name, avatar_url)
+                `)
+                .eq('guild_id', guildId)
+                .is('deleted_at', null)
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) throw new Error(error.message);
+            return { posts: data, error: null };
+        } catch (error) {
+            return { posts: null, error: error.message };
+        }
+    },
+
+    async getNotifications(userId, options = {}) {
+        try {
+            const limit = options.limit || 50;
+            const { data, error } = await supabaseClient
+                .from('notifications')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) throw new Error(error.message);
+            return { notifications: data, error: null };
+        } catch (error) {
+            return { notifications: null, error: error.message };
+        }
+    },
+
+    async markNotificationRead(notificationId, userId) {
+        try {
+            const { error } = await supabaseClient
+                .from('notifications')
+                .update({ is_read: true, read_at: new Date().toISOString() })
+                .eq('id', notificationId)
+                .eq('user_id', userId);
+
+            if (error) throw new Error(error.message);
+            return { error: null };
+        } catch (error) {
+            return { error: error.message };
+        }
+    },
+
+    async getUserActivity(userId) {
+        try {
+            // Simulate activity from posts, comments, etc.
+            const { data: posts, error: pErr } = await supabaseClient
+                .from('guild_posts')
+                .select('id, title, created_at')
+                .eq('author_id', userId)
+                .is('deleted_at', null)
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (pErr) throw new Error(pErr.message);
+
+            const activities = posts.map(post => ({
+                action: 'post_created',
+                created_at: post.created_at,
+                data: { title: post.title, postId: post.id }
+            }));
+
+            return { activities, error: null };
+        } catch (error) {
+            return { activities: null, error: error.message };
+        }
+    }
+};
+
+// ============================================================
+// REALTIME MODULE
+// ============================================================
+
+const Realtime = {
+    subscribe(table, callback, filter = null) {
+        let channel = supabaseClient
+            .channel(`realtime:${table}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: table,
+                filter: filter
+            }, (payload) => {
+                callback(payload);
+            })
+            .subscribe();
+
+        return {
+            unsubscribe: () => {
+                supabaseClient.removeChannel(channel);
+            }
+        };
+    }
+};
+
+// ============================================================
+// STORAGE MODULE
+// ============================================================
+
+const Storage = {
+    async upload(bucket, path, file) {
+        try {
+            // Validate file type and size
+            const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                throw new Error('Only PNG, JPG, GIF, and WEBP images are allowed.');
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                throw new Error('File size must be less than 5MB.');
+            }
+
+            const { data, error } = await supabaseClient.storage
+                .from(bucket)
+                .upload(path, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
+
+            if (error) throw new Error(error.message);
+
+            // Get public URL
+            const { publicURL, error: urlError } = supabaseClient.storage
+                .from(bucket)
+                .getPublicUrl(data.path);
+
+            if (urlError) throw new Error(urlError.message);
+
+            return { url: publicURL, error: null };
+        } catch (error) {
+            return { url: null, error: error.message };
+        }
+    }
+};
+
+// ============================================================
 // EXPOSE GLOBALLY
 // ============================================================
 
 window.AniVerse = {
     client: supabaseClient,
     auth: Auth,
+    db: DB,
+    realtime: Realtime,
+    storage: Storage,
     clearStorage: clearSupabaseStorage
 };
 
+// Backward compatibility
 window.signUp = Auth.signUp.bind(Auth);
 window.signIn = Auth.signIn.bind(Auth);
 window.signOut = Auth.signOut.bind(Auth);
@@ -394,4 +668,4 @@ window.updateProfile = Auth.updateProfile.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
-console.log('[AniVerse] Supabase client initialized successfully');
+console.log('[AniVerse] Supabase client fully initialized');
