@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Friends · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supadase.js"></script>
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+            --color-online: #51cf66;
+            --color-idle: #ffd93d;
+            --color-dnd: #ff6b6b;
+            --color-offline: #6a6a7a;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --animation-pulse: pulse 1.5s ease-in-out infinite;
+
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
+        }
+
+        .header .header-actions .user-avatar {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: #fff;
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(81, 207, 102, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--color-error);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   FRIENDS HERO
+                   ============================================================ */
+        .hero-friends {
+            padding: 0 0 var(--spacing-xl);
+            position: relative;
+        }
+
+        .hero-friends .banner-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            padding: var(--spacing-xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-friends .banner-card .banner-glow {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-friends .banner-card h1 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .hero-friends .banner-card h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-friends .banner-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            max-width: 540px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .hero-friends .banner-card .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   SEARCH
+                   ============================================================ */
+        .search-section {
+            padding: 0 0 var(--spacing-lg);
+        }
+
+        .search-wrapper {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--bg-glass);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 8px 8px 8px 20px;
+            transition: var(--transition-smooth);
+        }
+
+        .search-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .search-wrapper .search-icon {
+            color: var(--text-muted);
+            font-size: var(--font-size-md);
+            flex-shrink: 0;
+        }
+
+        .search-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: var(--font-size-md);
+            color: var(--text-primary);
+            padding: 10px 0;
+            min-width: 140px;
+        }
+
+        .search-wrapper input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-wrapper .search-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-wrapper .search-actions .btn {
+            padding: 8px 18px;
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+                   TABS
+                   ============================================================ */
+        .friends-tabs {
+            padding: 0 0 var(--spacing-xl);
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            list-style: none;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .tab-list .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .tab-list .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-list .tab-btn.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .tab-list .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: 4px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .empty-state p {
+            font-size: var(--font-size-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   FRIEND CARDS
+                   ============================================================ */
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .friend-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .friend-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .friend-card .friend-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            margin: 0 auto var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-1);
+            position: relative;
+            border: 2px solid var(--border-glass);
+        }
+
+        .friend-card .friend-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .friend-card .friend-avatar .status-dot {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-primary);
+        }
+
+        .friend-card .friend-avatar .status-dot.online {
+            background: var(--color-online);
+        }
+        .friend-card .friend-avatar .status-dot.offline {
+            background: var(--color-offline);
+        }
+
+        .friend-card .friend-name {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .friend-card .friend-display {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .friend-card .friend-level {
+            font-size: var(--font-size-xs);
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.08);
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 100px;
+            margin: var(--spacing-xs) 0 var(--spacing-sm);
+        }
+
+        .friend-card .friend-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .friend-card .friend-actions .btn {
+            padding: 6px 14px;
+            font-size: var(--font-size-xs);
+            flex: 1;
+            min-width: 60px;
+        }
+
+        /* ============================================================
+                   REQUEST CARDS
+                   ============================================================ */
+        .request-card {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            transition: var(--transition-smooth);
+            flex-wrap: wrap;
+        }
+
+        .request-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+        }
+
+        .request-card .req-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--accent-1);
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        .request-card .req-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .request-card .req-info {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .request-card .req-info .req-name {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .request-card .req-info .req-meta {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .request-card .req-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .request-card .req-actions .btn {
+            padding: 6px 16px;
+            font-size: var(--font-size-xs);
+        }
+
+        /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .hero-friends .banner-card {
+                padding: var(--spacing-xl);
+                min-height: 140px;
+            }
+            .hero-friends .banner-card h1 {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .hero-friends .banner-card {
+                padding: var(--spacing-lg) var(--spacing-md);
+                min-height: 120px;
+            }
+
+            .hero-friends .banner-card h1 {
+                font-size: var(--font-size-lg);
+            }
+
+            .hero-friends .banner-card p {
+                font-size: var(--font-size-sm);
+            }
+
+            .search-wrapper {
+                padding: 8px 12px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-wrapper .search-actions {
+                justify-content: stretch;
+            }
+
+            .search-wrapper .search-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .friends-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: var(--spacing-sm);
+            }
+
+            .tab-list .tab-btn {
+                padding: 8px 14px;
+                font-size: var(--font-size-xs);
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .request-card {
+                flex-direction: column;
+                text-align: center;
+                padding: var(--spacing-md);
+            }
+
+            .request-card .req-actions {
+                justify-content: center;
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .friends-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .friend-card {
+                padding: var(--spacing-md) var(--spacing-sm);
+            }
+
+            .friend-card .friend-avatar {
+                width: 48px;
+                height: 48px;
+                font-size: 1.2rem;
+            }
+
+            .friend-card .friend-actions .btn {
+                font-size: var(--font-size-xs);
+                padding: 4px 10px;
+                min-width: 40px;
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <img src="assets/logo.png" alt="AniVerse Logo" />
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item active">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge" id="messageBadge"></span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge" id="notifBadge"></span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+            <a href="admin.html" class="nav-item admin-panel" id="adminPanelLink">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item" id="settingsLink">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item" id="profileLink">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level" id="headerLevel">Lv.0</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            HERO
+            ============================================================ -->
+            <section class="hero-friends" aria-label="Friends hero">
+                <div class="container">
+                    <div class="banner-card">
+                        <div class="banner-glow"></div>
+                        <span class="section-tag"><i class="fas fa-user-friends"></i> Community</span>
+                        <h1>Your <span class="highlight">Friends</span></h1>
+                        <p>Connect with fellow anime fans, chat, and grow your community.</p>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary" id="addFriendBtn"><i class="fas fa-user-plus"></i> Add Friend</button>
+                            <button class="btn btn-secondary" id="searchFriendBtn"><i class="fas fa-search"></i> Search Friends</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            SEARCH
+            ============================================================ -->
+            <section class="search-section" aria-label="Search friends">
+                <div class="container">
+                    <div class="search-wrapper" role="search">
+                        <span class="search-icon"><i class="fas fa-search"></i></span>
+                        <input type="text" id="friendSearchInput" placeholder="Search by username or display name..." aria-label="Search friends" />
+                        <div class="search-actions">
+                            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                            <button class="btn btn-secondary" id="clearSearchBtn"><i class="fas fa-times"></i> Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            TABS
+            ============================================================ -->
+            <section class="friends-tabs" aria-label="Friends tabs">
+                <div class="container">
+
+                    <!-- Toast -->
+                    <div id="friendsToast" class="toast" role="alert">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span id="toastMessage">Action completed</span>
+                    </div>
+
+                    <ul class="tab-list" role="tablist">
+                        <li><button class="tab-btn active" data-tab="all" role="tab" aria-selected="true">All Friends</button></li>
+                        <li><button class="tab-btn" data-tab="online" role="tab" aria-selected="false">Online</button></li>
+                        <li><button class="tab-btn" data-tab="pending" role="tab" aria-selected="false">Pending Requests</button></li>
+                        <li><button class="tab-btn" data-tab="sent" role="tab" aria-selected="false">Sent Requests</button></li>
+                        <li><button class="tab-btn" data-tab="blocked" role="tab" aria-selected="false">Blocked</button></li>
+                        <li><button class="tab-btn" data-tab="suggestions" role="tab" aria-selected="false">Suggestions</button></li>
+                    </ul>
+
+                    <!-- ============================================================
+                    TAB: ALL FRIENDS
+                    ============================================================ -->
+                    <div class="tab-content active" id="tab-all" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users"></i> Connections</span>
+                                <h2 class="section-title">All Friends</h2>
+                            </div>
+                            <span style="color:var(--text-muted); font-size:var(--font-size-sm);" id="friendCount">0 friends</span>
+                        </div>
+                        <div class="friends-grid" id="allFriendsGrid">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: ONLINE
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-online" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-circle" style="color:var(--color-online);"></i> Online</span>
+                                <h2 class="section-title">Online Friends</h2>
+                            </div>
+                        </div>
+                        <div class="friends-grid" id="onlineFriendsGrid">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: PENDING REQUESTS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-pending" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-clock"></i> Incoming</span>
+                                <h2 class="section-title">Pending Requests</h2>
+                            </div>
+                        </div>
+                        <div id="pendingRequestsContainer">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: SENT REQUESTS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-sent" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-paper-plane"></i> Outgoing</span>
+                                <h2 class="section-title">Sent Requests</h2>
+                            </div>
+                        </div>
+                        <div id="sentRequestsContainer">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: BLOCKED
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-blocked" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-ban"></i> Restricted</span>
+                                <h2 class="section-title">Blocked Users</h2>
+                            </div>
+                        </div>
+                        <div class="friends-grid" id="blockedGrid">
+                            <div class="empty-state">
+                                <i class="fas fa-ban"></i>
+                                <h3>No blocked users</h3>
+                                <p>Users you've blocked will appear here for management.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: SUGGESTIONS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-suggestions" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-lightbulb"></i> Discover</span>
+                                <h2 class="section-title">Suggestions</h2>
+                            </div>
+                        </div>
+                        <div class="friends-grid" id="suggestionsGrid">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <h3>No suggestions yet</h3>
+                                <p>As more community members join, we'll suggest people you might know.</p>
+                                <button class="btn btn-secondary" id="refreshSuggestions">Refresh Suggestions</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+            let currentProfile = null;
+
+            // ============================================================
+            // UPDATE AUTH UI
+            // ============================================================
+            async function updateAuthUI() {
+                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                currentUser = user;
+                currentProfile = profile;
+
+                const isLoggedIn = !!user;
+
+                const headerAvatar = document.getElementById('headerAvatar');
+                const headerLevel = document.getElementById('headerLevel');
+                const headerLoginBtn = document.getElementById('headerLoginBtn');
+                const headerSignupBtn = document.getElementById('headerSignupBtn');
+                const loginLink = document.getElementById('loginLink');
+                const signupLink = document.getElementById('signupLink');
+                const profileLink = document.getElementById('profileLink');
+                const settingsLink = document.getElementById('settingsLink');
+                const logoutLink = document.getElementById('logoutLink');
+                const adminPanelLink = document.getElementById('adminPanelLink');
+
+                if (isLoggedIn && profile) {
+                    headerAvatar.classList.add('visible');
+                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                    headerLevel.textContent = `Lv.${profile.level || 0}`;
+                    headerLevel.classList.add('visible');
+                    headerLoginBtn.classList.remove('visible');
+                    headerSignupBtn.classList.remove('visible');
+
+                    loginLink.classList.add('hidden');
+                    signupLink.classList.add('hidden');
+                    loginLink.style.display = 'none';
+                    signupLink.style.display = 'none';
+                    profileLink.style.display = 'flex';
+                    settingsLink.style.display = 'flex';
+                    logoutLink.classList.add('visible');
+                    logoutLink.style.display = 'flex';
+
+                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                        adminPanelLink.classList.add('visible');
+                    } else {
+                        adminPanelLink.classList.remove('visible');
+                    }
+
+                    // Load friends data
+                    await loadAllFriends(user.id);
+
+                } else {
+                    headerAvatar.classList.remove('visible');
+                    headerLevel.classList.remove('visible');
+                    headerLoginBtn.classList.add('visible');
+                    headerSignupBtn.classList.add('visible');
+
+                    loginLink.classList.remove('hidden');
+                    signupLink.classList.remove('hidden');
+                    loginLink.style.display = 'flex';
+                    signupLink.style.display = 'flex';
+                    profileLink.style.display = 'none';
+                    settingsLink.style.display = 'none';
+                    logoutLink.classList.remove('visible');
+                    logoutLink.style.display = 'none';
+                    adminPanelLink.classList.remove('visible');
+
+                    // Show login required message
+                    document.getElementById('allFriendsGrid').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-lock"></i>
+                            <h3>Login Required</h3>
+                            <p>Please log in to see your friends.</p>
+                            <a href="login.html" class="btn btn-primary">Log In</a>
+                        </div>
+                    `;
+                    document.getElementById('friendCount').textContent = '0 friends';
+                }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await AniVerse.auth.signOut();
+                    if (!error) {
+                        localStorage.removeItem('aniverse_session');
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // TOAST
+            // ============================================================
+            const toast = document.getElementById('friendsToast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            function hideToast() {
+                toast.classList.remove('show');
+                clearTimeout(toast._hideTimer);
+            }
+
+            // ============================================================
+            // TABS
+            // ============================================================
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = {
+                all: document.getElementById('tab-all'),
+                online: document.getElementById('tab-online'),
+                pending: document.getElementById('tab-pending'),
+                sent: document.getElementById('tab-sent'),
+                blocked: document.getElementById('tab-blocked'),
+                suggestions: document.getElementById('tab-suggestions')
+            };
+
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    tabBtns.forEach(function(b) {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+
+                    Object.keys(tabContents).forEach(function(key) {
+                        if (tabContents[key]) {
+                            tabContents[key].classList.remove('active');
+                        }
+                    });
+
+                    const targetContent = tabContents[tabId];
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOAD ALL FRIENDS
+            // ============================================================
+            async function loadAllFriends(userId) {
+                try {
+                    const { friends, error } = await AniVerse.db.getFriends(userId);
+
+                    const grid = document.getElementById('allFriendsGrid');
+                    const countEl = document.getElementById('friendCount');
+
+                    if (error || !friends || friends.length === 0) {
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-slash"></i>
+                                <h3>No friends yet</h3>
+                                <p>Start connecting with other community members.</p>
+                                <button class="btn btn-primary" id="findFriendsBtn">Find Friends</button>
+                            </div>
+                        `;
+                        countEl.textContent = '0 friends';
+                        const findBtn = document.getElementById('findFriendsBtn');
+                        if (findBtn) {
+                            findBtn.addEventListener('click', () => {
+                                document.querySelector('[data-tab="suggestions"]').click();
+                            });
+                        }
+                        return;
+                    }
+
+                    countEl.textContent = `${friends.length} friends`;
+
+                    // Render all friends
+                    grid.innerHTML = friends.map(friend => {
+                        const initial = friend.display_name ? friend.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = friend.avatar_url ?
+                            `<img src="${friend.avatar_url}" alt="${friend.display_name}" />` :
+                            initial;
+                        const statusClass = friend.is_online ? 'online' : 'offline';
+
+                        return `
+                            <div class="friend-card">
+                                <div class="friend-avatar">
+                                    ${avatarHtml}
+                                    <div class="status-dot ${statusClass}"></div>
+                                </div>
+                                <div class="friend-name">${friend.display_name || 'Unknown User'}</div>
+                                <div class="friend-display">@${friend.username || 'unknown'}</div>
+                                <div class="friend-level">Level ${friend.level || 0}</div>
+                                <div class="friend-actions">
+                                    <button class="btn btn-secondary message-btn" data-userid="${friend.id}">
+                                        <i class="fas fa-comment"></i> Message
+                                    </button>
+                                    <button class="btn btn-danger remove-btn" data-userid="${friend.id}">
+                                        <i class="fas fa-user-minus"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // Load online friends
+                    const onlineFriends = friends.filter(f => f.is_online);
+                    const onlineGrid = document.getElementById('onlineFriendsGrid');
+                    if (onlineFriends.length === 0) {
+                        onlineGrid.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-slash"></i>
+                                <h3>No online friends</h3>
+                                <p>Your online friends will appear here when they're active.</p>
+                            </div>
+                        `;
+                    } else {
+                        onlineGrid.innerHTML = onlineFriends.map(friend => {
+                            const initial = friend.display_name ? friend.display_name.charAt(0).toUpperCase() : 'U';
+                            const avatarHtml = friend.avatar_url ?
+                                `<img src="${friend.avatar_url}" alt="${friend.display_name}" />` :
+                                initial;
+
+                            return `
+                                <div class="friend-card">
+                                    <div class="friend-avatar">
+                                        ${avatarHtml}
+                                        <div class="status-dot online"></div>
+                                    </div>
+                                    <div class="friend-name">${friend.display_name || 'Unknown User'}</div>
+                                    <div class="friend-display">@${friend.username || 'unknown'}</div>
+                                    <div class="friend-level">Level ${friend.level || 0}</div>
+                                    <div class="friend-actions">
+                                        <button class="btn btn-secondary message-btn" data-userid="${friend.id}">
+                                            <i class="fas fa-comment"></i> Message
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                } catch (error) {
+                    console.error('[AniVerse] Load friends error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD PENDING REQUESTS
+            // ============================================================
+            async function loadPendingRequests(userId) {
+                try {
+                    const { data: requests, error } = await AniVerse.client
+                        .from('friend_requests')
+                        .select(`
+                            *,
+                            sender:profiles!sender_id (
+                                id, username, display_name, avatar_url
+                            )
+                        `)
+                        .eq('receiver_id', userId)
+                        .eq('status', 'pending')
+                        .order('created_at', { ascending: false });
+
+                    const container = document.getElementById('pendingRequestsContainer');
+
+                    if (error || !requests || requests.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No pending requests</h3>
+                                <p>Friend requests from other users will appear here.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = requests.map(req => {
+                        const sender = req.sender;
+                        const initial = sender?.display_name ? sender.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = sender?.avatar_url ?
+                            `<img src="${sender.avatar_url}" alt="${sender.display_name}" />` :
+                            initial;
+
+                        return `
+                            <div class="request-card" data-requestid="${req.id}">
+                                <div class="req-avatar">${avatarHtml}</div>
+                                <div class="req-info">
+                                    <div class="req-name">${sender?.display_name || 'Unknown User'}</div>
+                                    <div class="req-meta">@${sender?.username || 'unknown'} · wants to be friends</div>
+                                </div>
+                                <div class="req-actions">
+                                    <button class="btn btn-success accept-btn" data-requestid="${req.id}">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                    <button class="btn btn-danger decline-btn" data-requestid="${req.id}">
+                                        <i class="fas fa-times"></i> Decline
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load pending requests error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD SENT REQUESTS
+            // ============================================================
+            async function loadSentRequests(userId) {
+                try {
+                    const { data: requests, error } = await AniVerse.client
+                        .from('friend_requests')
+                        .select(`
+                            *,
+                            receiver:profiles!receiver_id (
+                                id, username, display_name, avatar_url
+                            )
+                        `)
+                        .eq('sender_id', userId)
+                        .eq('status', 'pending')
+                        .order('created_at', { ascending: false });
+
+                    const container = document.getElementById('sentRequestsContainer');
+
+                    if (error || !requests || requests.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-paper-plane"></i>
+                                <h3>No sent requests</h3>
+                                <p>Your outgoing friend requests will appear here.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = requests.map(req => {
+                        const receiver = req.receiver;
+                        const initial = receiver?.display_name ? receiver.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = receiver?.avatar_url ?
+                            `<img src="${receiver.avatar_url}" alt="${receiver.display_name}" />` :
+                            initial;
+
+                        return `
+                            <div class="request-card" data-requestid="${req.id}">
+                                <div class="req-avatar">${avatarHtml}</div>
+                                <div class="req-info">
+                                    <div class="req-name">${receiver?.display_name || 'Unknown User'}</div>
+                                    <div class="req-meta">@${receiver?.username || 'unknown'} · pending</div>
+                                </div>
+                                <div class="req-actions">
+                                    <button class="btn btn-danger cancel-btn" data-requestid="${req.id}">
+                                        <i class="fas fa-times"></i> Cancel Request
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load sent requests error:', error);
+                }
+            }
+
+            // ============================================================
+            // ACCEPT FRIEND REQUEST
+            // ============================================================
+            async function acceptFriendRequest(requestId) {
+                try {
+                    const result = await AniVerse.client.rpc('accept_friend_request', {
+                        request_id: requestId
+                    });
+
+                    if (result.error) {
+                        throw new Error(result.error.message);
+                    }
+
+                    showToast('Friend request accepted!', 'success');
+                    // Refresh data
+                    if (currentUser) {
+                        await loadAllFriends(currentUser.id);
+                        await loadPendingRequests(currentUser.id);
+                    }
+                } catch (error) {
+                    console.error('[AniVerse] Accept request error:', error);
+                    showToast('Could not accept request. Please try again.', 'error');
+                }
+            }
+
+            // ============================================================
+            // DECLINE FRIEND REQUEST
+            // ============================================================
+            async function declineFriendRequest(requestId) {
+                try {
+                    const { error } = await AniVerse.client
+                        .from('friend_requests')
+                        .update({ status: 'declined' })
+                        .eq('id', requestId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Request declined.', '');
+                    await loadPendingRequests(currentUser.id);
+                } catch (error) {
+                    console.error('[AniVerse] Decline request error:', error);
+                    showToast('Could not decline request. Please try again.', 'error');
+                }
+            }
+
+            // ============================================================
+            // CANCEL FRIEND REQUEST
+            // ============================================================
+            async function cancelFriendRequest(requestId) {
+                try {
+                    const { error } = await AniVerse.client
+                        .from('friend_requests')
+                        .update({ status: 'withdrawn' })
+                        .eq('id', requestId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Request cancelled.', '');
+                    await loadSentRequests(currentUser.id);
+                } catch (error) {
+                    console.error('[AniVerse] Cancel request error:', error);
+                    showToast('Could not cancel request. Please try again.', 'error');
+                }
+            }
+
+            // ============================================================
+            // REMOVE FRIEND
+            // ============================================================
+            async function removeFriend(friendId) {
+                if (!confirm('Are you sure you want to remove this friend?')) return;
+
+                try {
+                    const { error } = await AniVerse.client
+                        .from('friends')
+                        .delete()
+                        .or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`)
+                        .or(`user_id.eq.${friendId},friend_id.eq.${friendId}`);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Friend removed.', '');
+                    await loadAllFriends(currentUser.id);
+                } catch (error) {
+                    console.error('[AniVerse] Remove friend error:', error);
+                    showToast('Could not remove friend. Please try again.', 'error');
+                }
+            }
+
+            // ============================================================
+            // SEARCH FRIENDS
+            // ============================================================
+            const searchInput = document.getElementById('friendSearchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+            async function performSearch() {
+                const query = searchInput.value.trim();
+                if (query.length === 0) {
+                    showToast('Please enter a search term.', 'error');
+                    return;
+                }
+
+                try {
+                    const { data: users, error } = await AniVerse.client
+                        .from('profiles')
+                        .select('id, username, display_name, avatar_url')
+                        .textSearch('display_name', query, { config: 'english' })
+                        .limit(20);
+
+                    if (error) throw new Error(error.message);
+
+                    const grid = document.getElementById('allFriendsGrid');
+                    if (!users || users.length === 0) {
+                        grid.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <h3>No users found</h3>
+                                <p>Try a different search term.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    grid.innerHTML = users.map(user => {
+                        const initial = user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = user.avatar_url ?
+                            `<img src="${user.avatar_url}" alt="${user.display_name}" />` :
+                            initial;
+
+                        return `
+                            <div class="friend-card">
+                                <div class="friend-avatar">${avatarHtml}</div>
+                                <div class="friend-name">${user.display_name || 'Unknown User'}</div>
+                                <div class="friend-display">@${user.username || 'unknown'}</div>
+                                <div class="friend-actions">
+                                    <button class="btn btn-primary add-friend-btn" data-userid="${user.id}">
+                                        <i class="fas fa-user-plus"></i> Add Friend
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Search error:', error);
+                    showToast('Search failed. Please try again.', 'error');
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch();
+                    }
+                });
+            }
+
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    if (currentUser) {
+                        loadAllFriends(currentUser.id);
+                    }
+                });
+            }
+
+            // ============================================================
+            // ADD FRIEND
+            // ============================================================
+            async function sendFriendRequest(receiverId) {
+                try {
+                    const result = await AniVerse.auth.sendFriendRequest(receiverId);
+                    if (result.error) {
+                        showToast(result.error, 'error');
+                        return;
+                    }
+                    showToast('Friend request sent!', 'success');
+                } catch (error) {
+                    console.error('[AniVerse] Send request error:', error);
+                    showToast('Could not send friend request. Please try again.', 'error');
+                }
+            }
+
+            // ============================================================
+            // EVENT DELEGATION
+            // ============================================================
+            document.addEventListener('click', async function(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                // Accept friend request
+                if (target.classList.contains('accept-btn')) {
+                    const requestId = target.getAttribute('data-requestid');
+                    if (requestId) await acceptFriendRequest(requestId);
+                }
+
+                // Decline friend request
+                if (target.classList.contains('decline-btn')) {
+                    const requestId = target.getAttribute('data-requestid');
+                    if (requestId) await declineFriendRequest(requestId);
+                }
+
+                // Cancel friend request
+                if (target.classList.contains('cancel-btn')) {
+                    const requestId = target.getAttribute('data-requestid');
+                    if (requestId) await cancelFriendRequest(requestId);
+                }
+
+                // Remove friend
+                if (target.classList.contains('remove-btn')) {
+                    const friendId = target.getAttribute('data-userid');
+                    if (friendId) await removeFriend(friendId);
+                }
+
+                // Add friend
+                if (target.classList.contains('add-friend-btn')) {
+                    const userId = target.getAttribute('data-userid');
+                    if (userId) await sendFriendRequest(userId);
+                }
+
+                // Message friend
+                if (target.classList.contains('message-btn')) {
+                    const userId = target.getAttribute('data-userid');
+                    if (userId) {
+                        alert('Messaging will be available with Supabase integration.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // HERO BUTTONS
+            // ============================================================
+            document.getElementById('addFriendBtn').addEventListener('click', function() {
+                document.querySelector('[data-tab="suggestions"]').click();
+                searchInput.focus();
+            });
+
+            document.getElementById('searchFriendBtn').addEventListener('click', function() {
+                searchInput.focus();
+            });
+
+            document.getElementById('refreshSuggestions').addEventListener('click', function() {
+                showToast('Suggestions will be loaded from Supabase.', '');
+            });
+
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            async function init() {
+                await updateAuthUI();
+
+                // Load pending and sent requests if logged in
+                if (currentUser) {
+                    await loadPendingRequests(currentUser.id);
+                    await loadSentRequests(currentUser.id);
+                }
+
+                // Listen to auth changes
+                AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN') {
+                        updateAuthUI();
+                    } else if (event === 'SIGNED_OUT') {
+                        window.location.replace('index.html');
+                    }
+                });
+            }
+
+            init();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('[AniVerse] Friends page ready (Supabase integrated)');
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            /* Colors */
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+
+            /* Border Radius */
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            /* Shadows */
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+            --font-size-3xl: 2.6rem;
+
+            /* Transitions */
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            /* Layout */
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Sidebar Toggle (mobile) */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+        }
+
+        .header .header-actions .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        /* ============================================================
+                   UTILITY
+                   ============================================================ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        /* ============================================================
+                   BUTTONS — Shared
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* ============================================================
+                   HERO
+                   ============================================================ */
+        .hero-about {
+            padding: 0 0 var(--spacing-2xl);
+            position: relative;
+        }
+
+        .hero-about .banner-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            padding: var(--spacing-2xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-about .banner-card .banner-glow {
+            position: absolute;
+            right: -10%;
+            top: -10%;
+            width: 60%;
+            height: 120%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-about .banner-card .banner-glow-2 {
+            position: absolute;
+            left: -10%;
+            bottom: -10%;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(92, 140, 252, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-about .banner-card h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-md);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-about .banner-card h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-about .banner-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+            max-width: 640px;
+            margin: 0 auto var(--spacing-lg);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-about .banner-card .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ============================================================
+                   VALUES GRID
+                   ============================================================ */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .value-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .value-card:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .value-card .icon {
+            font-size: 2.2rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.7;
+        }
+
+        .value-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .value-card p {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+                   HOW IT WORKS
+                   ============================================================ */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .step-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .step-card .step-number {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.1);
+            padding: 2px 12px;
+            border-radius: 100px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .step-card .icon {
+            font-size: 2rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.6;
+        }
+
+        .step-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .step-card p {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+                   ROADMAP
+                   ============================================================ */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .roadmap-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .roadmap-item:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .roadmap-item .milestone {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            color: var(--color-success);
+            background: rgba(81, 207, 102, 0.1);
+            padding: 2px 14px;
+            border-radius: 100px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .roadmap-item .icon {
+            font-size: 2rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.5;
+        }
+
+        .roadmap-item h4 {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .roadmap-item p {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+                   FAQ ACCORDION
+                   ============================================================ */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .faq-item:hover {
+            border-color: rgba(124, 92, 252, 0.08);
+        }
+
+        .faq-item .faq-question {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition-smooth);
+            text-align: left;
+        }
+
+        .faq-item .faq-question:hover {
+            color: var(--accent-1);
+        }
+
+        .faq-item .faq-question i {
+            transition: var(--transition-smooth);
+            color: var(--text-muted);
+        }
+
+        .faq-item.open .faq-question i {
+            transform: rotate(180deg);
+            color: var(--accent-1);
+        }
+
+        .faq-item .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 200px;
+            padding: 0 var(--spacing-lg) var(--spacing-md);
+        }
+
+        /* ============================================================
+                   CTA SECTION
+                   ============================================================ */
+        .cta-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-2xl) var(--spacing-xl);
+            text-align: center;
+            margin-top: var(--spacing-2xl);
+        }
+
+        .cta-section h2 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+            max-width: 540px;
+            margin: 0 auto var(--spacing-lg);
+        }
+
+        .cta-section .cta-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            justify-content: center;
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .hero-about .banner-card {
+                padding: var(--spacing-xl);
+                min-height: 220px;
+            }
+            .hero-about .banner-card h1 {
+                font-size: var(--font-size-2xl);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .hero-about .banner-card {
+                padding: var(--spacing-lg) var(--spacing-md);
+                min-height: 180px;
+            }
+
+            .hero-about .banner-card h1 {
+                font-size: var(--font-size-xl);
+            }
+
+            .hero-about .banner-card p {
+                font-size: var(--font-size-md);
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .section-header p {
+                font-size: var(--font-size-md);
+            }
+
+            .values-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .roadmap-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .cta-section {
+                padding: var(--spacing-xl) var(--spacing-md);
+            }
+
+            .cta-section h2 {
+                font-size: var(--font-size-xl);
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .values-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .roadmap-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .faq-item .faq-question {
+                font-size: var(--font-size-sm);
+                padding: var(--spacing-sm) var(--spacing-md);
+            }
+
+            .faq-item .faq-answer {
+                font-size: var(--font-size-xs);
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fas fa-crown"></i> AniVerse
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge">3</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge">5</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot"></span>
+                </button>
+                <div class="user-avatar" aria-label="User avatar">U</div>
+                <span class="user-level">Lv.12</span>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            HERO
+            ============================================================ -->
+            <section class="hero-about" aria-label="About hero">
+                <div class="container">
+                    <div class="banner-card">
+                        <div class="banner-glow"></div>
+                        <div class="banner-glow-2"></div>
+                        <span class="section-tag"><i class="fas fa-info-circle"></i> About Us</span>
+                        <h1>Welcome to <span class="highlight">AniVerse</span></h1>
+                        <p>A community built by anime fans, for anime fans. Connect, create, and celebrate the world of anime together.</p>
+                        <div class="hero-actions">
+                            <a href="signup.html" class="btn btn-primary"><i class="fas fa-rocket"></i> Join Community</a>
+                            <a href="guilds.html" class="btn btn-secondary"><i class="fas fa-users"></i> Explore Guilds</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            OUR MISSION
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-bullseye"></i> Mission</span>
+                        <h2 class="section-title">Our Mission</h2>
+                        <p>Bringing anime fans together to create a welcoming community that encourages creativity, collaboration, and connection.</p>
+                    </div>
+                    <div class="values-grid">
+                        <div class="value-card">
+                            <div class="icon"><i class="fas fa-heart"></i></div>
+                            <h4>Community</h4>
+                            <p>Building a space where every fan belongs.</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="icon"><i class="fas fa-paint-brush"></i></div>
+                            <h4>Creativity</h4>
+                            <p>Celebrating artists, writers, and creators.</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="icon"><i class="fas fa-handshake"></i></div>
+                            <h4>Collaboration</h4>
+                            <p>Connecting fans to work on amazing projects.</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h4>Learning</h4>
+                            <p>Growing together through shared experiences.</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="icon"><i class="fas fa-star"></i></div>
+                            <h4>Originality</h4>
+                            <p>Celebrating unique voices and perspectives.</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="icon"><i class="fas fa-smile"></i></div>
+                            <h4>Positivity</h4>
+                            <p>Creating a supportive and uplifting environment.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            OUR VISION
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-eye"></i> Vision</span>
+                        <h2 class="section-title">Our Vision</h2>
+                        <p>Building the ultimate anime community hub for the future.</p>
+                    </div>
+                    <div class="roadmap-grid">
+                        <div class="roadmap-item">
+                            <div class="icon"><i class="fas fa-calendar"></i></div>
+                            <h4>Community Events</h4>
+                            <p>Regular watch parties, competitions, and meetups.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Guild System</h4>
+                            <p>Deepen community connections through guilds.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="icon"><i class="fas fa-lightbulb"></i></div>
+                            <h4>Creative Collaboration</h4>
+                            <p>Supporting fan projects and creative works.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="icon"><i class="fas fa-film"></i></div>
+                            <h4>Community Anime Project</h4>
+                            <p>A collaborative anime creation initiative.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="icon"><i class="fas fa-book-open"></i></div>
+                            <h4>Educational Content</h4>
+                            <p>Learning resources about anime and creation.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="icon"><i class="fas fa-cube"></i></div>
+                            <h4>3D Social Lobby</h4>
+                            <p>Immersive virtual spaces for the community.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            HOW IT WORKS
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-route"></i> Journey</span>
+                        <h2 class="section-title">How It Works</h2>
+                        <p>Your journey to becoming part of the AniVerse community.</p>
+                    </div>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">Step 1</div>
+                            <div class="icon"><i class="fas fa-user-plus"></i></div>
+                            <h4>Create Account</h4>
+                            <p>Sign up and join the community.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">Step 2</div>
+                            <div class="icon"><i class="fas fa-user-edit"></i></div>
+                            <h4>Complete Profile</h4>
+                            <p>Share your interests and personality.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">Step 3</div>
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Join a Guild</h4>
+                            <p>Find your people and start connecting.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">Step 4</div>
+                            <div class="icon"><i class="fas fa-user-friends"></i></div>
+                            <h4>Make Friends</h4>
+                            <p>Build lasting friendships with fellow fans.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">Step 5</div>
+                            <div class="icon"><i class="fas fa-pen-fancy"></i></div>
+                            <h4>Share Posts</h4>
+                            <p>Express yourself and engage with the community.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">Step 6</div>
+                            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+                            <h4>Participate</h4>
+                            <p>Join events, projects, and collaborations.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            FUTURE ROADMAP
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-road"></i> Roadmap</span>
+                        <h2 class="section-title">Future Roadmap</h2>
+                        <p>Our vision for the growth of AniVerse.</p>
+                    </div>
+                    <div class="roadmap-grid">
+                        <div class="roadmap-item">
+                            <div class="milestone">Q2 2026</div>
+                            <div class="icon"><i class="fas fa-globe"></i></div>
+                            <h4>Community Expansion</h4>
+                            <p>Growing our community to 100K members.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="milestone">Q3 2026</div>
+                            <div class="icon"><i class="fas fa-trophy"></i></div>
+                            <h4>Guild Expansion</h4>
+                            <p>Advanced guild features and events.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="milestone">Q4 2026</div>
+                            <div class="icon"><i class="fas fa-calendar"></i></div>
+                            <h4>Community Events</h4>
+                            <p>Large-scale community events and competitions.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="milestone">2027</div>
+                            <div class="icon"><i class="fas fa-microphone"></i></div>
+                            <h4>Voice Chat</h4>
+                            <p>Real-time voice communication for guilds.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="milestone">2027</div>
+                            <div class="icon"><i class="fas fa-cube"></i></div>
+                            <h4>3D Social Lobby</h4>
+                            <p>Immersive virtual spaces for the community.</p>
+                        </div>
+                        <div class="roadmap-item">
+                            <div class="milestone">2027</div>
+                            <div class="icon"><i class="fas fa-film"></i></div>
+                            <h4>Community Anime Project</h4>
+                            <p>A collaborative community-driven anime.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            FAQ
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-question-circle"></i> FAQ</span>
+                        <h2 class="section-title">Frequently Asked Questions</h2>
+                        <p>Find answers to common questions about AniVerse.</p>
+                    </div>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                What is AniVerse?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">AniVerse is a premium anime community platform designed for fans to connect, create, and celebrate anime together. It features guilds, friends, messaging, and community projects.</div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                Is AniVerse free to join?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">Yes, AniVerse is completely free. Future premium features may be added, but the core experience will always remain free for everyone.</div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                How do I create a guild?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">You can create a guild by visiting the Guilds page and clicking "Create Guild." All new guilds require review before becoming public.</div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                What kind of community projects can I join?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">AniVerse supports various projects including anime discussions, art collaborations, writing projects, voice acting, cosplay, and more.</div>
+                        </div>
+                        <div class="faq-item">
+                            <button class="faq-question">
+                                Is AniVerse safe and moderated?
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">Yes, AniVerse has active moderation to ensure a safe, respectful, and positive environment for all members.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            CALL TO ACTION
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="cta-section">
+                        <span class="section-tag"><i class="fas fa-rocket"></i> Get Started</span>
+                        <h2>Ready to Join the Community?</h2>
+                        <p>Create your account today and start connecting with fellow anime fans.</p>
+                        <div class="cta-actions">
+                            <a href="signup.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create Account</a>
+                            <a href="anime.html" class="btn btn-secondary"><i class="fas fa-film"></i> Explore Anime</a>
+                            <a href="guilds.html" class="btn btn-secondary"><i class="fas fa-users"></i> Browse Guilds</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // SIDEBAR TOGGLE (mobile)
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // FAQ ACCORDION
+            // ============================================================
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(function(item) {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', function() {
+                    const isOpen = item.classList.contains('open');
+
+                    // Close all other items
+                    faqItems.forEach(function(other) {
+                        if (other !== item) {
+                            other.classList.remove('open');
+                        }
+                    });
+
+                    if (isOpen) {
+                        item.classList.remove('open');
+                    } else {
+                        item.classList.add('open');
+                    }
+                });
+            });
+
+            // Open first FAQ item by default
+            if (faqItems.length > 0) {
+                faqItems[0].classList.add('open');
+            }
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('AniVerse · about.html ready');
+
+            // ============================================================
+// AUTH UI SYNC - All Pages
+// ============================================================
+async function syncAuthUI() {
+    try {
+        if (typeof window.AniVerse === 'undefined') {
+            setTimeout(syncAuthUI, 300);
+            return;
+        }
+        const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+        const isLoggedIn = !!(user && profile);
+        
+        // Sidebar elements
+        const loginLink = document.getElementById('loginLink');
+        const signupLink = document.getElementById('signupLink');
+        const profileLink = document.getElementById('profileLink');
+        const settingsLink = document.getElementById('settingsLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const adminPanelLink = document.getElementById('adminPanelLink');
+        const headerAvatar = document.getElementById('headerAvatar');
+        const headerLevel = document.getElementById('headerLevel');
+        const headerLoginBtn = document.getElementById('headerLoginBtn');
+        const headerSignupBtn = document.getElementById('headerSignupBtn');
+
+        if (isLoggedIn) {
+            // Show logged-in UI
+            loginLink.style.display = 'none';
+            signupLink.style.display = 'none';
+            profileLink.style.display = 'flex';
+            settingsLink.style.display = 'flex';
+            logoutLink.style.display = 'flex';
+            if (headerAvatar) {
+                headerAvatar.classList.add('visible');
+                headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+            }
+            if (headerLevel) {
+                headerLevel.classList.add('visible');
+                headerLevel.textContent = `Lv.${profile.level || 0}`;
+            }
+            if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+            if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+            // Admin panel
+            if (adminPanelLink) {
+                if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                    adminPanelLink.classList.add('visible');
+                } else {
+                    adminPanelLink.classList.remove('visible');
+                }
+            }
+        } else {
+            // Show logged-out UI
+            loginLink.style.display = 'flex';
+            signupLink.style.display = 'flex';
+            profileLink.style.display = 'none';
+            settingsLink.style.display = 'none';
+            logoutLink.style.display = 'none';
+            if (headerAvatar) headerAvatar.classList.remove('visible');
+            if (headerLevel) headerLevel.classList.remove('visible');
+            if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+            if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+            if (adminPanelLink) adminPanelLink.classList.remove('visible');
+        }
+    } catch (e) {
+        console.error('Auth UI sync error:', e);
+    }
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', function() {
+    syncAuthUI();
+    // Listen to auth changes
+    if (window.AniVerse) {
+        window.AniVerse.auth.onAuthStateChange(() => syncAuthUI());
+    }
+});
+        })();
+    </script>
+
+</body>
+</html>

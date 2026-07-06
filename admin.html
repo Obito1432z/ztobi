@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            /* Colors */
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            /* Shadows */
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            /* Transitions */
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            /* Animations */
+            --animation-pulse: pulse 1.5s ease-in-out infinite;
+
+            /* Layout */
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
+        /* Sidebar Toggle (mobile) */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+        }
+
+        .header .header-actions .user-avatar {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        /* ============================================================
+                   UTILITY
+                   ============================================================ */
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* ============================================================
+                   BUTTONS — Shared
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   ADMIN LAYOUT
+                   ============================================================ */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: var(--spacing-xl);
+            align-items: start;
+        }
+
+        /* ============================================================
+                   ADMIN SIDEBAR NAV
+                   ============================================================ */
+        .admin-nav {
+            position: sticky;
+            top: calc(var(--header-height) + var(--spacing-xl));
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm) 0;
+        }
+
+        .admin-nav .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .admin-nav .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .admin-nav .nav-link.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.08);
+            border-left-color: var(--accent-1);
+        }
+
+        .admin-nav .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: var(--font-size-md);
+        }
+
+        .admin-nav .nav-link .badge {
+            margin-left: auto;
+            background: var(--color-error);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+        }
+
+        /* ============================================================
+                   ADMIN PANELS
+                   ============================================================ */
+        .admin-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   STATS CARDS (Dashboard)
+                   ============================================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .stat-card:hover {
+            border-color: rgba(124, 92, 252, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .stat-number {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-card .stat-number.skeleton {
+            height: 36px;
+            width: 60px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .stat-card .stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ============================================================
+                   TABLE
+                   ============================================================ */
+        .table-wrapper {
+            overflow-x: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+        }
+
+        .table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+
+        .table-wrapper table thead {
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .table-wrapper table th {
+            padding: var(--spacing-sm) var(--spacing-md);
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .table-wrapper table td {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+        }
+
+        .table-wrapper table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .table-wrapper table .status-badge {
+            padding: 2px 12px;
+            border-radius: 100px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .table-wrapper table .status-badge.pending {
+            background: rgba(255, 215, 61, 0.15);
+            color: var(--color-warning);
+        }
+
+        .table-wrapper table .status-badge.approved {
+            background: rgba(81, 207, 102, 0.15);
+            color: var(--color-success);
+        }
+
+        .table-wrapper table .status-badge.rejected {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--color-error);
+        }
+
+        .table-wrapper table .status-badge.active {
+            background: rgba(81, 207, 102, 0.15);
+            color: var(--color-success);
+        }
+
+        .table-wrapper table .status-badge.inactive {
+            background: rgba(255, 215, 61, 0.15);
+            color: var(--color-warning);
+        }
+
+        .table-wrapper table .status-badge.banned {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--color-error);
+        }
+
+        .table-wrapper .table-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .table-wrapper .table-actions .btn {
+            padding: 4px 12px;
+            font-size: var(--font-size-xs);
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .empty-state p {
+            font-size: var(--font-size-md);
+        }
+
+        /* ============================================================
+                   FORM ELEMENTS
+                   ============================================================ */
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .input-wrapper input,
+        .input-wrapper select,
+        .input-wrapper textarea {
+            width: 100%;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+        }
+
+        .input-wrapper textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .input-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   ACCESS DENIED
+                   ============================================================ */
+        .access-denied {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .access-denied i {
+            font-size: 5rem;
+            color: var(--color-error);
+            opacity: 0.3;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .access-denied h1 {
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .access-denied p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-nav {
+                position: static;
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--spacing-xs);
+                padding: var(--spacing-sm);
+                overflow-x: auto;
+            }
+
+            .admin-nav .nav-link {
+                padding: 8px 14px;
+                border-left: none;
+                border-radius: var(--radius-sm);
+                white-space: nowrap;
+            }
+
+            .admin-nav .nav-link.active {
+                border-left: none;
+                background: rgba(124, 92, 252, 0.12);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+
+            .table-wrapper table {
+                font-size: var(--font-size-xs);
+            }
+
+            .table-wrapper table th,
+            .table-wrapper table td {
+                padding: var(--spacing-xs) var(--spacing-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fas fa-crown"></i> AniVerse
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge">3</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge">5</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+            <!-- Admin Panel - Visible only for admins/mods -->
+            <a href="admin.html" class="nav-item admin-panel visible active">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item" id="settingsLink">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item" id="profileLink">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link visible" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link hidden" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link hidden" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot"></span>
+                </button>
+                <a href="profile.html" class="user-avatar visible" aria-label="User avatar">U</a>
+                <span class="user-level visible">Lv.12</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <div class="container">
+
+                <!-- ============================================================
+                ACCESS DENIED / AUTH CHECK
+                ============================================================ -->
+                <div id="accessDenied" style="display:none;">
+                    <div class="access-denied">
+                        <i class="fas fa-shield-alt"></i>
+                        <h1>Access Denied</h1>
+                        <p>You do not have permission to access the Admin Panel.</p>
+                        <a href="index.html" class="btn btn-primary" style="margin-top:var(--spacing-lg);">
+                            <i class="fas fa-home"></i> Return to Home
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                ADMIN CONTENT (visible only for admins/mods)
+                ============================================================ -->
+                <div id="adminContent">
+
+                    <!-- Page Header -->
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-shield-alt"></i> Administration</span>
+                            <h1 class="section-title">Admin Panel</h1>
+                            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, content, and community settings.</p>
+                        </div>
+                    </div>
+
+                    <!-- Toast -->
+                    <div id="adminToast" class="toast" role="alert">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span id="toastMessage">Action completed successfully</span>
+                    </div>
+
+                    <!-- ============================================================
+                    ADMIN LAYOUT
+                    ============================================================ -->
+                    <div class="admin-layout">
+
+                        <!-- Admin Nav -->
+                        <nav class="admin-nav" aria-label="Admin navigation">
+                            <a href="#" class="nav-link active" data-panel="dashboard">
+                                <i class="fas fa-chart-pie"></i> Dashboard
+                            </a>
+                            <a href="#" class="nav-link" data-panel="users">
+                                <i class="fas fa-users"></i> Users
+                            </a>
+                            <a href="#" class="nav-link" data-panel="guilds">
+                                <i class="fas fa-users-cog"></i> Guilds
+                            </a>
+                            <a href="#" class="nav-link" data-panel="posts">
+                                <i class="fas fa-file-alt"></i> Posts
+                            </a>
+                            <a href="#" class="nav-link" data-panel="reports">
+                                <i class="fas fa-flag"></i> Reports
+                                <span class="badge">0</span>
+                            </a>
+                            <a href="#" class="nav-link" data-panel="notifications">
+                                <i class="fas fa-bell"></i> Notifications
+                            </a>
+                            <a href="#" class="nav-link" data-panel="announcements">
+                                <i class="fas fa-bullhorn"></i> Announcements
+                            </a>
+                            <a href="#" class="nav-link" data-panel="anime-manager">
+                                <i class="fas fa-film"></i> Trending Anime
+                            </a>
+                            <a href="#" class="nav-link" data-panel="projects">
+                                <i class="fas fa-project-diagram"></i> Projects
+                            </a>
+                            <a href="#" class="nav-link" data-panel="events">
+                                <i class="fas fa-calendar"></i> Events
+                            </a>
+                            <a href="#" class="nav-link" data-panel="settings">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                            <a href="#" class="nav-link" data-panel="logs">
+                                <i class="fas fa-history"></i> Logs
+                            </a>
+                        </nav>
+
+                        <!-- ============================================================
+                        PANEL: DASHBOARD
+                        ============================================================ -->
+                        <div class="admin-panel active" id="panel-dashboard">
+
+                            <!-- Stats -->
+                            <div class="stats-grid" id="dashboardStats">
+                                <div class="stat-card">
+                                    <div class="stat-number skeleton"></div>
+                                    <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number skeleton"></div>
+                                    <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number skeleton"></div>
+                                    <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number skeleton"></div>
+                                    <div class="stat-label"><i class="fas fa-flag"></i> Reports</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number skeleton"></div>
+                                    <div class="stat-label"><i class="fas fa-user-friends"></i> Online</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number skeleton"></div>
+                                    <div class="stat-label"><i class="fas fa-rocket"></i> New Today</div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity -->
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                                <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">Recent Activity</h3>
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-clock"></i>
+                                    <h3>No recent activity</h3>
+                                    <p>Community activity will appear here.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: USERS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-users">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-users"></i> Management</span>
+                                    <h2 class="section-title">Users</h2>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Email</th>
+                                            <th>Level</th>
+                                            <th>Status</th>
+                                            <th>Joined</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <tr>
+                                            <td colspan="6">
+                                                <div class="empty-state" style="padding:30px 20px;">
+                                                    <i class="fas fa-users-slash"></i>
+                                                    <h3>No users yet</h3>
+                                                    <p>User data will appear here.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: GUILDS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-guilds">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
+                                    <h2 class="section-title">Guilds</h2>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Guild</th>
+                                            <th>Category</th>
+                                            <th>Members</th>
+                                            <th>Level</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="guildsTableBody">
+                                        <tr>
+                                            <td colspan="6">
+                                                <div class="empty-state" style="padding:30px 20px;">
+                                                    <i class="fas fa-users-slash"></i>
+                                                    <h3>No guilds yet</h3>
+                                                    <p>Guild data will appear here.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: POSTS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-posts">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
+                                    <h2 class="section-title">Posts</h2>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Guild</th>
+                                            <th>Likes</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="postsTableBody">
+                                        <tr>
+                                            <td colspan="6">
+                                                <div class="empty-state" style="padding:30px 20px;">
+                                                    <i class="fas fa-file-alt"></i>
+                                                    <h3>No posts yet</h3>
+                                                    <p>Post data will appear here.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: REPORTS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-reports">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-flag"></i> Moderation</span>
+                                    <h2 class="section-title">Reports</h2>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Reported By</th>
+                                            <th>Target</th>
+                                            <th>Reason</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reportsTableBody">
+                                        <tr>
+                                            <td colspan="5">
+                                                <div class="empty-state" style="padding:30px 20px;">
+                                                    <i class="fas fa-flag"></i>
+                                                    <h3>No reports yet</h3>
+                                                    <p>Report data will appear here.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: NOTIFICATIONS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-notifications">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-bell"></i> Communication</span>
+                                    <h2 class="section-title">Notifications</h2>
+                                </div>
+                                <button class="btn btn-primary" id="sendNotifBtn"><i class="fas fa-paper-plane"></i> Send</button>
+                            </div>
+
+                            <div class="empty-state">
+                                <i class="fas fa-bell-slash"></i>
+                                <h3>No notifications</h3>
+                                <p>System notifications will appear here.</p>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: ANNOUNCEMENTS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-announcements">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-bullhorn"></i> Updates</span>
+                                    <h2 class="section-title">Announcements</h2>
+                                </div>
+                                <button class="btn btn-primary" id="createAnnouncementBtn"><i class="fas fa-plus"></i> Create</button>
+                            </div>
+
+                            <div class="empty-state">
+                                <i class="fas fa-bullhorn"></i>
+                                <h3>No announcements</h3>
+                                <p>Create announcements to keep the community informed.</p>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: TRENDING ANIME
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-anime-manager">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-film"></i> Content</span>
+                                    <h2 class="section-title">Trending Anime Manager</h2>
+                                </div>
+                                <button class="btn btn-primary" id="addAnimeBtn"><i class="fas fa-plus"></i> Add Anime</button>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Rating</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="animeTableBody">
+                                        <tr>
+                                            <td colspan="4">
+                                                <div class="empty-state" style="padding:30px 20px;">
+                                                    <i class="fas fa-film"></i>
+                                                    <h3>No trending anime</h3>
+                                                    <p>Add anime to the trending list.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: PROJECTS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-projects">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-project-diagram"></i> Initiatives</span>
+                                    <h2 class="section-title">Community Projects</h2>
+                                </div>
+                                <button class="btn btn-primary" id="addProjectBtn"><i class="fas fa-plus"></i> Create</button>
+                            </div>
+
+                            <div class="empty-state">
+                                <i class="fas fa-project-diagram"></i>
+                                <h3>No projects yet</h3>
+                                <p>Community projects will appear here.</p>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: EVENTS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-events">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-calendar"></i> Calendar</span>
+                                    <h2 class="section-title">Events</h2>
+                                </div>
+                                <button class="btn btn-primary" id="addEventBtn"><i class="fas fa-plus"></i> Create</button>
+                            </div>
+
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-plus"></i>
+                                <h3>No events</h3>
+                                <p>Upcoming events will appear here.</p>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: SETTINGS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-settings">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
+                                    <h2 class="section-title">Website Settings</h2>
+                                </div>
+                            </div>
+
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
+                                <div class="form-group">
+                                    <label for="siteName">Site Name</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="siteTagline">Tagline</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="maintenanceMode">Maintenance Mode</label>
+                                    <div class="input-wrapper">
+                                        <select id="maintenanceMode">
+                                            <option value="off" selected>Off</option>
+                                            <option value="on">On</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label for="registrationMode">Registration</label>
+                                    <div class="input-wrapper">
+                                        <select id="registrationMode">
+                                            <option value="open" selected>Open</option>
+                                            <option value="closed">Closed</option>
+                                            <option value="invite">Invite Only</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn"><i class="fas fa-save"></i> Save Settings</button>
+                            </div>
+                        </div>
+
+                        <!-- ============================================================
+                        PANEL: LOGS
+                        ============================================================ -->
+                        <div class="admin-panel" id="panel-logs">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-tag"><i class="fas fa-history"></i> Audit</span>
+                                    <h2 class="section-title">Moderation Logs</h2>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Moderator</th>
+                                            <th>Action</th>
+                                            <th>Target</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logsTableBody">
+                                        <tr>
+                                            <td colspan="4">
+                                                <div class="empty-state" style="padding:30px 20px;">
+                                                    <i class="fas fa-history"></i>
+                                                    <h3>No logs yet</h3>
+                                                    <p>Moderation logs will appear here.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script src="supabase.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+
+            // ============================================================
+            // AUTH STATE MANAGEMENT
+            // ============================================================
+            let isLoggedIn = true; // Simulated - will come from Supabase
+            let userRole = 'admin'; // 'admin', 'moderator', or 'user'
+
+            function checkAccess() {
+                const hasAccess = isLoggedIn && (userRole === 'admin' || userRole === 'moderator');
+
+                if (!hasAccess) {
+                    document.getElementById('accessDenied').style.display = 'block';
+                    document.getElementById('adminContent').style.display = 'none';
+                } else {
+                    document.getElementById('accessDenied').style.display = 'none';
+                    document.getElementById('adminContent').style.display = 'block';
+                }
+
+                // Update sidebar admin link visibility
+                const adminPanelLink = document.querySelector('.nav-item.admin-panel');
+                if (adminPanelLink) {
+                    if (hasAccess) {
+                        adminPanelLink.classList.add('visible');
+                    } else {
+                        adminPanelLink.classList.remove('visible');
+                    }
+                }
+
+                return hasAccess;
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE (mobile)
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    isLoggedIn = false;
+                    userRole = 'user';
+                    checkAccess();
+                    console.log('[AniVerse] Logged out');
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // ============================================================
+            // ADMIN NAVIGATION
+            // ============================================================
+            const navLinks = document.querySelectorAll('.admin-nav .nav-link');
+            const panels = {};
+
+            navLinks.forEach(function(link) {
+                const panelId = link.getAttribute('data-panel');
+                const panel = document.getElementById('panel-' + panelId);
+                if (panel) {
+                    panels[panelId] = panel;
+                }
+
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const id = this.getAttribute('data-panel');
+
+                    navLinks.forEach(function(l) {
+                        l.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    Object.keys(panels).forEach(function(key) {
+                        if (panels[key]) {
+                            panels[key].classList.remove('active');
+                        }
+                    });
+
+                    if (panels[id]) {
+                        panels[id].classList.add('active');
+                    }
+
+                    // Close mobile sidebar
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // TOAST
+            // ============================================================
+            const toast = document.getElementById('adminToast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            function hideToast() {
+                toast.classList.remove('show');
+                clearTimeout(toast._hideTimer);
+            }
+
+            // ============================================================
+            // SIMULATE LOADING DASHBOARD STATS
+            // ============================================================
+            setTimeout(function() {
+                const statNumbers = document.querySelectorAll('.stat-number.skeleton');
+                const values = ['1,247', '128', '3,456', '12', '89', '47'];
+                statNumbers.forEach(function(el, index) {
+                    el.textContent = values[index] || '0';
+                    el.classList.remove('skeleton');
+                });
+            }, 1500);
+
+            // ============================================================
+            // BUTTON ACTIONS
+            // ============================================================
+            document.getElementById('sendNotifBtn').addEventListener('click', function() {
+                showToast('Notification system coming soon with Supabase integration.', '');
+            });
+
+            document.getElementById('createAnnouncementBtn').addEventListener('click', function() {
+                showToast('Announcement creation coming soon with Supabase integration.', '');
+            });
+
+            document.getElementById('addAnimeBtn').addEventListener('click', function() {
+                showToast('Add anime feature coming soon with Supabase integration.', '');
+            });
+
+            document.getElementById('addProjectBtn').addEventListener('click', function() {
+                showToast('Project creation coming soon with Supabase integration.', '');
+            });
+
+            document.getElementById('addEventBtn').addEventListener('click', function() {
+                showToast('Event creation coming soon with Supabase integration.', '');
+            });
+
+            document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+                showToast('Settings saved successfully! (Supabase integration pending)', 'success');
+            });
+
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            checkAccess();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('AniVerse · admin.html ready (Supabase integration pending)');
+            console.log('Auth state:', isLoggedIn ? 'Logged in as ' + userRole : 'Logged out');
+            console.log('Access:', checkAccess() ? 'Granted' : 'Denied');
+
+        })();
+    </script>
+
+</body>
+</html>

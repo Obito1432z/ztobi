@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            /* Colors */
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            /* Shadows */
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+            --font-size-3xl: 2.6rem;
+
+            /* Transitions */
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            /* Layout */
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Sidebar Toggle (mobile) */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+        }
+
+        .header .header-actions .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        /* ============================================================
+                   UTILITY
+                   ============================================================ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        /* ============================================================
+                   BUTTONS — Shared
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   HERO
+                   ============================================================ */
+        .hero-contact {
+            padding: 0 0 var(--spacing-2xl);
+            position: relative;
+        }
+
+        .hero-contact .banner-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            padding: var(--spacing-2xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-contact .banner-card .banner-glow {
+            position: absolute;
+            right: -10%;
+            top: -10%;
+            width: 60%;
+            height: 120%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-contact .banner-card h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-md);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-contact .banner-card h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-contact .banner-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-lg);
+            max-width: 640px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ============================================================
+                   SUPPORT CATEGORIES
+                   ============================================================ */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .category-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            border-color: rgba(124, 92, 252, 0.2);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .category-card .icon {
+            font-size: 2rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.7;
+        }
+
+        .category-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .category-card p {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+                   CONTACT FORM
+                   ============================================================ */
+        .contact-form-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-2xl) var(--spacing-xl);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .form-group label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-group .help-text {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .input-wrapper.error {
+            border-color: var(--color-error);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .input-wrapper input,
+        .input-wrapper select,
+        .input-wrapper textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+        }
+
+        .input-wrapper textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .input-wrapper input::placeholder,
+        .input-wrapper textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            cursor: pointer;
+        }
+
+        .input-wrapper select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-error {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--color-error);
+            margin-top: 4px;
+            font-weight: 500;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-error.show {
+            display: flex;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.04);
+        }
+
+        .upload-area .icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.4;
+        }
+
+        .upload-area .upload-text {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .upload-area .upload-text strong {
+            color: var(--accent-1);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-preview {
+            display: none;
+            margin-top: var(--spacing-sm);
+        }
+
+        .upload-preview .file-name {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .upload-preview .file-remove {
+            color: var(--color-error);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            margin-left: var(--spacing-sm);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-xl);
+        }
+
+        .form-actions .btn {
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   INFO CARDS
+                   ============================================================ */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .info-card:hover {
+            border-color: rgba(124, 92, 252, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .info-card .icon {
+            font-size: 1.8rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.5;
+        }
+
+        .info-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .info-card p {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+                   FUTURE CONTACT METHODS
+                   ============================================================ */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .social-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            opacity: 0.6;
+            cursor: default;
+            transition: var(--transition-smooth);
+        }
+
+        .social-card .icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .social-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+
+        .social-card .coming-soon {
+            font-size: var(--font-size-xs);
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.1);
+            padding: 2px 12px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-top: var(--spacing-xs);
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .hero-contact .banner-card {
+                padding: var(--spacing-xl);
+                min-height: 180px;
+            }
+            .hero-contact .banner-card h1 {
+                font-size: var(--font-size-2xl);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .hero-contact .banner-card {
+                padding: var(--spacing-lg) var(--spacing-md);
+                min-height: 140px;
+            }
+
+            .hero-contact .banner-card h1 {
+                font-size: var(--font-size-xl);
+            }
+
+            .hero-contact .banner-card p {
+                font-size: var(--font-size-md);
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .section-header p {
+                font-size: var(--font-size-md);
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-form-wrapper {
+                padding: var(--spacing-lg) var(--spacing-md);
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .social-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .categories-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fas fa-crown"></i> AniVerse
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge">3</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge">5</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot"></span>
+                </button>
+                <div class="user-avatar" aria-label="User avatar">U</div>
+                <span class="user-level">Lv.12</span>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            HERO
+            ============================================================ -->
+            <section class="hero-contact" aria-label="Contact hero">
+                <div class="container">
+                    <div class="banner-card">
+                        <div class="banner-glow"></div>
+                        <span class="section-tag"><i class="fas fa-envelope"></i> Get in Touch</span>
+                        <h1>Contact <span class="highlight">AniVerse</span></h1>
+                        <p>Have questions, feedback, or need support? We're here to help.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            SUPPORT CATEGORIES
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-th-list"></i> Categories</span>
+                        <h2 class="section-title">How Can We Help?</h2>
+                        <p>Select the category that best matches your inquiry.</p>
+                    </div>
+                    <div class="categories-grid">
+                        <div class="category-card" data-category="general">
+                            <div class="icon"><i class="fas fa-question-circle"></i></div>
+                            <h4>General Support</h4>
+                            <p>Questions about the platform</p>
+                        </div>
+                        <div class="category-card" data-category="bug">
+                            <div class="icon"><i class="fas fa-bug"></i></div>
+                            <h4>Bug Report</h4>
+                            <p>Report technical issues</p>
+                        </div>
+                        <div class="category-card" data-category="feature">
+                            <div class="icon"><i class="fas fa-lightbulb"></i></div>
+                            <h4>Feature Request</h4>
+                            <p>Suggest new features</p>
+                        </div>
+                        <div class="category-card" data-category="account">
+                            <div class="icon"><i class="fas fa-user-cog"></i></div>
+                            <h4>Account Support</h4>
+                            <p>Help with your account</p>
+                        </div>
+                        <div class="category-card" data-category="guild">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Guild Support</h4>
+                            <p>Guild management issues</p>
+                        </div>
+                        <div class="category-card" data-category="community">
+                            <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                            <h4>Community Report</h4>
+                            <p>Report community concerns</p>
+                        </div>
+                        <div class="category-card" data-category="partnership">
+                            <div class="icon"><i class="fas fa-handshake"></i></div>
+                            <h4>Partnership Inquiry</h4>
+                            <p>Collaborate with us</p>
+                        </div>
+                        <div class="category-card" data-category="media">
+                            <div class="icon"><i class="fas fa-newspaper"></i></div>
+                            <h4>Media Inquiry</h4>
+                            <p>Press and media requests</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            CONTACT FORM
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-pen"></i> Form</span>
+                        <h2 class="section-title">Send a Message</h2>
+                        <p>Fill in the form below and we'll get back to you as soon as possible.</p>
+                    </div>
+
+                    <div class="contact-form-wrapper">
+                        <!-- Toast -->
+                        <div id="contactToast" class="toast" role="alert">
+                            <i class="fas fa-circle-exclamation"></i>
+                            <span id="toastMessage">Message sent successfully!</span>
+                        </div>
+
+                        <form id="contactForm" novalidate>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fullName">Full Name <span class="required">*</span></label>
+                                    <div class="input-wrapper" id="nameWrapper">
+                                        <input type="text" id="fullName" placeholder="Your full name" required />
+                                    </div>
+                                    <div class="form-error" id="nameError">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Please enter your full name</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="username" placeholder="Your username (optional)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address <span class="required">*</span></label>
+                                <div class="input-wrapper" id="emailWrapper">
+                                    <input type="email" id="email" placeholder="your@email.com" required />
+                                </div>
+                                <div class="form-error" id="emailError">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please enter a valid email address</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="category">Category <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <select id="category" required>
+                                        <option value="">Select a category</option>
+                                        <option value="general">General Support</option>
+                                        <option value="bug">Bug Report</option>
+                                        <option value="feature">Feature Request</option>
+                                        <option value="account">Account Support</option>
+                                        <option value="guild">Guild Support</option>
+                                        <option value="community">Community Report</option>
+                                        <option value="partnership">Partnership Inquiry</option>
+                                        <option value="media">Media Inquiry</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject">Subject <span class="required">*</span></label>
+                                <div class="input-wrapper" id="subjectWrapper">
+                                    <input type="text" id="subject" placeholder="Brief subject line" required />
+                                </div>
+                                <div class="form-error" id="subjectError">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please enter a subject</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message <span class="required">*</span></label>
+                                <div class="input-wrapper" id="messageWrapper">
+                                    <textarea id="message" placeholder="Describe your inquiry in detail..." required></textarea>
+                                </div>
+                                <div class="form-error" id="messageError">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please enter a message (min 20 characters)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Attachment (Optional)</label>
+                                <div class="upload-area" id="fileUpload">
+                                    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                                    <div class="upload-text">Drag & drop or <strong>click to upload</strong> a file</div>
+                                    <input type="file" id="fileInput" />
+                                </div>
+                                <div class="upload-preview" id="filePreview">
+                                    <span class="file-name" id="fileName"></span>
+                                    <button type="button" class="file-remove" id="fileRemove"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="help-text">Accepted formats: PNG, JPG, PDF, ZIP. Max size: 5MB.</div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="sendBtn">
+                                    <span class="btn-text"><i class="fas fa-paper-plane"></i> Send Message</span>
+                                    <span class="spinner"></span>
+                                </button>
+                                <button type="reset" class="btn btn-secondary" id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            SUPPORT INFORMATION
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-info"></i> Information</span>
+                        <h2 class="section-title">Support Info</h2>
+                        <p>Helpful information about our support process.</p>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="icon"><i class="fas fa-clock"></i></div>
+                            <h4>Response Time</h4>
+                            <p>Typically 24-48 hours</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="icon"><i class="fas fa-book"></i></div>
+                            <h4>Community Guidelines</h4>
+                            <p>Review our community rules</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="icon"><i class="fas fa-headset"></i></div>
+                            <h4>Support Hours</h4>
+                            <p>Mon-Fri, 9AM - 6PM EST</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="icon"><i class="fas fa-question"></i></div>
+                            <h4>Help Center</h4>
+                            <p>Coming soon</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            COMMUNITY SAFETY
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-shield"></i> Safety</span>
+                        <h2 class="section-title">Community Safety</h2>
+                        <p>We take community safety seriously. Report any concerns immediately.</p>
+                    </div>
+                    <div class="categories-grid">
+                        <div class="category-card">
+                            <div class="icon"><i class="fas fa-exclamation-triangle" style="color:var(--color-error);"></i></div>
+                            <h4>Report Harassment</h4>
+                            <p>Report bullying or harassment</p>
+                        </div>
+                        <div class="category-card">
+                            <div class="icon"><i class="fas fa-ban" style="color:var(--color-warning);"></i></div>
+                            <h4>Report Spam</h4>
+                            <p>Report spam or unwanted content</p>
+                        </div>
+                        <div class="category-card">
+                            <div class="icon"><i class="fas fa-flag" style="color:var(--color-error);"></i></div>
+                            <h4>Inappropriate Content</h4>
+                            <p>Report rule violations</p>
+                        </div>
+                        <div class="category-card">
+                            <div class="icon"><i class="fas fa-user-slash" style="color:var(--color-error);"></i></div>
+                            <h4>Fake Accounts</h4>
+                            <p>Report impersonation or fake profiles</p>
+                        </div>
+                        <div class="category-card">
+                            <div class="icon"><i class="fas fa-copyright" style="color:var(--color-warning);"></i></div>
+                            <h4>Copyright Issues</h4>
+                            <p>Report copyright violations</p>
+                        </div>
+                        <div class="category-card">
+                            <div class="icon"><i class="fas fa-shield" style="color:var(--color-success);"></i></div>
+                            <h4>Trust & Safety</h4>
+                            <p>Learn about our safety policies</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            FUTURE CONTACT METHODS
+            ============================================================ -->
+            <section style="padding: 0 0 var(--spacing-2xl);">
+                <div class="container">
+                    <div class="section-header">
+                        <span class="section-tag"><i class="fas fa-share-alt"></i> Connect</span>
+                        <h2 class="section-title">Future Contact Methods</h2>
+                        <p>We're expanding our presence across multiple platforms.</p>
+                    </div>
+                    <div class="social-grid">
+                        <div class="social-card">
+                            <div class="icon"><i class="fab fa-discord"></i></div>
+                            <h4>Discord Community</h4>
+                            <span class="coming-soon">Coming Soon</span>
+                        </div>
+                        <div class="social-card">
+                            <div class="icon"><i class="fas fa-envelope"></i></div>
+                            <h4>Official Email</h4>
+                            <span class="coming-soon">Coming Soon</span>
+                        </div>
+                        <div class="social-card">
+                            <div class="icon"><i class="fab fa-x-twitter"></i></div>
+                            <h4>X / Twitter</h4>
+                            <span class="coming-soon">Coming Soon</span>
+                        </div>
+                        <div class="social-card">
+                            <div class="icon"><i class="fab fa-instagram"></i></div>
+                            <h4>Instagram</h4>
+                            <span class="coming-soon">Coming Soon</span>
+                        </div>
+                        <div class="social-card">
+                            <div class="icon"><i class="fab fa-youtube"></i></div>
+                            <h4>YouTube</h4>
+                            <span class="coming-soon">Coming Soon</span>
+                        </div>
+                        <div class="social-card">
+                            <div class="icon"><i class="fab fa-github"></i></div>
+                            <h4>GitHub</h4>
+                            <span class="coming-soon">Coming Soon</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script src="js/supabase.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+        
+
+            // ============================================================
+            // SIDEBAR TOGGLE (mobile)
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // CATEGORY CARDS — set form category
+            // ============================================================
+            const categoryCards = document.querySelectorAll('.category-card');
+            const categorySelect = document.getElementById('category');
+
+            categoryCards.forEach(function(card) {
+                card.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    if (categorySelect) {
+                        const options = categorySelect.options;
+                        for (let i = 0; i < options.length; i++) {
+                            if (options[i].value === category) {
+                                categorySelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        // Scroll to form
+                        document.querySelector('.contact-form-wrapper').scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // ============================================================
+            // TOAST
+            // ============================================================
+            const toast = document.getElementById('contactToast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 5000);
+            }
+
+            function hideToast() {
+                toast.classList.remove('show');
+                clearTimeout(toast._hideTimer);
+            }
+
+            // ============================================================
+            // FILE UPLOAD
+            // ============================================================
+            const fileInput = document.getElementById('fileInput');
+            const filePreview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const fileRemove = document.getElementById('fileRemove');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (file) {
+                        fileName.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                        filePreview.style.display = 'block';
+                    }
+                });
+            }
+
+            if (fileRemove) {
+                fileRemove.addEventListener('click', function() {
+                    fileInput.value = '';
+                    filePreview.style.display = 'none';
+                });
+            }
+
+            // ============================================================
+            // FORM VALIDATION
+            // ============================================================
+            const form = document.getElementById('contactForm');
+            const nameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const subjectInput = document.getElementById('subject');
+            const messageInput = document.getElementById('message');
+
+            const nameWrapper = document.getElementById('nameWrapper');
+            const emailWrapper = document.getElementById('emailWrapper');
+            const subjectWrapper = document.getElementById('subjectWrapper');
+            const messageWrapper = document.getElementById('messageWrapper');
+
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
+            const subjectError = document.getElementById('subjectError');
+            const messageError = document.getElementById('messageError');
+
+            function validateName() {
+                const val = nameInput.value.trim();
+                if (val.length < 2) {
+                    nameWrapper.classList.add('error');
+                    nameError.classList.add('show');
+                    return false;
+                }
+                nameWrapper.classList.remove('error');
+                nameError.classList.remove('show');
+                return true;
+            }
+
+            function validateEmail() {
+                const val = emailInput.value.trim();
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!re.test(val)) {
+                    emailWrapper.classList.add('error');
+                    emailError.classList.add('show');
+                    return false;
+                }
+                emailWrapper.classList.remove('error');
+                emailError.classList.remove('show');
+                return true;
+            }
+
+            function validateSubject() {
+                const val = subjectInput.value.trim();
+                if (val.length < 3) {
+                    subjectWrapper.classList.add('error');
+                    subjectError.classList.add('show');
+                    return false;
+                }
+                subjectWrapper.classList.remove('error');
+                subjectError.classList.remove('show');
+                return true;
+            }
+
+            function validateMessage() {
+                const val = messageInput.value.trim();
+                if (val.length < 20) {
+                    messageWrapper.classList.add('error');
+                    messageError.classList.add('show');
+                    return false;
+                }
+                messageWrapper.classList.remove('error');
+                messageError.classList.remove('show');
+                return true;
+            }
+
+            nameInput.addEventListener('blur', validateName);
+            nameInput.addEventListener('input', function() {
+                if (nameWrapper.classList.contains('error')) validateName();
+            });
+
+            emailInput.addEventListener('blur', validateEmail);
+            emailInput.addEventListener('input', function() {
+                if (emailWrapper.classList.contains('error')) validateEmail();
+            });
+
+            subjectInput.addEventListener('blur', validateSubject);
+            subjectInput.addEventListener('input', function() {
+                if (subjectWrapper.classList.contains('error')) validateSubject();
+            });
+
+            messageInput.addEventListener('blur', validateMessage);
+            messageInput.addEventListener('input', function() {
+                if (messageWrapper.classList.contains('error')) validateMessage();
+            });
+
+            // ============================================================
+            // FORM SUBMISSION
+            // ============================================================
+            const sendBtn = document.getElementById('sendBtn');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                hideToast();
+
+                const isNameValid = validateName();
+                const isEmailValid = validateEmail();
+                const isSubjectValid = validateSubject();
+                const isMessageValid = validateMessage();
+
+                if (!isNameValid || !isEmailValid || !isSubjectValid || !isMessageValid) {
+                    showToast('Please fix the errors above.', 'error');
+                    return;
+                }
+
+                if (!categorySelect.value) {
+                    showToast('Please select a category.', 'error');
+                    return;
+                }
+
+                // Collect data
+                const formData = {
+                    name: nameInput.value.trim(),
+                    username: document.getElementById('username').value.trim(),
+                    email: emailInput.value.trim(),
+                    category: categorySelect.value,
+                    subject: subjectInput.value.trim(),
+                    message: messageInput.value.trim(),
+                    file: fileInput.files[0] ? fileInput.files[0].name : null
+                };
+
+                console.log('[AniVerse] Contact submission (Supabase ready):', formData);
+
+                // Loading state
+                sendBtn.classList.add('loading');
+                sendBtn.disabled = true;
+
+                // Simulate submission
+                setTimeout(function() {
+                    sendBtn.classList.remove('loading');
+                    sendBtn.disabled = false;
+
+                    const success = Math.random() > 0.15;
+                    if (success) {
+                        showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+                        form.reset();
+                        filePreview.style.display = 'none';
+                        // Clear error states
+                        document.querySelectorAll('.input-wrapper.error').forEach(function(el) {
+                            el.classList.remove('error');
+                        });
+                        document.querySelectorAll('.form-error.show').forEach(function(el) {
+                            el.classList.remove('show');
+                        });
+                    } else {
+                        showToast('Something went wrong. Please try again.', 'error');
+                    }
+                }, 1800);
+            });
+
+            // ============================================================
+            // RESET BUTTON
+            // ============================================================
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Reset all form fields?')) {
+                        form.reset();
+                        filePreview.style.display = 'none';
+                        document.querySelectorAll('.input-wrapper.error').forEach(function(el) {
+                            el.classList.remove('error');
+                        });
+                        document.querySelectorAll('.form-error.show').forEach(function(el) {
+                            el.classList.remove('show');
+                        });
+                        hideToast();
+                    }
+                });
+            }
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('AniVerse · contact.html ready (Supabase integration pending)');
+
+        })();
+    </script>
+
+</body>
+</html>

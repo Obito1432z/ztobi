@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            /* Colors */
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            /* Shadows */
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --shadow-dropdown: 0 16px 48px rgba(0, 0, 0, 0.6);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+            --font-size-3xl: 2.6rem;
+
+            /* Transitions */
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --transition-fast: all 0.15s ease;
+
+            /* Animations */
+            --animation-pulse: pulse 1.5s ease-in-out infinite;
+
+            /* Layout */
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Sidebar Toggle (mobile) */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+        }
+
+        .header .header-actions .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        /* ============================================================
+                   UTILITY
+                   ============================================================ */
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* ============================================================
+                   BUTTONS — Shared
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   SEARCH HERO
+                   ============================================================ */
+        .search-hero {
+            padding: 0 0 var(--spacing-xl);
+        }
+
+        .search-hero .banner-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            padding: var(--spacing-xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .search-hero .banner-card .banner-glow {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .search-hero .banner-card h1 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .search-hero .banner-card h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-hero .banner-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            max-width: 540px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   SEARCH BAR
+                   ============================================================ */
+        .search-bar-wrapper {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--bg-glass);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 6px 6px 6px 20px;
+            transition: var(--transition-smooth);
+            max-width: 900px;
+        }
+
+        .search-bar-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .search-bar-wrapper .search-icon {
+            color: var(--text-muted);
+            font-size: var(--font-size-md);
+            flex-shrink: 0;
+        }
+
+        .search-bar-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: var(--font-size-md);
+            color: var(--text-primary);
+            padding: 10px 0;
+            min-width: 140px;
+        }
+
+        .search-bar-wrapper input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-bar-wrapper .search-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar-wrapper .search-actions .btn {
+            padding: 8px 18px;
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+        }
+
+        .search-bar-wrapper .search-actions .btn-icon {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: var(--font-size-md);
+        }
+
+        .search-bar-wrapper .search-actions .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        /* ============================================================
+                   SEARCH CATEGORIES
+                   ============================================================ */
+        .search-categories {
+            padding: var(--spacing-lg) 0 var(--spacing-md);
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .category-list .category-btn {
+            padding: 8px 20px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .category-list .category-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+        }
+
+        .category-list .category-btn.active {
+            background: rgba(124, 92, 252, 0.12);
+            color: #fff;
+            border-color: var(--accent-1);
+        }
+
+        /* ============================================================
+                   FILTERS
+                   ============================================================ */
+        .search-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .filter-group {
+            position: relative;
+        }
+
+        .filter-group .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 8px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-group .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .filter-group .filter-btn i {
+            font-size: var(--font-size-xs);
+        }
+
+        .filter-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 180px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 8px 0;
+            box-shadow: var(--shadow-dropdown);
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .filter-dropdown.open {
+            display: block;
+            animation: fadeSlide 0.2s ease;
+        }
+
+        .filter-dropdown .dropdown-item {
+            padding: 8px 20px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-dropdown .dropdown-item:hover {
+            background: rgba(124, 92, 252, 0.08);
+            color: var(--text-primary);
+        }
+
+        .filter-dropdown .dropdown-item.active {
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.06);
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   SEARCH RESULTS
+                   ============================================================ */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        /* Result Card */
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .result-card:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .result-card .card-image {
+            aspect-ratio: 16 / 9;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 2rem;
+        }
+
+        .result-card .card-body {
+            padding: var(--spacing-md);
+        }
+
+        .result-card .card-body .card-title {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            margin-bottom: 2px;
+        }
+
+        .result-card .card-body .card-subtitle {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .result-card .card-body .card-meta {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        /* Skeleton Card */
+        .result-card.skeleton {
+            pointer-events: none;
+        }
+
+        .result-card.skeleton .card-image {
+            background: var(--bg-secondary);
+            animation: var(--animation-pulse);
+        }
+
+        .result-card.skeleton .card-body .card-title {
+            height: 16px;
+            width: 70%;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .result-card.skeleton .card-body .card-subtitle {
+            height: 12px;
+            width: 50%;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin-top: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .result-card.skeleton .card-body .card-meta {
+            height: 12px;
+            width: 40%;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin-top: 8px;
+            animation: var(--animation-pulse);
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .empty-state p {
+            font-size: var(--font-size-md);
+        }
+
+        /* ============================================================
+                   QUICK ACTIONS
+                   ============================================================ */
+        .quick-actions {
+            margin-top: var(--spacing-2xl);
+            padding-top: var(--spacing-xl);
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .quick-actions .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .quick-actions .quick-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .quick-actions .quick-card:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .quick-actions .quick-card .icon {
+            font-size: 2rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.6;
+        }
+
+        .quick-actions .quick-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .quick-actions .quick-card p {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .search-hero .banner-card {
+                padding: var(--spacing-xl);
+                min-height: 140px;
+            }
+            .search-hero .banner-card h1 {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .search-hero .banner-card {
+                padding: var(--spacing-lg) var(--spacing-md);
+                min-height: 120px;
+            }
+
+            .search-hero .banner-card h1 {
+                font-size: var(--font-size-lg);
+            }
+
+            .search-hero .banner-card p {
+                font-size: var(--font-size-sm);
+            }
+
+            .search-bar-wrapper {
+                padding: 6px 6px 6px 14px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-bar-wrapper .search-actions {
+                justify-content: stretch;
+            }
+
+            .search-bar-wrapper .search-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .category-list .category-btn {
+                padding: 6px 14px;
+                font-size: var(--font-size-xs);
+            }
+
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: var(--spacing-sm);
+            }
+
+            .quick-actions .quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .quick-actions .quick-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-bar-wrapper input {
+                font-size: var(--font-size-sm);
+            }
+
+            .search-bar-wrapper .search-actions .btn {
+                font-size: var(--font-size-xs);
+                padding: 6px 14px;
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fas fa-crown"></i> AniVerse
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge">3</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge">5</span>
+            </a>
+            <a href="search.html" class="nav-item active">
+                <i class="fas fa-search"></i> Search
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot"></span>
+                </button>
+                <div class="user-avatar" aria-label="User avatar">U</div>
+                <span class="user-level">Lv.12</span>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            SEARCH HERO
+            ============================================================ -->
+            <section class="search-hero" aria-label="Search hero">
+                <div class="container">
+                    <div class="banner-card">
+                        <div class="banner-glow"></div>
+                        <span class="section-tag"><i class="fas fa-search"></i> Explore</span>
+                        <h1>Find What <span class="highlight">You Love</span></h1>
+                        <p>Search anime, users, guilds, posts, and the entire community.</p>
+
+                        <!-- Search Bar -->
+                        <div class="search-bar-wrapper" role="search">
+                            <span class="search-icon"><i class="fas fa-search"></i></span>
+                            <input type="text" id="searchInput" placeholder="Search for anime, people, guilds..." aria-label="Global search" />
+                            <div class="search-actions">
+                                <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+                                <button class="btn-icon" id="clearSearchBtn" aria-label="Clear search"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon" id="voiceSearchBtn" aria-label="Voice search"><i class="fas fa-microphone"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            SEARCH CATEGORIES
+            ============================================================ -->
+            <section class="search-categories" aria-label="Search categories">
+                <div class="container">
+                    <div class="category-list" id="categoryList">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="anime">Anime</button>
+                        <button class="category-btn" data-category="users">Users</button>
+                        <button class="category-btn" data-category="guilds">Guilds</button>
+                        <button class="category-btn" data-category="posts">Posts</button>
+                        <button class="category-btn" data-category="comments">Comments</button>
+                        <button class="category-btn" data-category="projects">Community Projects</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            FILTERS
+            ============================================================ -->
+            <section class="search-filters" aria-label="Search filters">
+                <div class="container">
+                    <div class="filter-group">
+                        <button class="filter-btn" data-filter="sort"><i class="fas fa-arrow-up-wide-short"></i> Sort By <i class="fas fa-chevron-down"></i></button>
+                        <div class="filter-dropdown" data-filter="sort">
+                            <div class="dropdown-item active">Newest</div>
+                            <div class="dropdown-item">Most Popular</div>
+                            <div class="dropdown-item">Recently Updated</div>
+                            <div class="dropdown-item">Alphabetical</div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <button class="filter-btn" data-filter="status"><i class="fas fa-circle"></i> Status <i class="fas fa-chevron-down"></i></button>
+                        <div class="filter-dropdown" data-filter="status">
+                            <div class="dropdown-item active">All</div>
+                            <div class="dropdown-item">Active</div>
+                            <div class="dropdown-item">Completed</div>
+                            <div class="dropdown-item">Upcoming</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            SEARCH RESULTS
+            ============================================================ -->
+            <section class="search-results" aria-label="Search results">
+                <div class="container">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-list"></i> Results</span>
+                            <h2 class="section-title">Search Results</h2>
+                        </div>
+                        <span style="color:var(--text-muted); font-size:var(--font-size-sm);">0 results</span>
+                    </div>
+
+                    <div class="results-grid" id="resultsGrid">
+                        <!-- Skeleton cards injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            QUICK ACTIONS
+            ============================================================ -->
+            <section class="quick-actions" aria-label="Quick actions">
+                <div class="container">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-bolt"></i> Quick</span>
+                            <h2 class="section-title">Quick Actions</h2>
+                        </div>
+                    </div>
+                    <div class="quick-grid">
+                        <div class="quick-card" data-action="anime">
+                            <div class="icon"><i class="fas fa-film"></i></div>
+                            <h4>Search Anime</h4>
+                            <p>Find your next favorite show</p>
+                        </div>
+                        <div class="quick-card" data-action="friends">
+                            <div class="icon"><i class="fas fa-user-friends"></i></div>
+                            <h4>Find Friends</h4>
+                            <p>Connect with community members</p>
+                        </div>
+                        <div class="quick-card" data-action="guilds">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <h4>Browse Guilds</h4>
+                            <p>Discover active communities</p>
+                        </div>
+                        <div class="quick-card" data-action="community">
+                            <div class="icon"><i class="fas fa-globe"></i></div>
+                            <h4>Explore Community</h4>
+                            <p>See what's happening</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script src="js/supabase.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+    
+
+            // ============================================================
+            // SIDEBAR TOGGLE (mobile)
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // CATEGORY FILTERS
+            // ============================================================
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    categoryBtns.forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    const category = this.getAttribute('data-category');
+                    console.log('[AniVerse] Category filter:', category);
+                    // Show loading state
+                    showLoading();
+                });
+            });
+
+            // ============================================================
+            // FILTER DROPDOWNS
+            // ============================================================
+            document.querySelectorAll('.filter-group').forEach(function(group) {
+                const btn = group.querySelector('.filter-btn');
+                const dropdown = group.querySelector('.filter-dropdown');
+
+                if (btn && dropdown) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const isOpen = dropdown.classList.toggle('open');
+                        document.querySelectorAll('.filter-dropdown.open').forEach(function(d) {
+                            if (d !== dropdown) d.classList.remove('open');
+                        });
+                    });
+
+                    dropdown.querySelectorAll('.dropdown-item').forEach(function(item) {
+                        item.addEventListener('click', function() {
+                            dropdown.querySelectorAll('.dropdown-item').forEach(function(i) {
+                                i.classList.remove('active');
+                            });
+                            item.classList.add('active');
+                            const label = item.textContent.trim();
+                            const icon = btn.querySelector('i:first-child');
+                            const chevron = btn.querySelector('i:last-child');
+                            if (icon && chevron) {
+                                const textNode = btn.childNodes[1];
+                                if (textNode) {
+                                    btn.replaceChild(document.createTextNode(' ' + label +
+                                        ' '), textNode);
+                                }
+                            }
+                            dropdown.classList.remove('open');
+                            // Trigger search update
+                            showLoading();
+                        });
+                    });
+                }
+            });
+
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.filter-dropdown.open').forEach(function(d) {
+                    d.classList.remove('open');
+                });
+            });
+
+            // ============================================================
+            // SEARCH INPUT
+            // ============================================================
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query.length === 0) {
+                    alert('Please enter a search term.');
+                    return;
+                }
+                console.log('[AniVerse] Search query:', query);
+                showLoading();
+            }
+
+            function showLoading() {
+                const grid = document.getElementById('resultsGrid');
+                if (grid) {
+                    let html = '';
+                    for (let i = 0; i < 8; i++) {
+                        html += `
+                                    <div class="result-card skeleton">
+                                        <div class="card-image"></div>
+                                        <div class="card-body">
+                                            <div class="card-title"></div>
+                                            <div class="card-subtitle"></div>
+                                            <div class="card-meta"></div>
+                                        </div>
+                                    </div>
+                                `;
+                    }
+                    grid.innerHTML = html;
+
+                    // Simulate loading - show empty state after delay
+                    setTimeout(function() {
+                        grid.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-search"></i>
+                                        <h3>No results found</h3>
+                                        <p>Try a different keyword or adjust your filters.</p>
+                                    </div>
+                                `;
+                    }, 1500);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch();
+                    }
+                });
+            }
+
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    // Show initial state with skeletons
+                    showLoading();
+                });
+            }
+
+            if (voiceSearchBtn) {
+                voiceSearchBtn.addEventListener('click', function() {
+                    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                        alert('Voice search will be available with Supabase integration.');
+                    } else {
+                        alert('Voice search is not supported in your browser.');
+                    }
+                });
+            }
+
+            // ============================================================
+            // QUICK ACTIONS
+            // ============================================================
+            document.querySelectorAll('.quick-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    const labels = {
+                        anime: 'Search Anime',
+                        friends: 'Find Friends',
+                        guilds: 'Browse Guilds',
+                        community: 'Explore Community'
+                    };
+                    alert(labels[action] + ' coming soon with Supabase integration.');
+                });
+            });
+
+            // ============================================================
+            // INITIAL LOAD — show skeletons then empty state
+            // ============================================================
+            showLoading();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('AniVerse · search.html ready (Supabase integration pending)');
+
+        })();
+    </script>
+
+</body>
+</html>

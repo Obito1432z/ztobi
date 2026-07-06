@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Guild · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supadase.js"></script>
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
+        }
+
+        .header .header-actions .user-avatar {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   FORM ELEMENTS
+                   ============================================================ */
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl) var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .form-card:hover {
+            border-color: rgba(124, 92, 252, 0.06);
+        }
+
+        .form-card .card-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .form-card .card-title i {
+            color: var(--accent-1);
+            margin-right: var(--spacing-sm);
+        }
+
+        .form-card .card-desc {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .form-group label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .form-group .help-text {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .form-group .char-counter {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .input-wrapper.error {
+            border-color: var(--color-error);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .input-wrapper.success {
+            border-color: var(--color-success);
+            box-shadow: 0 0 0 3px rgba(81, 207, 102, 0.15);
+        }
+
+        .input-wrapper input,
+        .input-wrapper select,
+        .input-wrapper textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+        }
+
+        .input-wrapper textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .input-wrapper input::placeholder,
+        .input-wrapper textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            cursor: pointer;
+        }
+
+        .input-wrapper select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-error {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--color-error);
+            margin-top: 4px;
+            font-weight: 500;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-error.show {
+            display: flex;
+        }
+
+        /* ============================================================
+                   UPLOAD AREAS
+                   ============================================================ */
+        .upload-area {
+            border: 2px dashed var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-lg);
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.04);
+        }
+
+        .upload-area .icon {
+            font-size: 2.5rem;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.4;
+        }
+
+        .upload-area .upload-text {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .upload-area .upload-text strong {
+            color: var(--accent-1);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-preview {
+            display: none;
+            margin-top: var(--spacing-md);
+            position: relative;
+        }
+
+        .upload-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-glass);
+        }
+
+        .upload-preview .preview-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            justify-content: center;
+        }
+
+        /* ============================================================
+                   GUIDELINES SIDEBAR
+                   ============================================================ */
+        .guidelines-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl) var(--spacing-lg);
+            position: sticky;
+            top: calc(var(--header-height) + var(--spacing-xl));
+        }
+
+        .guidelines-card h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .guidelines-card .guideline-item {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .guidelines-card .guideline-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .guidelines-card .guideline-item .icon {
+            color: var(--accent-1);
+            font-size: var(--font-size-md);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .guidelines-card .guideline-item .content h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .guidelines-card .guideline-item .content p {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+                   FORM ACTIONS
+                   ============================================================ */
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .form-actions .btn {
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   MODAL
+                   ============================================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 40px 36px;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-box .icon {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .modal-box .icon.success {
+            color: var(--color-success);
+        }
+
+        .modal-box .icon.error {
+            color: var(--color-error);
+        }
+
+        .modal-box h2 {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .modal-box p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-box .btn {
+            min-width: 120px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .guidelines-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .form-card {
+                padding: var(--spacing-lg);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .modal-box {
+                padding: 32px 24px;
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: var(--spacing-md);
+            }
+
+            .guidelines-card {
+                padding: var(--spacing-md);
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <img src="assets/logo.png" alt="AniVerse Logo" />
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item active">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge" id="messageBadge"></span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge" id="notifBadge"></span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+            <a href="admin.html" class="nav-item admin-panel" id="adminPanelLink">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item" id="settingsLink">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item" id="profileLink">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level" id="headerLevel">Lv.0</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <div class="container">
+
+                <!-- ============================================================
+                PAGE HEADER
+                ============================================================ -->
+                <div class="section-header">
+                    <div>
+                        <span class="section-tag"><i class="fas fa-plus"></i> New Guild</span>
+                        <h1 class="section-title">Create Your Guild</h1>
+                        <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Build a community around your passion. Submit your guild for review.</p>
+                    </div>
+                    <div style="display:flex; gap:var(--spacing-sm); flex-wrap:wrap;">
+                        <a href="guilds.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+                    </div>
+                </div>
+
+                <!-- Toast -->
+                <div id="createToast" class="toast" role="alert">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="toastMessage">Please fix the errors</span>
+                </div>
+
+                <!-- ============================================================
+                CREATE GUILD FORM
+                ============================================================ -->
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl); align-items: start;">
+
+                    <!-- Form -->
+                    <div>
+                        <form id="guildForm" novalidate>
+
+                            <!-- Guild Details -->
+                            <div class="form-card">
+                                <div class="card-title"><i class="fas fa-tag"></i> Guild Details</div>
+
+                                <div class="form-group">
+                                    <label for="guildName">Guild Name <span class="required">*</span></label>
+                                    <div class="input-wrapper" id="nameWrapper">
+                                        <input type="text" id="guildName" placeholder="Enter a unique guild name" required minlength="3" maxlength="50" />
+                                    </div>
+                                    <div class="form-error" id="nameError">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>3-50 characters required</span>
+                                    </div>
+                                    <div class="char-counter"><span id="nameCount">0</span>/50</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="guildDescription">Description <span class="required">*</span></label>
+                                    <div class="input-wrapper" id="descWrapper">
+                                        <textarea id="guildDescription" placeholder="Describe your guild's purpose and vision" required minlength="20" maxlength="500"></textarea>
+                                    </div>
+                                    <div class="form-error" id="descError">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>20-500 characters required</span>
+                                    </div>
+                                    <div class="char-counter"><span id="descCount">0</span>/500</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="guildCategory">Category <span class="required">*</span></label>
+                                    <div class="input-wrapper">
+                                        <select id="guildCategory" required>
+                                            <option value="">Select a category</option>
+                                            <option value="anime">Anime Discussion</option>
+                                            <option value="gaming">Gaming</option>
+                                            <option value="cosplay">Cosplay</option>
+                                            <option value="art">Art</option>
+                                            <option value="voice">Voice Acting</option>
+                                            <option value="writing">Writing</option>
+                                            <option value="community">Community Projects</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Visibility <span class="required">*</span></label>
+                                    <div style="display:flex; gap:var(--spacing-md); flex-wrap:wrap; margin-top:4px;">
+                                        <label style="display:flex; align-items:center; gap:var(--spacing-sm); cursor:pointer; color:var(--text-secondary); font-size:var(--font-size-sm);">
+                                            <input type="radio" name="visibility" value="public" checked /> Public
+                                        </label>
+                                        <label style="display:flex; align-items:center; gap:var(--spacing-sm); cursor:pointer; color:var(--text-secondary); font-size:var(--font-size-sm);">
+                                            <input type="radio" name="visibility" value="private" /> Private
+                                        </label>
+                                    </div>
+                                    <div class="help-text">Public guilds are discoverable; private guilds require approval.</div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Settings -->
+                            <div class="form-card">
+                                <div class="card-title"><i class="fas fa-cog"></i> Additional Settings</div>
+
+                                <div class="form-group">
+                                    <label for="guildTags">Tags</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="guildTags" placeholder="e.g. anime, chill, competitive" />
+                                    </div>
+                                    <div class="help-text">Comma-separated tags to help others discover your guild.</div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label for="guildLanguage">Primary Language</label>
+                                    <div class="input-wrapper">
+                                        <select id="guildLanguage">
+                                            <option value="en">English</option>
+                                            <option value="ja">Japanese</option>
+                                            <option value="es">Spanish</option>
+                                            <option value="fr">French</option>
+                                            <option value="de">German</option>
+                                            <option value="pt">Portuguese</option>
+                                            <option value="ko">Korean</option>
+                                            <option value="zh">Chinese</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                    <span class="btn-text"><i class="fas fa-paper-plane"></i> Create Guild</span>
+                                    <span class="spinner"></span>
+                                </button>
+                                <button type="reset" class="btn btn-secondary" id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
+                                <a href="guilds.html" class="btn btn-ghost"><i class="fas fa-times"></i> Cancel</a>
+                            </div>
+
+                            <div style="margin-top:var(--spacing-md); padding:var(--spacing-md); background:rgba(255, 215, 61, 0.06); border:1px solid rgba(255, 215, 61, 0.15); border-radius:var(--radius-sm); text-align:center; color:var(--text-secondary); font-size:var(--font-size-sm);">
+                                <i class="fas fa-clock" style="color:var(--color-warning);"></i>
+                                Guilds require review before publishing. Approval typically takes 24-48 hours.
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <!-- Guidelines -->
+                    <div>
+                        <div class="guidelines-card">
+                            <h3><i class="fas fa-gavel" style="color:var(--accent-1);"></i> Guild Guidelines</h3>
+
+                            <div class="guideline-item">
+                                <div class="icon"><i class="fas fa-font"></i></div>
+                                <div class="content">
+                                    <h4>Naming Rules</h4>
+                                    <p>No offensive or misleading names. Must be unique and appropriate.</p>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item">
+                                <div class="icon"><i class="fas fa-users"></i></div>
+                                <div class="content">
+                                    <h4>Community Rules</h4>
+                                    <p>Respect all members, no harassment, keep content appropriate.</p>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item">
+                                <div class="icon"><i class="fas fa-image"></i></div>
+                                <div class="content">
+                                    <h4>Content Policy</h4>
+                                    <p>No NSFW, copyright violations, or misleading content.</p>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item">
+                                <div class="icon"><i class="fas fa-clock"></i></div>
+                                <div class="content">
+                                    <h4>Approval Process</h4>
+                                    <p>All guilds are reviewed within 24-48 hours. You'll be notified via email.</p>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+                                <div class="icon"><i class="fas fa-info-circle"></i></div>
+                                <div class="content">
+                                    <h4>Review Time</h4>
+                                    <p>Submit during weekdays for faster review.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODALS
+    ============================================================ -->
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div class="icon success"><i class="fas fa-check-circle"></i></div>
+            <h2>Guild Created!</h2>
+            <p>Your guild has been created successfully. It will be reviewed within 24-48 hours.</p>
+            <button class="btn btn-primary" id="successModalBtn">Go to Guilds</button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div class="icon error"><i class="fas fa-exclamation-circle"></i></div>
+            <h2>Creation Failed</h2>
+            <p id="errorModalMessage">There was an error creating your guild. Please try again.</p>
+            <button class="btn btn-primary" id="errorModalBtn">Try Again</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+            let currentProfile = null;
+
+            // ============================================================
+            // UPDATE AUTH UI
+            // ============================================================
+            async function updateAuthUI() {
+                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                currentUser = user;
+                currentProfile = profile;
+
+                const isLoggedIn = !!user;
+
+                const headerAvatar = document.getElementById('headerAvatar');
+                const headerLevel = document.getElementById('headerLevel');
+                const headerLoginBtn = document.getElementById('headerLoginBtn');
+                const headerSignupBtn = document.getElementById('headerSignupBtn');
+                const loginLink = document.getElementById('loginLink');
+                const signupLink = document.getElementById('signupLink');
+                const profileLink = document.getElementById('profileLink');
+                const settingsLink = document.getElementById('settingsLink');
+                const logoutLink = document.getElementById('logoutLink');
+                const adminPanelLink = document.getElementById('adminPanelLink');
+
+                if (isLoggedIn && profile) {
+                    headerAvatar.classList.add('visible');
+                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                    headerLevel.textContent = `Lv.${profile.level || 0}`;
+                    headerLevel.classList.add('visible');
+                    headerLoginBtn.classList.remove('visible');
+                    headerSignupBtn.classList.remove('visible');
+
+                    loginLink.classList.add('hidden');
+                    signupLink.classList.add('hidden');
+                    loginLink.style.display = 'none';
+                    signupLink.style.display = 'none';
+                    profileLink.style.display = 'flex';
+                    settingsLink.style.display = 'flex';
+                    logoutLink.classList.add('visible');
+                    logoutLink.style.display = 'flex';
+
+                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                        adminPanelLink.classList.add('visible');
+                    } else {
+                        adminPanelLink.classList.remove('visible');
+                    }
+
+                } else {
+                    headerAvatar.classList.remove('visible');
+                    headerLevel.classList.remove('visible');
+                    headerLoginBtn.classList.add('visible');
+                    headerSignupBtn.classList.add('visible');
+
+                    loginLink.classList.remove('hidden');
+                    signupLink.classList.remove('hidden');
+                    loginLink.style.display = 'flex';
+                    signupLink.style.display = 'flex';
+                    profileLink.style.display = 'none';
+                    settingsLink.style.display = 'none';
+                    logoutLink.classList.remove('visible');
+                    logoutLink.style.display = 'none';
+                    adminPanelLink.classList.remove('visible');
+                }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await AniVerse.auth.signOut();
+                    if (!error) {
+                        localStorage.removeItem('aniverse_session');
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // CHARACTER COUNTERS
+            // ============================================================
+            const nameInput = document.getElementById('guildName');
+            const nameCount = document.getElementById('nameCount');
+            const descInput = document.getElementById('guildDescription');
+            const descCount = document.getElementById('descCount');
+
+            nameInput.addEventListener('input', function() {
+                nameCount.textContent = this.value.length;
+            });
+
+            descInput.addEventListener('input', function() {
+                descCount.textContent = this.value.length;
+            });
+
+            // ============================================================
+            // VALIDATION
+            // ============================================================
+            function validateName() {
+                const val = nameInput.value.trim();
+                if (val.length < 3 || val.length > 50) {
+                    document.getElementById('nameWrapper').classList.add('error');
+                    document.getElementById('nameError').classList.add('show');
+                    return false;
+                }
+                document.getElementById('nameWrapper').classList.remove('error');
+                document.getElementById('nameError').classList.remove('show');
+                return true;
+            }
+
+            function validateDescription() {
+                const val = descInput.value.trim();
+                if (val.length < 20 || val.length > 500) {
+                    document.getElementById('descWrapper').classList.add('error');
+                    document.getElementById('descError').classList.add('show');
+                    return false;
+                }
+                document.getElementById('descWrapper').classList.remove('error');
+                document.getElementById('descError').classList.remove('show');
+                return true;
+            }
+
+            nameInput.addEventListener('blur', validateName);
+            nameInput.addEventListener('input', function() {
+                if (document.getElementById('nameWrapper').classList.contains('error')) {
+                    validateName();
+                }
+            });
+
+            descInput.addEventListener('blur', validateDescription);
+            descInput.addEventListener('input', function() {
+                if (document.getElementById('descWrapper').classList.contains('error')) {
+                    validateDescription();
+                }
+            });
+
+            // ============================================================
+            // TOAST
+            // ============================================================
+            const toast = document.getElementById('createToast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || '');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 5000);
+            }
+
+            function hideToast() {
+                toast.classList.remove('show');
+                clearTimeout(toast._hideTimer);
+            }
+
+            // ============================================================
+            // MODAL CONTROLS
+            // ============================================================
+            const successModal = document.getElementById('successModal');
+            const errorModal = document.getElementById('errorModal');
+            const errorModalMessage = document.getElementById('errorModalMessage');
+
+            function openSuccessModal() {
+                successModal.classList.add('open');
+            }
+
+            function openErrorModal(message) {
+                errorModalMessage.textContent = message || 'There was an error creating your guild. Please try again.';
+                errorModal.classList.add('open');
+            }
+
+            function closeModals() {
+                successModal.classList.remove('open');
+                errorModal.classList.remove('open');
+            }
+
+            document.getElementById('successModalBtn').addEventListener('click', function() {
+                closeModals();
+                window.location.href = 'guilds.html';
+            });
+
+            document.getElementById('errorModalBtn').addEventListener('click', function() {
+                closeModals();
+            });
+
+            document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('open');
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModals();
+                }
+            });
+
+            // ============================================================
+            // FORM SUBMISSION - REAL SUPABASE INTEGRATION
+            // ============================================================
+            const form = document.getElementById('guildForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                hideToast();
+
+                // Validate
+                const isNameValid = validateName();
+                const isDescValid = validateDescription();
+
+                if (!isNameValid || !isDescValid) {
+                    showToast('Please fix the errors above.', 'error');
+                    return;
+                }
+
+                const category = document.getElementById('guildCategory').value;
+                if (!category) {
+                    showToast('Please select a category.', 'error');
+                    return;
+                }
+
+                // Check if user is logged in
+                if (!currentUser) {
+                    showToast('Please log in to create a guild.', 'error');
+                    return;
+                }
+
+                // Collect form data
+                const name = nameInput.value.trim();
+                const description = descInput.value.trim();
+                const visibility = document.querySelector('input[name="visibility"]:checked').value;
+                const tags = document.getElementById('guildTags').value.trim();
+                const language = document.getElementById('guildLanguage').value;
+
+                const guildData = {
+                    name,
+                    description,
+                    category,
+                    visibility,
+                    tags: tags || null,
+                    language: language || 'en',
+                    created_by: currentUser.id
+                };
+
+                // --- LOADING ---
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    // Create slug from name
+                    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+                    // Check if name or slug exists
+                    const { data: existing } = await AniVerse.client
+                        .from('guilds')
+                        .select('id')
+                        .or(`name.eq.${name},slug.eq.${slug}`)
+                        .maybeSingle();
+
+                    if (existing) {
+                        showToast('A guild with this name already exists. Please choose a different name.', 'error');
+                        submitBtn.classList.remove('loading');
+                        submitBtn.disabled = false;
+                        return;
+                    }
+
+                    // Create the guild
+                    const { data: guild, error } = await AniVerse.client
+                        .from('guilds')
+                        .insert({
+                            name,
+                            slug,
+                            description,
+                            category,
+                            visibility,
+                            language,
+                            created_by: currentUser.id,
+                            level: 1,
+                            experience_points: 0
+                        })
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error('[AniVerse] Guild creation error:', error);
+                        openErrorModal(error.message || 'Failed to create guild. Please try again.');
+                        submitBtn.classList.remove('loading');
+                        submitBtn.disabled = false;
+                        return;
+                    }
+
+                    // Get default role (Member)
+                    const { data: defaultRole, error: roleError } = await AniVerse.client
+                        .from('guild_roles')
+                        .select('id')
+                        .eq('guild_id', guild.id)
+                        .eq('is_default', true)
+                        .single();
+
+                    if (roleError) {
+                        console.error('[AniVerse] Default role error:', roleError);
+                        // Continue anyway - the trigger should create roles
+                    }
+
+                    // Add creator as member with default role
+                    if (defaultRole) {
+                        await AniVerse.client
+                            .from('guild_members')
+                            .insert({
+                                guild_id: guild.id,
+                                user_id: currentUser.id,
+                                role_id: defaultRole.id
+                            });
+                    }
+
+                    // Success!
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                    openSuccessModal();
+
+                } catch (error) {
+                    console.error('[AniVerse] Guild creation error:', error);
+                    openErrorModal(error.message || 'An unexpected error occurred. Please try again.');
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // ============================================================
+            // RESET
+            // ============================================================
+            document.getElementById('resetBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Reset all form fields?')) {
+                    form.reset();
+                    hideToast();
+                    nameCount.textContent = '0';
+                    descCount.textContent = '0';
+                    document.getElementById('nameWrapper').classList.remove('error');
+                    document.getElementById('descWrapper').classList.remove('error');
+                    document.getElementById('nameError').classList.remove('show');
+                    document.getElementById('descError').classList.remove('show');
+                }
+            });
+
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            async function init() {
+                await updateAuthUI();
+
+                // Listen to auth changes
+                AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                        updateAuthUI();
+                    }
+                });
+            }
+
+            init();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('[AniVerse] Create guild page ready (Supabase integrated)');
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supabaseClient.js"></script>
+
+    <style>
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --input-focus: rgba(124, 92, 252, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            margin: 0;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(124, 92, 252, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(92, 140, 252, 0.04) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   AUTH CARD
+                   ============================================================ */
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        .auth-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 44px 36px 40px;
+            box-shadow: var(--shadow-glow), 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: var(--transition-smooth);
+        }
+
+        .auth-card:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+        }
+
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .auth-brand i {
+            font-size: 1.8rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+
+        .auth-sub a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+        .auth-sub a:hover {
+            color: #8a6eff;
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+                   FORM ELEMENTS
+                   ============================================================ */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .form-group label .required {
+            color: #ff6b6b;
+            margin-left: 2px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px var(--input-focus);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .input-wrapper .icon {
+            padding: 0 0 0 16px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper:focus-within .icon {
+            color: var(--accent-1);
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper .toggle-pwd {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0 16px 0 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper .toggle-pwd:hover {
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper.error {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .input-wrapper.error .icon {
+            color: #ff6b6b;
+        }
+
+        .form-error {
+            display: none;
+            font-size: 0.8rem;
+            color: #ff6b6b;
+            margin-top: 4px;
+            font-weight: 500;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-error.show {
+            display: flex;
+        }
+
+        /* ============================================================
+                   CHECKBOX
+                   ============================================================ */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 20px 0 24px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background: var(--gradient-accent);
+            border-color: var(--accent-1);
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.7rem;
+            color: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .checkbox-group input[type="checkbox"]:focus-visible {
+            outline: 2px solid var(--accent-1);
+            outline-offset: 2px;
+        }
+
+        .checkbox-group:hover {
+            color: var(--text-primary);
+        }
+
+        .forgot-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .forgot-link:hover {
+            color: var(--accent-1);
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 28px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 24px rgba(124, 92, 252, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 36px rgba(124, 92, 252, 0.45);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-primary.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn-primary.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   TOAST / ALERT
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.error {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.06);
+            color: #ff6b6b;
+        }
+
+        .toast.success {
+            border-color: #51cf66;
+            background: rgba(81, 207, 102, 0.06);
+            color: #51cf66;
+        }
+
+        .toast.info {
+            border-color: #ffd93d;
+            background: rgba(255, 215, 61, 0.06);
+            color: #ffd93d;
+        }
+
+        .toast i {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Toast with button */
+        .toast .btn-resend {
+            margin-top: 8px;
+            width: auto;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            background: var(--accent-1);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toast .btn-resend:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .auth-card {
+                padding: 32px 20px 28px;
+            }
+
+            .auth-brand {
+                font-size: 1.3rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .forgot-link {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .auth-card {
+                padding: 24px 16px 20px;
+            }
+
+            .input-wrapper input {
+                font-size: 0.85rem;
+                padding: 12px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    AUTH CONTAINER
+    ============================================================ -->
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <!-- Brand -->
+            <a href="index.html" class="auth-brand">
+                <i class="fas fa-crown"></i> AniVerse
+            </a>
+            <p class="auth-sub">
+                Welcome back &middot; <a href="signup.html">create an account</a>
+            </p>
+
+            <!-- Toast -->
+            <div id="loginToast" class="toast" role="alert">
+                <i class="fas fa-circle-exclamation"></i>
+                <span id="toastMessage">Invalid credentials</span>
+                <div id="toastActions" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;"></div>
+            </div>
+
+            <!-- ============================================================
+            LOGIN FORM
+            ============================================================ -->
+            <form id="loginForm" novalidate autocomplete="on">
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="loginEmail">
+                        Email <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper" id="emailWrapper">
+                        <span class="icon"><i class="fas fa-envelope"></i></span>
+                        <input
+                        type="email"
+                        id="loginEmail"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                        />
+                    </div>
+                    <div class="form-error" id="emailError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter a valid email</span>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="loginPassword">
+                        Password <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper" id="passwordWrapper">
+                        <span class="icon"><i class="fas fa-lock"></i></span>
+                        <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                        />
+                        <button
+                        type="button"
+                        class="toggle-pwd"
+                        id="togglePassword"
+                        aria-label="Toggle password visibility"
+                        tabindex="-1"
+                        >
+                        <i class="fas fa-eye" id="pwdIcon"></i>
+                    </button>
+                </div>
+                <div class="form-error" id="passwordError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Please enter your password</span>
+                </div>
+            </div>
+
+            <!-- Remember & Forgot -->
+            <div class="form-row">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="rememberMe" checked />
+                    Remember me
+                </label>
+                <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary" id="loginBtn">
+                <span class="btn-text"><i class="fas fa-right-to-bracket"></i> Log In</span>
+                <span class="spinner"></span>
+            </button>
+
+            <p style="text-align:center; margin-top:24px; font-size:0.8rem; color:var(--text-muted);">
+                By logging in, you agree to our
+                <a href="terms.html" style="color:var(--accent-1); text-decoration:none;">Terms</a> &amp;
+                <a href="privacy.html" style="color:var(--accent-1); text-decoration:none;">Privacy Policy</a>
+            </p>
+
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================
+JAVASCRIPT - COMPLETE LOGIN
+============================================================ -->
+<script>
+    (function() {
+        'use strict';
+
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('loginEmail');
+        const passwordInput = document.getElementById('loginPassword');
+        const togglePwdBtn = document.getElementById('togglePassword');
+        const pwdIcon = document.getElementById('pwdIcon');
+        const loginBtn = document.getElementById('loginBtn');
+        const toast = document.getElementById('loginToast');
+        const toastMsg = document.getElementById('toastMessage');
+        const toastActions = document.getElementById('toastActions');
+        const emailWrapper = document.getElementById('emailWrapper');
+        const passwordWrapper = document.getElementById('passwordWrapper');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const rememberMe = document.getElementById('rememberMe');
+        const forgotLink = document.getElementById('forgotLink');
+
+        // ============================================================
+        // TOAST HELPER
+        // ============================================================
+        function showToast(message, type, actions = []) {
+            toast.className = 'toast show ' + (type || '');
+            toastMsg.textContent = message;
+            
+            // Clear previous actions
+            toastActions.innerHTML = '';
+            
+            // Add action buttons
+            actions.forEach(action => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-resend';
+                btn.innerHTML = action.icon + ' ' + action.text;
+                btn.onclick = action.callback;
+                toastActions.appendChild(btn);
+            });
+            
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(function() {
+                toast.classList.remove('show');
+                toastActions.innerHTML = '';
+            }, 10000);
+        }
+
+        function hideToast() {
+            toast.classList.remove('show');
+            toastActions.innerHTML = '';
+            clearTimeout(toast._hideTimer);
+        }
+
+        // ============================================================
+        // FIELD ERROR HELPER
+        // ============================================================
+        function setFieldError(wrapper, errorEl, show) {
+            if (show) {
+                wrapper.classList.add('error');
+                errorEl.classList.add('show');
+            } else {
+                wrapper.classList.remove('error');
+                errorEl.classList.remove('show');
+            }
+        }
+
+        // ============================================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================================
+        togglePwdBtn.addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            pwdIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+
+        // ============================================================
+        // REAL-TIME VALIDATION
+        // ============================================================
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(val)) {
+                setFieldError(emailWrapper, emailError, true);
+                return false;
+            }
+            setFieldError(emailWrapper, emailError, false);
+            return true;
+        }
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            if (val.length < 6) {
+                setFieldError(passwordWrapper, passwordError, true);
+                return false;
+            }
+            setFieldError(passwordWrapper, passwordError, false);
+            return true;
+        }
+
+        emailInput.addEventListener('blur', validateEmail);
+        emailInput.addEventListener('input', function() {
+            if (emailWrapper.classList.contains('error')) validateEmail();
+        });
+
+        passwordInput.addEventListener('blur', validatePassword);
+        passwordInput.addEventListener('input', function() {
+            if (passwordWrapper.classList.contains('error')) validatePassword();
+        });
+
+        // ============================================================
+        // CHECK IF ALREADY LOGGED IN
+        // ============================================================
+        async function checkExistingSession() {
+            try {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    console.warn('[AniVerse] Auth not ready, waiting...');
+                    setTimeout(checkExistingSession, 300);
+                    return;
+                }
+                
+                const { session } = await window.AniVerse.auth.getSession();
+                
+                if (session && session.user) {
+                    console.log('[AniVerse] User already logged in:', session.user.email);
+                    showToast('Already logged in. Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.replace('index.html');
+                    }, 1500);
+                }
+            } catch (e) {
+                console.error('[AniVerse] Session check error:', e);
+            }
+        }
+
+        // ============================================================
+        // RESEND CONFIRMATION EMAIL
+        // ============================================================
+        async function resendConfirmationEmail(email) {
+            try {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.client) {
+                    throw new Error('Client not initialized');
+                }
+
+                console.log('[AniVerse] Resending confirmation email to:', email);
+
+                const { data, error } = await window.AniVerse.client.auth.resend({
+                    type: 'signup',
+                    email: email
+                });
+
+                if (error) {
+                    console.error('[AniVerse] Resend error:', error);
+                    showToast('Error sending confirmation email: ' + error.message, 'error');
+                    return;
+                }
+
+                showToast('✅ Confirmation email resent! Please check your inbox.', 'success');
+
+            } catch (error) {
+                console.error('[AniVerse] Resend error:', error);
+                showToast('Could not resend confirmation email. Please try again.', 'error');
+            }
+        }
+
+        // ============================================================
+        // FORM SUBMISSION - REAL SUPABASE INTEGRATION
+        // ============================================================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideToast();
+
+            const isEmailValid = validateEmail();
+            const isPwdValid = validatePassword();
+
+            if (!isEmailValid || !isPwdValid) {
+                showToast('Please fix the errors above.', 'error');
+                return;
+            }
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // --- LOADING STATE ---
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+
+            try {
+                // Check if AniVerse is available
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    throw new Error('Supabase client not initialized. Please refresh the page.');
+                }
+
+                console.log('[AniVerse] Attempting login for:', email);
+
+                const result = await window.AniVerse.auth.signIn({ email, password });
+
+                if (result.error) {
+                    console.error('[AniVerse] Login error:', result.error);
+                    
+                    // Handle email not confirmed error
+                    if (result.error && result.error.includes('Email not confirmed')) {
+                        showToast(
+                            '⚠️ Please verify your email address. Check your inbox for the confirmation link.',
+                            'info',
+                            [{
+                                icon: '<i class="fas fa-envelope"></i>',
+                                text: 'Resend Confirmation Email',
+                                callback: function() {
+                                    resendConfirmationEmail(email);
+                                }
+                            }]
+                        );
+                        loginBtn.classList.remove('loading');
+                        loginBtn.disabled = false;
+                        return;
+                    }
+                    
+                    showToast(result.error, 'error');
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    return;
+                }
+
+                if (result.user) {
+                    console.log('[AniVerse] Login successful for:', result.user.id);
+                    
+                    // Check if user is confirmed
+                    if (!result.user.confirmed_at) {
+                        showToast(
+                            '⚠️ Please verify your email address. Check your inbox for the confirmation link.',
+                            'info',
+                            [{
+                                icon: '<i class="fas fa-envelope"></i>',
+                                text: 'Resend Confirmation Email',
+                                callback: function() {
+                                    resendConfirmationEmail(email);
+                                }
+                            }]
+                        );
+                        loginBtn.classList.remove('loading');
+                        loginBtn.disabled = false;
+                        return;
+                    }
+                    
+                    showToast('Login successful! Redirecting...', 'success');
+                    
+                    if (rememberMe.checked) {
+                        localStorage.setItem('aniverse_session', 'true');
+                    }
+
+                    setTimeout(() => {
+                        window.location.replace('index.html');
+                    }, 500);
+                } else {
+                    showToast('Login failed. Please try again.', 'error');
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('[AniVerse] Login error:', error);
+                showToast('An unexpected error occurred: ' + error.message, 'error');
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+            }
+        });
+
+        // ============================================================
+        // FORGOT PASSWORD
+        // ============================================================
+        forgotLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if (!email || !validateEmail()) {
+                showToast('Please enter your email address to reset your password.', 'error');
+                return;
+            }
+
+            if (window.AniVerse && window.AniVerse.client) {
+                window.AniVerse.client.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password.html'
+                }).then(({ error }) => {
+                    if (error) {
+                        showToast('Error sending reset email: ' + error.message, 'error');
+                    } else {
+                        showToast('Password reset email sent! Check your inbox.', 'success');
+                    }
+                });
+            } else {
+                showToast('Password reset will be available with Supabase integration.', '');
+            }
+        });
+
+        // ============================================================
+        // INITIALIZE - Wait for AniVerse to be ready
+        // ============================================================
+        function init() {
+            if (typeof window.AniVerse === 'undefined') {
+                console.warn('[AniVerse] Waiting for client...');
+                setTimeout(init, 300);
+                return;
+            }
+            console.log('[AniVerse] Client ready, checking session...');
+            checkExistingSession();
+        }
+
+        init();
+
+        console.log('[AniVerse] Login page ready (Supabase integrated)');
+
+    })();
+</script>
+
+</body>
+</html>

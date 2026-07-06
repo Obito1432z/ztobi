@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supabaseClient.js"></script>
+
+    <style>
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --input-focus: rgba(124, 92, 252, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            margin: 0;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(124, 92, 252, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(92, 140, 252, 0.04) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   AUTH CARD
+                   ============================================================ */
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .auth-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 40px 36px 36px;
+            box-shadow: var(--shadow-glow), 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: var(--transition-smooth);
+        }
+
+        .auth-card:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+        }
+
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .auth-brand i {
+            font-size: 1.8rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .auth-sub a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+        .auth-sub a:hover {
+            color: #8a6eff;
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+                   FORM ELEMENTS
+                   ============================================================ */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        .form-group label .required {
+            color: #ff6b6b;
+            margin-left: 2px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px var(--input-focus);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .input-wrapper .icon {
+            padding: 0 0 0 16px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper:focus-within .icon {
+            color: var(--accent-1);
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 13px 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            cursor: pointer;
+        }
+
+        .input-wrapper select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .input-wrapper .toggle-pwd {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0 16px 0 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper .toggle-pwd:hover {
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper.error {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .input-wrapper.error .icon {
+            color: #ff6b6b;
+        }
+
+        .form-error {
+            display: none;
+            font-size: 0.8rem;
+            color: #ff6b6b;
+            margin-top: 4px;
+            font-weight: 500;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-error.show {
+            display: flex;
+        }
+
+        /* ============================================================
+                   TERMS CHECKBOX
+                   ============================================================ */
+        .terms-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 20px 0 24px;
+            cursor: pointer;
+        }
+
+        .terms-group input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-smooth);
+            margin-top: 2px;
+        }
+
+        .terms-group input[type="checkbox"]:checked {
+            background: var(--gradient-accent);
+            border-color: var(--accent-1);
+        }
+
+        .terms-group input[type="checkbox"]:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.7rem;
+            color: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .terms-group input[type="checkbox"]:focus-visible {
+            outline: 2px solid var(--accent-1);
+            outline-offset: 2px;
+        }
+
+        .terms-group .terms-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .terms-group .terms-text a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms-group .terms-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 28px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 24px rgba(124, 92, 252, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 36px rgba(124, 92, 252, 0.45);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-primary.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn-primary.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   TOAST / ALERT
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.error {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.06);
+            color: #ff6b6b;
+        }
+
+        .toast.success {
+            border-color: #51cf66;
+            background: rgba(81, 207, 102, 0.06);
+            color: #51cf66;
+        }
+
+        .toast.info {
+            border-color: #ffd93d;
+            background: rgba(255, 215, 61, 0.06);
+            color: #ffd93d;
+        }
+
+        .toast i {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 520px) {
+            body {
+                padding: 16px;
+            }
+
+            .auth-card {
+                padding: 28px 18px 24px;
+            }
+
+            .auth-brand {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .auth-card {
+                padding: 20px 14px 16px;
+            }
+
+            .input-wrapper input,
+            .input-wrapper select {
+                font-size: 0.85rem;
+                padding: 11px 14px;
+            }
+
+            .input-wrapper .icon {
+                padding-left: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    AUTH CONTAINER
+    ============================================================ -->
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <!-- Brand -->
+            <a href="index.html" class="auth-brand">
+                <i class="fas fa-crown"></i> AniVerse
+            </a>
+            <p class="auth-sub">
+                Join the community &middot; <a href="login.html">already have an account?</a>
+            </p>
+
+            <!-- Toast -->
+            <div id="signupToast" class="toast" role="alert">
+                <i class="fas fa-circle-exclamation"></i>
+                <span id="toastMessage">Please fix the errors</span>
+            </div>
+
+            <!-- ============================================================
+            SIGNUP FORM
+            ============================================================ -->
+            <form id="signupForm" novalidate autocomplete="on">
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="signupUsername">
+                        Username <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper" id="usernameWrapper">
+                        <span class="icon"><i class="fas fa-at"></i></span>
+                        <input
+                        type="text"
+                        id="signupUsername"
+                        placeholder="Choose a unique username"
+                        autocomplete="username"
+                        required
+                        minlength="3"
+                        maxlength="30"
+                        pattern="^[a-zA-Z0-9_]{3,30}$"
+                        />
+                    </div>
+                    <div class="form-error" id="usernameError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>3-30 characters, letters, numbers, underscores only</span>
+                    </div>
+                </div>
+
+                <!-- Display Name -->
+                <div class="form-group">
+                    <label for="signupDisplayName">
+                        Display Name <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper" id="displayNameWrapper">
+                        <span class="icon"><i class="fas fa-user-pen"></i></span>
+                        <input
+                        type="text"
+                        id="signupDisplayName"
+                        placeholder="How should we call you?"
+                        autocomplete="nickname"
+                        required
+                        minlength="2"
+                        maxlength="50"
+                        />
+                    </div>
+                    <div class="form-error" id="displayNameError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter your display name (2-50 characters)</span>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="signupEmail">
+                        Email <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper" id="emailWrapper">
+                        <span class="icon"><i class="fas fa-envelope"></i></span>
+                        <input
+                        type="email"
+                        id="signupEmail"
+                        placeholder="Enter your email address"
+                        autocomplete="email"
+                        required
+                        />
+                    </div>
+                    <div class="form-error" id="emailError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please enter a valid email address</span>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="signupPassword">
+                        Password <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper" id="passwordWrapper">
+                        <span class="icon"><i class="fas fa-lock"></i></span>
+                        <input
+                        type="password"
+                        id="signupPassword"
+                        placeholder="Min 8 characters"
+                        autocomplete="new-password"
+                        required
+                        minlength="8"
+                        />
+                        <button
+                        type="button"
+                        class="toggle-pwd"
+                        id="togglePassword"
+                        aria-label="Toggle password visibility"
+                        tabindex="-1"
+                        >
+                        <i class="fas fa-eye" id="pwdIcon"></i>
+                    </button>
+                </div>
+                <div class="form-error" id="passwordError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Password must be at least 8 characters</span>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="signupConfirmPassword">
+                    Confirm Password <span class="required">*</span>
+                </label>
+                <div class="input-wrapper" id="confirmWrapper">
+                    <span class="icon"><i class="fas fa-check-double"></i></span>
+                    <input
+                    type="password"
+                    id="signupConfirmPassword"
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password"
+                    required
+                    />
+                </div>
+                <div class="form-error" id="confirmError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Passwords do not match</span>
+                </div>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="form-group">
+                <label for="signupDob">Date of Birth (Optional)</label>
+                <div class="input-wrapper">
+                    <span class="icon"><i class="fas fa-calendar-day"></i></span>
+                    <input
+                    type="date"
+                    id="signupDob"
+                    autocomplete="bday"
+                    max="2008-01-01"
+                    />
+                </div>
+                <div class="help-text" style="color:var(--text-muted); font-size:0.75rem; display:block; margin-top:2px;">
+                    Optional, must be at least 16 years old.
+                </div>
+            </div>
+
+            <!-- Country -->
+            <div class="form-group">
+                <label for="signupCountry">Country (Optional)</label>
+                <div class="input-wrapper">
+                    <span class="icon"><i class="fas fa-globe"></i></span>
+                    <select id="signupCountry">
+                        <option value="">Select your country</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="KR">South Korea</option>
+                        <option value="BR">Brazil</option>
+                        <option value="IN">India</option>
+                        <option value="IT">Italy</option>
+                        <option value="ES">Spain</option>
+                        <option value="MX">Mexico</option>
+                        <option value="RU">Russia</option>
+                        <option value="ZA">South Africa</option>
+                        <option value="NG">Nigeria</option>
+                        <option value="EG">Egypt</option>
+                        <option value="SA">Saudi Arabia</option>
+                        <option value="AE">United Arab Emirates</option>
+                        <option value="SG">Singapore</option>
+                        <option value="NZ">New Zealand</option>
+                        <option value="SE">Sweden</option>
+                        <option value="NO">Norway</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="NL">Netherlands</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="terms-group">
+                <input type="checkbox" id="termsCheckbox" required />
+                <label for="termsCheckbox" class="terms-text">
+                    I agree to the
+                    <a href="terms.html" target="_blank">Terms of Service</a>
+                    and
+                    <a href="privacy.html" target="_blank">Privacy Policy</a>.
+                    <span class="required">*</span>
+                </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary" id="signupBtn">
+                <span class="btn-text"><i class="fas fa-user-plus"></i> Create Account</span>
+                <span class="spinner"></span>
+            </button>
+
+            <p style="text-align:center; margin-top:24px; font-size:0.8rem; color:var(--text-muted);">
+                Already a member? <a href="login.html" style="color:var(--accent-1); text-decoration:none; font-weight:600;">Log in</a>
+            </p>
+
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================
+JAVASCRIPT - COMPLETE SIGNUP
+============================================================ -->
+<script>
+    (function() {
+        'use strict';
+
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const form = document.getElementById('signupForm');
+        const usernameInput = document.getElementById('signupUsername');
+        const displayNameInput = document.getElementById('signupDisplayName');
+        const emailInput = document.getElementById('signupEmail');
+        const passwordInput = document.getElementById('signupPassword');
+        const confirmInput = document.getElementById('signupConfirmPassword');
+        const dobInput = document.getElementById('signupDob');
+        const countrySelect = document.getElementById('signupCountry');
+        const termsCheck = document.getElementById('termsCheckbox');
+        const signupBtn = document.getElementById('signupBtn');
+        const toast = document.getElementById('signupToast');
+        const toastMsg = document.getElementById('toastMessage');
+
+        const usernameWrapper = document.getElementById('usernameWrapper');
+        const displayNameWrapper = document.getElementById('displayNameWrapper');
+        const emailWrapper = document.getElementById('emailWrapper');
+        const passwordWrapper = document.getElementById('passwordWrapper');
+        const confirmWrapper = document.getElementById('confirmWrapper');
+        const usernameError = document.getElementById('usernameError');
+        const displayNameError = document.getElementById('displayNameError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmError = document.getElementById('confirmError');
+
+        const togglePwdBtn = document.getElementById('togglePassword');
+        const pwdIcon = document.getElementById('pwdIcon');
+
+        // ============================================================
+        // TOAST HELPER
+        // ============================================================
+        function showToast(message, type) {
+            toast.className = 'toast show ' + (type || '');
+            toastMsg.textContent = message;
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(function() {
+                toast.classList.remove('show');
+            }, 6000);
+        }
+
+        function hideToast() {
+            toast.classList.remove('show');
+            clearTimeout(toast._hideTimer);
+        }
+
+        // ============================================================
+        // FIELD ERROR HELPER
+        // ============================================================
+        function setFieldError(wrapper, errorEl, show) {
+            if (show) {
+                wrapper.classList.add('error');
+                errorEl.classList.add('show');
+            } else {
+                wrapper.classList.remove('error');
+                errorEl.classList.remove('show');
+            }
+        }
+
+        // ============================================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================================
+        togglePwdBtn.addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            pwdIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+
+        // ============================================================
+        // VALIDATION FUNCTIONS
+        // ============================================================
+        function validateUsername() {
+            const val = usernameInput.value.trim();
+            const pattern = /^[a-zA-Z0-9_]{3,30}$/;
+            const valid = pattern.test(val);
+            setFieldError(usernameWrapper, usernameError, !valid && val.length > 0);
+            return valid;
+        }
+
+        function validateDisplayName() {
+            const val = displayNameInput.value.trim();
+            const valid = val.length >= 2 && val.length <= 50;
+            setFieldError(displayNameWrapper, displayNameError, !valid && val.length > 0);
+            return valid;
+        }
+
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const valid = re.test(val);
+            setFieldError(emailWrapper, emailError, !valid && val.length > 0);
+            return valid;
+        }
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            const valid = val.length >= 8;
+            setFieldError(passwordWrapper, passwordError, !valid && val.length > 0);
+            return valid;
+        }
+
+        function validateConfirm() {
+            const pwd = passwordInput.value;
+            const confirm = confirmInput.value;
+            const valid = pwd === confirm && confirm.length > 0;
+            setFieldError(confirmWrapper, confirmError, !valid && confirm.length > 0);
+            return valid;
+        }
+
+        // ============================================================
+        // REAL-TIME VALIDATION EVENTS
+        // ============================================================
+        usernameInput.addEventListener('blur', validateUsername);
+        usernameInput.addEventListener('input', function() {
+            if (usernameWrapper.classList.contains('error')) validateUsername();
+        });
+        displayNameInput.addEventListener('blur', validateDisplayName);
+        displayNameInput.addEventListener('input', function() {
+            if (displayNameWrapper.classList.contains('error')) validateDisplayName();
+        });
+        emailInput.addEventListener('blur', validateEmail);
+        emailInput.addEventListener('input', function() {
+            if (emailWrapper.classList.contains('error')) validateEmail();
+        });
+        passwordInput.addEventListener('blur', validatePassword);
+        passwordInput.addEventListener('input', function() {
+            if (passwordWrapper.classList.contains('error')) validatePassword();
+            if (confirmWrapper.classList.contains('error')) validateConfirm();
+        });
+        confirmInput.addEventListener('blur', validateConfirm);
+        confirmInput.addEventListener('input', function() {
+            if (confirmWrapper.classList.contains('error')) validateConfirm();
+        });
+
+        // ============================================================
+        // CHECK IF ALREADY LOGGED IN
+        // ============================================================
+        async function checkExistingSession() {
+            try {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    console.warn('[AniVerse] Auth not ready, waiting...');
+                    setTimeout(checkExistingSession, 300);
+                    return;
+                }
+                
+                const { session } = await window.AniVerse.auth.getSession();
+                if (session && session.user) {
+                    console.log('[AniVerse] User already logged in:', session.user.email);
+                    showToast('You are already logged in. Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.replace('index.html');
+                    }, 1500);
+                }
+            } catch (e) {
+                console.error('[AniVerse] Session check error:', e);
+            }
+        }
+
+        // ============================================================
+        // FORM SUBMISSION - REAL SUPABASE INTEGRATION
+        // ============================================================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideToast();
+
+            // Validate all fields
+            const isUserValid = validateUsername();
+            const isDisplayValid = validateDisplayName();
+            const isEmailValid = validateEmail();
+            const isPwdValid = validatePassword();
+            const isConfirmValid = validateConfirm();
+
+            if (!isUserValid || !isDisplayValid || !isEmailValid || !isPwdValid || !isConfirmValid) {
+                showToast('Please fix the errors above.', 'error');
+                return;
+            }
+
+            if (!termsCheck.checked) {
+                showToast('You must agree to the Terms and Privacy Policy.', 'error');
+                return;
+            }
+
+            const username = usernameInput.value.trim();
+            const displayName = displayNameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const dob = dobInput.value || null;
+            const country = countrySelect.value || null;
+
+            // --- LOADING ---
+            signupBtn.classList.add('loading');
+            signupBtn.disabled = true;
+
+            try {
+                // Check if AniVerse is available
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    throw new Error('Supabase client not initialized. Please refresh the page.');
+                }
+
+                console.log('[AniVerse] Attempting signup for:', email);
+
+                // Call signup
+                const result = await window.AniVerse.auth.signUp({
+                    email,
+                    password,
+                    username,
+                    displayName,
+                    country,
+                    birthDate: dob
+                });
+
+                // Check for auth error
+                if (result.error) {
+                    console.error('[AniVerse] Signup error:', result.error);
+                    showToast(result.error, 'error');
+                    signupBtn.classList.remove('loading');
+                    signupBtn.disabled = false;
+                    return;
+                }
+
+                // If user is created
+                if (result.user) {
+                    console.log('[AniVerse] User created successfully:', result.user.id);
+
+                    // Check if email confirmation is required
+                    if (result.user.confirmed_at) {
+                        // Email already confirmed (confirmation disabled or user already verified)
+                        showToast('✅ Account created successfully! Redirecting to login...', 'success');
+                        setTimeout(() => {
+                            window.location.replace('login.html');
+                        }, 1500);
+                    } else {
+                        // Email verification required
+                        showToast('✅ Account created! Please check your email for the confirmation link to activate your account.', 'info');
+                        
+                        // Keep button enabled so user can continue
+                        signupBtn.classList.remove('loading');
+                        signupBtn.disabled = false;
+                        signupBtn.innerHTML = '<span class="btn-text"><i class="fas fa-envelope"></i> Check Your Email</span>';
+                        
+                        // Auto-redirect after 6 seconds
+                        setTimeout(() => {
+                            window.location.replace('login.html');
+                        }, 6000);
+                    }
+                } else {
+                    showToast('Signup failed. Please try again.', 'error');
+                    signupBtn.classList.remove('loading');
+                    signupBtn.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('[AniVerse] Signup error:', error);
+                showToast('An unexpected error occurred: ' + (error.message || 'Please try again.'), 'error');
+                signupBtn.classList.remove('loading');
+                signupBtn.disabled = false;
+            }
+        });
+
+        // ============================================================
+        // INITIALIZE
+        // ============================================================
+        function init() {
+            if (typeof window.AniVerse === 'undefined') {
+                console.warn('[AniVerse] Waiting for client...');
+                setTimeout(init, 300);
+                return;
+            }
+            console.log('[AniVerse] Client ready, checking session...');
+            checkExistingSession();
+        }
+
+        init();
+
+        console.log('[AniVerse] Signup page ready (Supabase integrated)');
+
+    })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supadase.js"></script>
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --shadow-dropdown: 0 16px 48px rgba(0, 0, 0, 0.6);
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --animation-pulse: pulse 1.5s ease-in-out infinite;
+
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
+        }
+
+        .header .header-actions .user-avatar {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   NOTIFICATION HERO
+                   ============================================================ */
+        .notif-hero {
+            padding: 0 0 var(--spacing-xl);
+        }
+
+        .notif-hero .banner-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            padding: var(--spacing-xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .notif-hero .banner-card .banner-glow {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .notif-hero .banner-card h1 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .notif-hero .banner-card h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .notif-hero .banner-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            max-width: 540px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .notif-hero .banner-card .notif-stats {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .notif-hero .banner-card .notif-stats .stat {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .notif-hero .banner-card .notif-stats .stat .num {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .notif-hero .banner-card .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   TABS
+                   ============================================================ */
+        .notif-tabs {
+            padding: 0 0 var(--spacing-xl);
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            list-style: none;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .tab-list .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .tab-list .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-list .tab-btn.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .tab-list .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: 4px;
+        }
+
+        .tab-list .tab-btn .tab-badge {
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+            margin-left: var(--spacing-xs);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   NOTIFICATION FILTERS
+                   ============================================================ */
+        .notif-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .filter-group {
+            position: relative;
+        }
+
+        .filter-group .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 8px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-group .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .filter-group .filter-btn i {
+            font-size: var(--font-size-xs);
+        }
+
+        .filter-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 180px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 8px 0;
+            box-shadow: var(--shadow-dropdown);
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .filter-dropdown.open {
+            display: block;
+            animation: fadeSlide 0.2s ease;
+        }
+
+        .filter-dropdown .dropdown-item {
+            padding: 8px 20px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-dropdown .dropdown-item:hover {
+            background: rgba(124, 92, 252, 0.08);
+            color: var(--text-primary);
+        }
+
+        .filter-dropdown .dropdown-item.active {
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.06);
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   NOTIFICATION CARDS
+                   ============================================================ */
+        .notif-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .notif-card {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .notif-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .notif-card.unread {
+            border-left: 3px solid var(--accent-1);
+            background: rgba(124, 92, 252, 0.04);
+        }
+
+        .notif-card .notif-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            color: var(--accent-1);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .notif-card .notif-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .notif-card .notif-icon.guild {
+            color: var(--color-success);
+        }
+        .notif-card .notif-icon.friend {
+            color: var(--color-warning);
+        }
+        .notif-card .notif-icon.message {
+            color: var(--accent-2);
+        }
+        .notif-card .notif-icon.system {
+            color: var(--text-muted);
+        }
+        .notif-card .notif-icon.mention {
+            color: var(--color-error);
+        }
+
+        .notif-card .notif-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notif-card .notif-content .notif-title {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .notif-card .notif-content .notif-title .unread-badge {
+            font-size: var(--font-size-xs);
+            background: var(--accent-1);
+            color: #fff;
+            padding: 1px 10px;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .notif-card .notif-content .notif-desc {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin-top: 2px;
+        }
+
+        .notif-card .notif-content .notif-time {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: var(--spacing-xs);
+        }
+
+        .notif-card .notif-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .notif-card .notif-actions button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+        }
+
+        .notif-card .notif-actions button:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+        }
+
+        .notif-card .notif-actions button.delete:hover {
+            color: var(--color-error);
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .empty-state p {
+            font-size: var(--font-size-md);
+        }
+
+        /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .notif-hero .banner-card {
+                padding: var(--spacing-xl);
+                min-height: 120px;
+            }
+            .notif-hero .banner-card h1 {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .notif-hero .banner-card {
+                padding: var(--spacing-lg) var(--spacing-md);
+                min-height: 100px;
+            }
+
+            .notif-hero .banner-card h1 {
+                font-size: var(--font-size-lg);
+            }
+
+            .notif-hero .banner-card p {
+                font-size: var(--font-size-sm);
+            }
+
+            .tab-list .tab-btn {
+                padding: 8px 14px;
+                font-size: var(--font-size-xs);
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .notif-card {
+                padding: var(--spacing-sm) var(--spacing-md);
+                flex-wrap: wrap;
+            }
+
+            .notif-card .notif-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: var(--spacing-xs);
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .notif-card .notif-icon {
+                width: 32px;
+                height: 32px;
+                font-size: var(--font-size-sm);
+            }
+
+            .notif-card .notif-content .notif-title {
+                font-size: var(--font-size-xs);
+            }
+
+            .notif-card .notif-content .notif-desc {
+                font-size: var(--font-size-xs);
+            }
+
+            .notif-hero .banner-card .notif-stats {
+                gap: var(--spacing-md);
+            }
+
+            .notif-hero .banner-card .notif-stats .stat {
+                font-size: var(--font-size-xs);
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <img src="assets/logo.png" alt="AniVerse Logo" />
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge" id="messageBadge"></span>
+            </a>
+            <a href="notifications.html" class="nav-item active">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge" id="notifBadge"></span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+            <a href="admin.html" class="nav-item admin-panel" id="adminPanelLink">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item" id="settingsLink">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item" id="profileLink">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level" id="headerLevel">Lv.0</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            NOTIFICATION HERO
+            ============================================================ -->
+            <section class="notif-hero" aria-label="Notifications hero">
+                <div class="container">
+                    <div class="banner-card">
+                        <div class="banner-glow"></div>
+                        <span class="section-tag"><i class="fas fa-bell"></i> Inbox</span>
+                        <h1>Your <span class="highlight">Notifications</span></h1>
+                        <p>Stay updated on guild activity, friend requests, messages, and community announcements.</p>
+                        <div class="notif-stats" id="notifStats">
+                            <div class="stat"><span class="num" id="unreadCount">0</span> Unread</div>
+                            <div class="stat"><span class="num" id="totalCount">0</span> Total</div>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary" id="markAllRead"><i class="fas fa-check-double"></i> Mark All Read</button>
+                            <button class="btn btn-secondary" id="clearAll"><i class="fas fa-trash"></i> Clear All</button>
+                            <button class="btn btn-secondary" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            TABS
+            ============================================================ -->
+            <section class="notif-tabs" aria-label="Notification tabs">
+                <div class="container">
+
+                    <!-- Toast -->
+                    <div id="notifToast" class="toast" role="alert">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span id="toastMessage">Action completed</span>
+                    </div>
+
+                    <ul class="tab-list" role="tablist">
+                        <li><button class="tab-btn active" data-tab="all" role="tab" aria-selected="true">All</button></li>
+                        <li><button class="tab-btn" data-tab="unread" role="tab" aria-selected="false">Unread <span class="tab-badge" id="unreadTabBadge">0</span></button></li>
+                        <li><button class="tab-btn" data-tab="guilds" role="tab" aria-selected="false">Guilds</button></li>
+                        <li><button class="tab-btn" data-tab="friends" role="tab" aria-selected="false">Friends</button></li>
+                        <li><button class="tab-btn" data-tab="messages" role="tab" aria-selected="false">Messages</button></li>
+                        <li><button class="tab-btn" data-tab="system" role="tab" aria-selected="false">System</button></li>
+                        <li><button class="tab-btn" data-tab="mentions" role="tab" aria-selected="false">Mentions</button></li>
+                    </ul>
+
+                    <!-- ============================================================
+                    TAB: ALL
+                    ============================================================ -->
+                    <div class="tab-content active" id="tab-all" role="tabpanel">
+                        <div class="notif-filters">
+                            <div class="filter-group">
+                                <button class="filter-btn" data-filter="sort"><i class="fas fa-arrow-up-wide-short"></i> Newest <i class="fas fa-chevron-down"></i></button>
+                                <div class="filter-dropdown" data-filter="sort">
+                                    <div class="dropdown-item active">Newest</div>
+                                    <div class="dropdown-item">Oldest</div>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <button class="filter-btn" data-filter="type"><i class="fas fa-filter"></i> All Types <i class="fas fa-chevron-down"></i></button>
+                                <div class="filter-dropdown" data-filter="type">
+                                    <div class="dropdown-item active">All</div>
+                                    <div class="dropdown-item">Unread</div>
+                                    <div class="dropdown-item">Read</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notif-list" id="notifList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: UNREAD
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-unread" role="tabpanel">
+                        <div class="notif-list" id="unreadList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: GUILDS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-guilds" role="tabpanel">
+                        <div class="notif-list" id="guildsList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: FRIENDS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-friends" role="tabpanel">
+                        <div class="notif-list" id="friendsList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: MESSAGES
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-messages" role="tabpanel">
+                        <div class="notif-list" id="messagesList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: SYSTEM
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-system" role="tabpanel">
+                        <div class="notif-list" id="systemList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: MENTIONS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-mentions" role="tabpanel">
+                        <div class="notif-list" id="mentionsList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+            let currentProfile = null;
+            let notificationSubscription = null;
+
+            // ============================================================
+            // UPDATE AUTH UI
+            // ============================================================
+            async function updateAuthUI() {
+                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                currentUser = user;
+                currentProfile = profile;
+
+                const isLoggedIn = !!user;
+
+                const headerAvatar = document.getElementById('headerAvatar');
+                const headerLevel = document.getElementById('headerLevel');
+                const headerLoginBtn = document.getElementById('headerLoginBtn');
+                const headerSignupBtn = document.getElementById('headerSignupBtn');
+                const loginLink = document.getElementById('loginLink');
+                const signupLink = document.getElementById('signupLink');
+                const profileLink = document.getElementById('profileLink');
+                const settingsLink = document.getElementById('settingsLink');
+                const logoutLink = document.getElementById('logoutLink');
+                const adminPanelLink = document.getElementById('adminPanelLink');
+
+                if (isLoggedIn && profile) {
+                    headerAvatar.classList.add('visible');
+                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                    headerLevel.textContent = `Lv.${profile.level || 0}`;
+                    headerLevel.classList.add('visible');
+                    headerLoginBtn.classList.remove('visible');
+                    headerSignupBtn.classList.remove('visible');
+
+                    loginLink.classList.add('hidden');
+                    signupLink.classList.add('hidden');
+                    loginLink.style.display = 'none';
+                    signupLink.style.display = 'none';
+                    profileLink.style.display = 'flex';
+                    settingsLink.style.display = 'flex';
+                    logoutLink.classList.add('visible');
+                    logoutLink.style.display = 'flex';
+
+                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                        adminPanelLink.classList.add('visible');
+                    } else {
+                        adminPanelLink.classList.remove('visible');
+                    }
+
+                    // Load notifications
+                    await loadNotifications(user.id);
+                    await loadNotificationCounts(user.id);
+
+                } else {
+                    headerAvatar.classList.remove('visible');
+                    headerLevel.classList.remove('visible');
+                    headerLoginBtn.classList.add('visible');
+                    headerSignupBtn.classList.add('visible');
+
+                    loginLink.classList.remove('hidden');
+                    signupLink.classList.remove('hidden');
+                    loginLink.style.display = 'flex';
+                    signupLink.style.display = 'flex';
+                    profileLink.style.display = 'none';
+                    settingsLink.style.display = 'none';
+                    logoutLink.classList.remove('visible');
+                    logoutLink.style.display = 'none';
+                    adminPanelLink.classList.remove('visible');
+
+                    // Show login required
+                    document.getElementById('notifList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-lock"></i>
+                            <h3>Login Required</h3>
+                            <p>Please log in to see your notifications.</p>
+                            <a href="login.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Log In</a>
+                        </div>
+                    `;
+                }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await AniVerse.auth.signOut();
+                    if (!error) {
+                        localStorage.removeItem('aniverse_session');
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // TOAST
+            // ============================================================
+            const toast = document.getElementById('notifToast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            function hideToast() {
+                toast.classList.remove('show');
+                clearTimeout(toast._hideTimer);
+            }
+
+            // ============================================================
+            // TABS
+            // ============================================================
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = {
+                all: document.getElementById('tab-all'),
+                unread: document.getElementById('tab-unread'),
+                guilds: document.getElementById('tab-guilds'),
+                friends: document.getElementById('tab-friends'),
+                messages: document.getElementById('tab-messages'),
+                system: document.getElementById('tab-system'),
+                mentions: document.getElementById('tab-mentions')
+            };
+
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    tabBtns.forEach(function(b) {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+
+                    Object.keys(tabContents).forEach(function(key) {
+                        if (tabContents[key]) {
+                            tabContents[key].classList.remove('active');
+                        }
+                    });
+
+                    const targetContent = tabContents[tabId];
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        // Load notifications for this tab
+                        if (currentUser) {
+                            loadNotificationsByType(currentUser.id, tabId);
+                        }
+                    }
+                });
+            });
+
+            // ============================================================
+            // FILTER DROPDOWNS
+            // ============================================================
+            document.querySelectorAll('.filter-group').forEach(function(group) {
+                const btn = group.querySelector('.filter-btn');
+                const dropdown = group.querySelector('.filter-dropdown');
+
+                if (btn && dropdown) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const isOpen = dropdown.classList.toggle('open');
+                        document.querySelectorAll('.filter-dropdown.open').forEach(function(d) {
+                            if (d !== dropdown) d.classList.remove('open');
+                        });
+                    });
+
+                    dropdown.querySelectorAll('.dropdown-item').forEach(function(item) {
+                        item.addEventListener('click', function() {
+                            dropdown.querySelectorAll('.dropdown-item').forEach(function(i) {
+                                i.classList.remove('active');
+                            });
+                            item.classList.add('active');
+                            const label = item.textContent.trim();
+                            const icon = btn.querySelector('i:first-child');
+                            const chevron = btn.querySelector('i:last-child');
+                            if (icon && chevron) {
+                                const textNode = btn.childNodes[1];
+                                if (textNode) {
+                                    btn.replaceChild(document.createTextNode(' ' + label +
+                                        ' '), textNode);
+                                }
+                            }
+                            dropdown.classList.remove('open');
+                            // Refresh notifications with filter
+                            if (currentUser) {
+                                loadNotifications(currentUser.id);
+                            }
+                        });
+                    });
+                }
+            });
+
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.filter-dropdown.open').forEach(function(d) {
+                    d.classList.remove('open');
+                });
+            });
+
+            // ============================================================
+            // LOAD NOTIFICATION COUNTS
+            // ============================================================
+            async function loadNotificationCounts(userId) {
+                try {
+                    // Get unread count
+                    const { count: unreadCount } = await AniVerse.client
+                        .from('notifications')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('user_id', userId)
+                        .eq('is_read', false);
+
+                    // Get total count
+                    const { count: totalCount } = await AniVerse.client
+                        .from('notifications')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('user_id', userId);
+
+                    // Update UI
+                    document.getElementById('unreadCount').textContent = unreadCount || 0;
+                    document.getElementById('totalCount').textContent = totalCount || 0;
+                    document.getElementById('unreadTabBadge').textContent = unreadCount || 0;
+
+                    // Update sidebar badge
+                    const notifBadge = document.getElementById('notifBadge');
+                    const headerNotifDot = document.getElementById('headerNotifDot');
+                    if (unreadCount > 0) {
+                        notifBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                        notifBadge.classList.add('has-data');
+                        headerNotifDot.classList.add('has-data');
+                    } else {
+                        notifBadge.classList.remove('has-data');
+                        headerNotifDot.classList.remove('has-data');
+                    }
+
+                } catch (error) {
+                    console.error('[AniVerse] Load notification counts error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD NOTIFICATIONS
+            // ============================================================
+            async function loadNotifications(userId) {
+                try {
+                    const { notifications, count, error } = await AniVerse.db.getNotifications(userId, { limit: 50 });
+
+                    const container = document.getElementById('notifList');
+
+                    if (error || !notifications || notifications.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-bell-slash"></i>
+                                <h3>No notifications yet</h3>
+                                <p>We'll notify you when something important happens.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = notifications.map(notif => {
+                        const isUnread = !notif.is_read;
+                        const icon = getNotificationIcon(notif.type);
+                        const title = getNotificationTitle(notif.type, notif.data);
+                        const desc = getNotificationDescription(notif.type, notif.data);
+                        const time = new Date(notif.created_at).toLocaleString();
+
+                        return `
+                            <div class="notif-card ${isUnread ? 'unread' : ''}" data-notifid="${notif.id}">
+                                <div class="notif-icon ${notif.type}">
+                                    <i class="${icon}"></i>
+                                </div>
+                                <div class="notif-content">
+                                    <div class="notif-title">
+                                        ${title}
+                                        ${isUnread ? '<span class="unread-badge">New</span>' : ''}
+                                    </div>
+                                    <div class="notif-desc">${desc}</div>
+                                    <div class="notif-time">${time}</div>
+                                </div>
+                                <div class="notif-actions">
+                                    ${!isUnread ? '' : `<button class="mark-read-btn" title="Mark as read"><i class="fas fa-check"></i></button>`}
+                                    <button class="delete" title="Delete"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load notifications error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD NOTIFICATIONS BY TYPE
+            // ============================================================
+            async function loadNotificationsByType(userId, type) {
+                try {
+                    const containerMap = {
+                        unread: 'unreadList',
+                        guilds: 'guildsList',
+                        friends: 'friendsList',
+                        messages: 'messagesList',
+                        system: 'systemList',
+                        mentions: 'mentionsList'
+                    };
+
+                    const containerId = containerMap[type];
+                    if (!containerId) return;
+
+                    const container = document.getElementById(containerId);
+
+                    let query = AniVerse.client
+                        .from('notifications')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (type === 'unread') {
+                        query = query.eq('is_read', false);
+                    } else if (type !== 'all') {
+                        query = query.eq('type', type);
+                    }
+
+                    const { data: notifications, error } = await query;
+
+                    if (error || !notifications || notifications.length === 0) {
+                        const messages = {
+                            unread: 'You\'re all caught up!',
+                            guilds: 'No guild notifications yet.',
+                            friends: 'No friend notifications yet.',
+                            messages: 'No message notifications yet.',
+                            system: 'No system notifications yet.',
+                            mentions: 'No mentions yet.'
+                        };
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle"></i>
+                                <h3>${messages[type] || 'No notifications'}</h3>
+                                <p>Notifications will appear here when they arrive.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = notifications.map(notif => {
+                        const isUnread = !notif.is_read;
+                        const icon = getNotificationIcon(notif.type);
+                        const title = getNotificationTitle(notif.type, notif.data);
+                        const desc = getNotificationDescription(notif.type, notif.data);
+                        const time = new Date(notif.created_at).toLocaleString();
+
+                        return `
+                            <div class="notif-card ${isUnread ? 'unread' : ''}" data-notifid="${notif.id}">
+                                <div class="notif-icon ${notif.type}">
+                                    <i class="${icon}"></i>
+                                </div>
+                                <div class="notif-content">
+                                    <div class="notif-title">
+                                        ${title}
+                                        ${isUnread ? '<span class="unread-badge">New</span>' : ''}
+                                    </div>
+                                    <div class="notif-desc">${desc}</div>
+                                    <div class="notif-time">${time}</div>
+                                </div>
+                                <div class="notif-actions">
+                                    ${!isUnread ? '' : `<button class="mark-read-btn" title="Mark as read"><i class="fas fa-check"></i></button>`}
+                                    <button class="delete" title="Delete"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load notifications by type error:', error);
+                }
+            }
+
+            // ============================================================
+            // NOTIFICATION HELPERS
+            // ============================================================
+            function getNotificationIcon(type) {
+                const icons = {
+                    friend_request: 'fas fa-user-plus',
+                    friend_accepted: 'fas fa-user-check',
+                    message_received: 'fas fa-comment',
+                    guild_invite: 'fas fa-users',
+                    guild_join_request: 'fas fa-user-clock',
+                    guild_approval: 'fas fa-check-circle',
+                    guild_announcement: 'fas fa-bullhorn',
+                    guild_event: 'fas fa-calendar',
+                    mention: 'fas fa-at',
+                    system: 'fas fa-server',
+                    achievement: 'fas fa-trophy'
+                };
+                return icons[type] || 'fas fa-bell';
+            }
+
+            function getNotificationTitle(type, data) {
+                const titles = {
+                    friend_request: 'Friend Request',
+                    friend_accepted: 'Friend Accepted',
+                    message_received: 'New Message',
+                    guild_invite: 'Guild Invite',
+                    guild_join_request: 'Join Request',
+                    guild_approval: 'Guild Approved',
+                    guild_announcement: 'Announcement',
+                    guild_event: 'Upcoming Event',
+                    mention: 'You were mentioned',
+                    system: 'System Update',
+                    achievement: 'Achievement Unlocked'
+                };
+                return titles[type] || 'Notification';
+            }
+
+            function getNotificationDescription(type, data) {
+                if (data?.message) return data.message;
+                if (data?.description) return data.description;
+                
+                const descriptions = {
+                    friend_request: 'Someone wants to be your friend.',
+                    friend_accepted: 'Your friend request was accepted.',
+                    message_received: 'You have a new message.',
+                    guild_invite: 'You\'ve been invited to join a guild.',
+                    guild_join_request: 'Someone wants to join your guild.',
+                    guild_approval: 'Your guild application was approved.',
+                    guild_announcement: 'A new announcement was posted.',
+                    guild_event: 'A new event has been scheduled.',
+                    mention: 'Someone mentioned you in a post.',
+                    system: 'A system update is available.',
+                    achievement: 'You unlocked a new achievement!'
+                };
+                return descriptions[type] || 'You have a new notification.';
+            }
+
+            // ============================================================
+            // MARK NOTIFICATION AS READ
+            // ============================================================
+            async function markNotificationRead(notificationId) {
+                try {
+                    const { error } = await AniVerse.db.markNotificationRead(notificationId, currentUser.id);
+                    if (error) throw new Error(error);
+
+                    // Refresh notifications
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) {
+                        const tabId = activeTab.getAttribute('data-tab');
+                        if (tabId === 'all') {
+                            await loadNotifications(currentUser.id);
+                        } else {
+                            await loadNotificationsByType(currentUser.id, tabId);
+                        }
+                    }
+                    await loadNotificationCounts(currentUser.id);
+
+                } catch (error) {
+                    console.error('[AniVerse] Mark notification read error:', error);
+                    showToast('Could not mark notification as read.', 'error');
+                }
+            }
+
+            // ============================================================
+            // DELETE NOTIFICATION
+            // ============================================================
+            async function deleteNotification(notificationId) {
+                try {
+                    const { error } = await AniVerse.client
+                        .from('notifications')
+                        .delete()
+                        .eq('id', notificationId)
+                        .eq('user_id', currentUser.id);
+
+                    if (error) throw new Error(error);
+
+                    // Refresh notifications
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) {
+                        const tabId = activeTab.getAttribute('data-tab');
+                        if (tabId === 'all') {
+                            await loadNotifications(currentUser.id);
+                        } else {
+                            await loadNotificationsByType(currentUser.id, tabId);
+                        }
+                    }
+                    await loadNotificationCounts(currentUser.id);
+
+                } catch (error) {
+                    console.error('[AniVerse] Delete notification error:', error);
+                    showToast('Could not delete notification.', 'error');
+                }
+            }
+
+            // ============================================================
+            // MARK ALL AS READ
+            // ============================================================
+            async function markAllAsRead() {
+                try {
+                    const { error } = await AniVerse.client
+                        .from('notifications')
+                        .update({ is_read: true, read_at: new Date().toISOString() })
+                        .eq('user_id', currentUser.id)
+                        .eq('is_read', false);
+
+                    if (error) throw new Error(error);
+
+                    showToast('All notifications marked as read.', 'success');
+                    
+                    // Refresh notifications
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) {
+                        const tabId = activeTab.getAttribute('data-tab');
+                        if (tabId === 'all') {
+                            await loadNotifications(currentUser.id);
+                        } else {
+                            await loadNotificationsByType(currentUser.id, tabId);
+                        }
+                    }
+                    await loadNotificationCounts(currentUser.id);
+
+                } catch (error) {
+                    console.error('[AniVerse] Mark all read error:', error);
+                    showToast('Could not mark all as read.', 'error');
+                }
+            }
+
+            // ============================================================
+            // CLEAR ALL NOTIFICATIONS
+            // ============================================================
+            async function clearAllNotifications() {
+                if (!confirm('Delete all notifications? This action cannot be undone.')) return;
+
+                try {
+                    const { error } = await AniVerse.client
+                        .from('notifications')
+                        .delete()
+                        .eq('user_id', currentUser.id);
+
+                    if (error) throw new Error(error);
+
+                    showToast('All notifications cleared.', 'success');
+                    
+                    // Refresh notifications
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if (activeTab) {
+                        const tabId = activeTab.getAttribute('data-tab');
+                        if (tabId === 'all') {
+                            await loadNotifications(currentUser.id);
+                        } else {
+                            await loadNotificationsByType(currentUser.id, tabId);
+                        }
+                    }
+                    await loadNotificationCounts(currentUser.id);
+
+                } catch (error) {
+                    console.error('[AniVerse] Clear all error:', error);
+                    showToast('Could not clear notifications.', 'error');
+                }
+            }
+
+            // ============================================================
+            // EVENT DELEGATION
+            // ============================================================
+            document.addEventListener('click', async function(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                // Mark as read
+                if (target.classList.contains('mark-read-btn')) {
+                    const card = target.closest('.notif-card');
+                    if (card) {
+                        const notifId = card.getAttribute('data-notifid');
+                        if (notifId) await markNotificationRead(notifId);
+                    }
+                }
+
+                // Delete notification
+                if (target.classList.contains('delete')) {
+                    const card = target.closest('.notif-card');
+                    if (card) {
+                        const notifId = card.getAttribute('data-notifid');
+                        if (notifId) await deleteNotification(notifId);
+                    }
+                }
+            });
+
+            // ============================================================
+            // HERO BUTTONS
+            // ============================================================
+            document.getElementById('markAllRead').addEventListener('click', markAllAsRead);
+            document.getElementById('clearAll').addEventListener('click', clearAllNotifications);
+
+            document.getElementById('refreshBtn').addEventListener('click', async function() {
+                this.classList.add('loading');
+                this.innerHTML = '<span class="spinner"></span>';
+                setTimeout(async function() {
+                    const btn = document.getElementById('refreshBtn');
+                    btn.classList.remove('loading');
+                    btn.innerHTML = '<i class="fas fa-sync"></i> Refresh';
+                    
+                    if (currentUser) {
+                        const activeTab = document.querySelector('.tab-btn.active');
+                        if (activeTab) {
+                            const tabId = activeTab.getAttribute('data-tab');
+                            if (tabId === 'all') {
+                                await loadNotifications(currentUser.id);
+                            } else {
+                                await loadNotificationsByType(currentUser.id, tabId);
+                            }
+                        }
+                        await loadNotificationCounts(currentUser.id);
+                        showToast('Notifications refreshed!', 'success');
+                    }
+                }, 800);
+            });
+
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            async function init() {
+                await updateAuthUI();
+
+                // Listen to auth changes
+                AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN') {
+                        updateAuthUI();
+                    } else if (event === 'SIGNED_OUT') {
+                        window.location.replace('index.html');
+                    }
+                });
+
+                // Subscribe to realtime notifications
+                if (currentUser) {
+                    notificationSubscription = AniVerse.realtime.subscribe(
+                        'notifications',
+                        (payload) => {
+                            if (payload.eventType === 'INSERT' && payload.new.user_id === currentUser.id) {
+                                // New notification - refresh
+                                const activeTab = document.querySelector('.tab-btn.active');
+                                if (activeTab) {
+                                    const tabId = activeTab.getAttribute('data-tab');
+                                    if (tabId === 'all') {
+                                        loadNotifications(currentUser.id);
+                                    } else {
+                                        loadNotificationsByType(currentUser.id, tabId);
+                                    }
+                                }
+                                loadNotificationCounts(currentUser.id);
+                            }
+                        },
+                        { column: 'user_id', value: currentUser.id }
+                    );
+                }
+            }
+
+            init();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('[AniVerse] Notifications page ready (Supabase integrated)');
+
+        })();
+    </script>
+
+</body>
+</html>

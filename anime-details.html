@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Details · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supadase.js"></script>
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --animation-pulse: pulse 1.5s ease-in-out infinite;
+
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
+        }
+
+        .header .header-actions .user-avatar {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
+        }
+
+        /* ============================================================
+                   HERO DETAIL SECTION
+                   ============================================================ */
+        .hero-detail {
+            padding: 0 0 var(--spacing-2xl);
+            position: relative;
+        }
+
+        .hero-detail .hero-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: var(--spacing-xl);
+            align-items: start;
+            margin-top: var(--spacing-xl);
+        }
+
+        .hero-detail .poster {
+            aspect-ratio: 2 / 3;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .hero-detail .poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-detail .poster .poster-skeleton {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-secondary);
+            animation: var(--animation-pulse);
+        }
+
+        .hero-detail .info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .hero-detail .info .title-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .hero-detail .info .title-row h1 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-detail .info .title-row .title-jp {
+            color: var(--text-muted);
+            font-size: var(--font-size-md);
+        }
+
+        .hero-detail .info .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .hero-detail .info .badges .badge {
+            padding: 4px 14px;
+            border-radius: 100px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            background: rgba(124, 92, 252, 0.12);
+            color: var(--accent-1);
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .hero-detail .info .badges .badge.score {
+            background: rgba(81, 207, 102, 0.12);
+            color: var(--color-success);
+            border-color: rgba(81, 207, 102, 0.15);
+        }
+
+        .hero-detail .info .synopsis {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            line-height: 1.8;
+            max-width: 700px;
+        }
+
+        .hero-detail .info .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .hero-detail .info .actions .btn {
+            padding: 8px 20px;
+            font-size: var(--font-size-sm);
+        }
+
+        .hero-detail .info .skeleton-line {
+            height: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            animation: var(--animation-pulse);
+        }
+
+        .hero-detail .info .skeleton-line:first-child {
+            width: 60%;
+            height: 32px;
+        }
+
+        .hero-detail .info .skeleton-line:nth-child(2) {
+            width: 40%;
+        }
+
+        .hero-detail .info .skeleton-line:nth-child(3) {
+            width: 70%;
+        }
+
+        .hero-detail .info .skeleton-line:nth-child(4) {
+            width: 50%;
+        }
+
+        .hero-detail .info .skeleton-line:last-child {
+            width: 30%;
+            height: 44px;
+            border-radius: 100px;
+        }
+
+        .hero-detail .info .skeleton-badges {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .hero-detail .info .skeleton-badges .badge {
+            height: 28px;
+            width: 80px;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            animation: var(--animation-pulse);
+        }
+
+        .hero-detail .info .skeleton-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .hero-detail .info .skeleton-actions .action {
+            height: 44px;
+            width: 100px;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            animation: var(--animation-pulse);
+        }
+
+        /* ============================================================
+                   DETAIL SECTIONS
+                   ============================================================ */
+        .detail-section {
+            padding: 0 0 var(--spacing-2xl);
+        }
+
+        .detail-section .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-xl);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Info Sidebar */
+        .info-sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-lg);
+        }
+
+        .info-sidebar .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .info-sidebar .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-sidebar .info-item .label {
+            color: var(--text-muted);
+        }
+
+        .info-sidebar .info-item .value {
+            text-align: right;
+        }
+
+        .info-sidebar-skeleton {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .info-sidebar-skeleton .skeleton-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .info-sidebar-skeleton .skeleton-item .label {
+            height: 16px;
+            width: 40%;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .info-sidebar-skeleton .skeleton-item .value {
+            height: 16px;
+            width: 50%;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        /* Synopsis */
+        .synopsis-content {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            line-height: 1.8;
+        }
+
+        .synopsis-skeleton {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .synopsis-skeleton .skeleton-line {
+            height: 18px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            animation: var(--animation-pulse);
+        }
+
+        .synopsis-skeleton .skeleton-line:first-child {
+            width: 30%;
+            height: 24px;
+        }
+
+        .synopsis-skeleton .skeleton-line:last-child {
+            width: 60%;
+        }
+
+        /* ============================================================
+                   CHARACTERS
+                   ============================================================ */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .character-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .character-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .character-card .char-image {
+            aspect-ratio: 1 / 1;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-muted);
+        }
+
+        .character-card .char-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .character-card .char-info {
+            padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+            text-align: center;
+        }
+
+        .character-card .char-info .char-name {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .character-card .char-info .char-role {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .character-card-skeleton {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .character-card-skeleton .char-image {
+            aspect-ratio: 1 / 1;
+            background: var(--bg-secondary);
+            animation: var(--animation-pulse);
+        }
+
+        .character-card-skeleton .char-info {
+            padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+        }
+
+        .character-card-skeleton .char-info .skeleton-line {
+            height: 14px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            margin-bottom: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .character-card-skeleton .char-info .skeleton-line:last-child {
+            width: 60%;
+        }
+
+        /* ============================================================
+                   EPISODES
+                   ============================================================ */
+        .episode-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .episode-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .episode-item:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+        }
+
+        .episode-item .ep-number {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            color: var(--accent-1);
+            min-width: 40px;
+        }
+
+        .episode-item .ep-title {
+            flex: 1;
+            font-size: var(--font-size-sm);
+        }
+
+        .episode-item .ep-duration {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .episode-item .ep-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .episode-item .ep-actions .btn {
+            padding: 4px 12px;
+            font-size: var(--font-size-xs);
+        }
+
+        .episode-skeleton {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+        }
+
+        .episode-skeleton .ep-number {
+            width: 40px;
+            height: 20px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .episode-skeleton .ep-title {
+            flex: 1;
+            height: 18px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .episode-skeleton .ep-duration {
+            width: 60px;
+            height: 16px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .episode-skeleton .ep-action {
+            width: 80px;
+            height: 32px;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            animation: var(--animation-pulse);
+        }
+
+        /* ============================================================
+                   RECOMMENDATIONS
+                   ============================================================ */
+        .recommend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .rec-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .rec-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .rec-card .rec-image {
+            aspect-ratio: 2 / 3;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-muted);
+        }
+
+        .rec-card .rec-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rec-card .rec-info {
+            padding: var(--spacing-sm) var(--spacing-sm);
+            text-align: center;
+        }
+
+        .rec-card .rec-info .rec-title {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rec-card .rec-info .rec-meta {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .rec-card-skeleton {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .rec-card-skeleton .rec-image {
+            aspect-ratio: 2 / 3;
+            background: var(--bg-secondary);
+            animation: var(--animation-pulse);
+        }
+
+        .rec-card-skeleton .rec-info {
+            padding: var(--spacing-sm) var(--spacing-sm);
+        }
+
+        .rec-card-skeleton .rec-info .skeleton-line {
+            height: 14px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            animation: var(--animation-pulse);
+        }
+
+        .rec-card-skeleton .rec-info .skeleton-line:last-child {
+            width: 50%;
+            margin-top: 4px;
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .empty-state p {
+            font-size: var(--font-size-md);
+        }
+
+        /* ============================================================
+                   VIDEO PLAYER (empty)
+                   ============================================================ */
+        .video-player {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            aspect-ratio: 16 / 9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-glass);
+            min-height: 300px;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .video-player .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+        }
+
+        .video-player .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .video-player .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .video-player .empty-state p {
+            font-size: var(--font-size-md);
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: #fff;
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(81, 207, 102, 0.3);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .hero-detail .hero-grid {
+                grid-template-columns: 180px 1fr;
+                gap: var(--spacing-lg);
+            }
+
+            .detail-section .detail-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-xl);
+            }
+
+            .info-sidebar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .info-sidebar .info-item {
+                border-bottom: none;
+                padding: var(--spacing-xs) 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .hero-detail .hero-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .hero-detail .poster {
+                max-width: 160px;
+                margin: 0 auto;
+            }
+
+            .hero-detail .info .title-row h1 {
+                font-size: var(--font-size-xl);
+            }
+
+            .hero-detail .info .title-row .title-jp {
+                font-size: var(--font-size-sm);
+            }
+
+            .hero-detail .info .synopsis {
+                font-size: var(--font-size-sm);
+            }
+
+            .section-title {
+                font-size: var(--font-size-xl);
+            }
+
+            .character-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .recommend-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+
+            .video-player {
+                min-height: 200px;
+            }
+
+            .info-sidebar {
+                grid-template-columns: 1fr;
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-detail .info .title-row h1 {
+                font-size: var(--font-size-lg);
+            }
+
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .recommend-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .episode-item {
+                flex-wrap: wrap;
+                gap: var(--spacing-sm);
+            }
+
+            .episode-item .ep-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <img src="assets/logo.png" alt="AniVerse Logo" />
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item active">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge" id="messageBadge"></span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge" id="notifBadge"></span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+            <a href="admin.html" class="nav-item admin-panel" id="adminPanelLink">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item" id="settingsLink">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item" id="profileLink">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level" id="headerLevel">Lv.0</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <div class="container">
+
+                <!-- ============================================================
+                HERO DETAIL
+                ============================================================ -->
+                <section class="hero-detail" aria-label="Anime details">
+                    <div class="hero-grid" id="animeHero">
+                        <!-- Will be loaded from Supabase -->
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                VIDEO PLAYER (empty)
+                ============================================================ -->
+                <section class="detail-section" aria-label="Video player">
+                    <div class="container">
+                        <div class="video-player">
+                            <div class="empty-state">
+                                <i class="fas fa-play-circle"></i>
+                                <h3>No episode selected</h3>
+                                <p>Choose an episode to start watching.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                DETAIL GRID
+                ============================================================ -->
+                <section class="detail-section" aria-label="Anime information">
+                    <div class="container">
+                        <div class="detail-grid" id="animeDetailGrid">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                CHARACTERS
+                ============================================================ -->
+                <section class="detail-section" aria-label="Characters">
+                    <div class="container">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users"></i> Cast</span>
+                                <h2 class="section-title">Characters</h2>
+                            </div>
+                        </div>
+                        <div class="character-grid" id="characterGrid">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                EPISODES
+                ============================================================ -->
+                <section class="detail-section" aria-label="Episodes">
+                    <div class="container">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-list"></i> Episodes</span>
+                                <h2 class="section-title">Episode List</h2>
+                            </div>
+                        </div>
+                        <div class="episode-list" id="episodeList">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                RECOMMENDATIONS
+                ============================================================ -->
+                <section class="detail-section" aria-label="Recommendations">
+                    <div class="container">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-thumbs-up"></i> You may also like</span>
+                                <h2 class="section-title">Recommendations</h2>
+                            </div>
+                        </div>
+                        <div class="recommend-grid" id="recommendGrid">
+                            <!-- Will be loaded from Supabase -->
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // GET ANIME ID FROM URL
+            // ============================================================
+            function getAnimeIdFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id');
+            }
+
+            const animeId = getAnimeIdFromUrl();
+
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+
+            async function updateAuthUI() {
+                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                currentUser = user;
+
+                const isLoggedIn = !!user;
+
+                const headerAvatar = document.getElementById('headerAvatar');
+                const headerLevel = document.getElementById('headerLevel');
+                const headerLoginBtn = document.getElementById('headerLoginBtn');
+                const headerSignupBtn = document.getElementById('headerSignupBtn');
+                const loginLink = document.getElementById('loginLink');
+                const signupLink = document.getElementById('signupLink');
+                const profileLink = document.getElementById('profileLink');
+                const settingsLink = document.getElementById('settingsLink');
+                const logoutLink = document.getElementById('logoutLink');
+                const adminPanelLink = document.getElementById('adminPanelLink');
+
+                if (isLoggedIn && profile) {
+                    headerAvatar.classList.add('visible');
+                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                    headerLevel.textContent = `Lv.${profile.level || 0}`;
+                    headerLevel.classList.add('visible');
+                    headerLoginBtn.classList.remove('visible');
+                    headerSignupBtn.classList.remove('visible');
+
+                    loginLink.classList.add('hidden');
+                    signupLink.classList.add('hidden');
+                    loginLink.style.display = 'none';
+                    signupLink.style.display = 'none';
+                    profileLink.style.display = 'flex';
+                    settingsLink.style.display = 'flex';
+                    logoutLink.classList.add('visible');
+                    logoutLink.style.display = 'flex';
+
+                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                        adminPanelLink.classList.add('visible');
+                    } else {
+                        adminPanelLink.classList.remove('visible');
+                    }
+
+                } else {
+                    headerAvatar.classList.remove('visible');
+                    headerLevel.classList.remove('visible');
+                    headerLoginBtn.classList.add('visible');
+                    headerSignupBtn.classList.add('visible');
+
+                    loginLink.classList.remove('hidden');
+                    signupLink.classList.remove('hidden');
+                    loginLink.style.display = 'flex';
+                    signupLink.style.display = 'flex';
+                    profileLink.style.display = 'none';
+                    settingsLink.style.display = 'none';
+                    logoutLink.classList.remove('visible');
+                    logoutLink.style.display = 'none';
+                    adminPanelLink.classList.remove('visible');
+                }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await AniVerse.auth.signOut();
+                    if (!error) {
+                        localStorage.removeItem('aniverse_session');
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // LOAD ANIME DETAILS
+            // ============================================================
+            async function loadAnimeDetails() {
+                if (!animeId) {
+                    document.getElementById('animeHero').innerHTML = `
+                        <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
+                            <i class="fas fa-exclamation-circle" style="font-size:3rem; color:var(--color-error); opacity:0.5; display:block; margin-bottom:var(--spacing-md);"></i>
+                            <h2>No Anime Selected</h2>
+                            <p style="color:var(--text-secondary);">Please select an anime to view details.</p>
+                            <a href="anime.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Browse Anime</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Show skeleton loading
+                document.getElementById('animeHero').innerHTML = `
+                    <div class="poster"><div class="poster-skeleton"></div></div>
+                    <div class="info">
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-badges">
+                            <div class="badge"></div>
+                            <div class="badge"></div>
+                            <div class="badge"></div>
+                        </div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-actions">
+                            <div class="action"></div>
+                            <div class="action"></div>
+                            <div class="action"></div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('animeDetailGrid').innerHTML = `
+                    <div>
+                        <div class="synopsis-skeleton">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-sidebar-skeleton">
+                            <div class="skeleton-item"><div class="label"></div><div class="value"></div></div>
+                            <div class="skeleton-item"><div class="label"></div><div class="value"></div></div>
+                            <div class="skeleton-item"><div class="label"></div><div class="value"></div></div>
+                            <div class="skeleton-item"><div class="label"></div><div class="value"></div></div>
+                            <div class="skeleton-item"><div class="label"></div><div class="value"></div></div>
+                            <div class="skeleton-item"><div class="label"></div><div class="value"></div></div>
+                        </div>
+                    </div>
+                `;
+
+                // Load characters skeleton
+                const charGrid = document.getElementById('characterGrid');
+                charGrid.innerHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    charGrid.innerHTML += `
+                        <div class="character-card-skeleton">
+                            <div class="char-image"></div>
+                            <div class="char-info">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Load episodes skeleton
+                const epList = document.getElementById('episodeList');
+                epList.innerHTML = '';
+                for (let i = 0; i < 8; i++) {
+                    epList.innerHTML += `
+                        <div class="episode-skeleton">
+                            <div class="ep-number"></div>
+                            <div class="ep-title"></div>
+                            <div class="ep-duration"></div>
+                            <div class="ep-action"></div>
+                        </div>
+                    `;
+                }
+
+                // Load recommendations skeleton
+                const recGrid = document.getElementById('recommendGrid');
+                recGrid.innerHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    recGrid.innerHTML += `
+                        <div class="rec-card-skeleton">
+                            <div class="rec-image"></div>
+                            <div class="rec-info">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                try {
+                    // Get anime details
+                    const { data: anime, error } = await AniVerse.client
+                        .from('anime_library')
+                        .select(`
+                            *,
+                            genres:anime_library_genres (
+                                anime_genres (id, name)
+                            )
+                        `)
+                        .eq('id', animeId)
+                        .single();
+
+                    if (error) {
+                        console.error('[AniVerse] Load anime details error:', error);
+                        document.getElementById('animeHero').innerHTML = `
+                            <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
+                                <i class="fas fa-exclamation-circle" style="font-size:3rem; color:var(--color-error); opacity:0.5; display:block; margin-bottom:var(--spacing-md);"></i>
+                                <h2>Anime Not Found</h2>
+                                <p style="color:var(--text-secondary);">The requested anime could not be found.</p>
+                                <a href="anime.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Browse Anime</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Render anime details
+                    renderAnimeDetails(anime);
+
+                    // Load recommendations
+                    await loadRecommendations(anime);
+
+                } catch (error) {
+                    console.error('[AniVerse] Load anime details error:', error);
+                }
+            }
+
+            // ============================================================
+            // RENDER ANIME DETAILS
+            // ============================================================
+            function renderAnimeDetails(anime) {
+                // Hero section
+                const heroEl = document.getElementById('animeHero');
+                const title = anime.title_romaji || anime.title_english || 'Untitled';
+                const titleJp = anime.title_native || '';
+                const status = anime.status ? anime.status.charAt(0).toUpperCase() + anime.status.slice(1) : 'Unknown';
+                const score = anime.score || 'N/A';
+                const synopsis = anime.synopsis || 'No synopsis available.';
+
+                heroEl.innerHTML = `
+                    <div class="poster">
+                        ${anime.cover_image ? 
+                            `<img src="${anime.cover_image}" alt="${title}" />` : 
+                            `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:2rem;"><i class="fas fa-film"></i></div>`
+                        }
+                    </div>
+                    <div class="info">
+                        <div class="title-row">
+                            <h1>${title}</h1>
+                            ${titleJp ? `<span class="title-jp">${titleJp}</span>` : ''}
+                        </div>
+                        <div class="badges">
+                            <span class="badge">${status}</span>
+                            <span class="badge score"><i class="fas fa-star"></i> ${score}</span>
+                            ${anime.episodes ? `<span class="badge"><i class="fas fa-film"></i> ${anime.episodes} eps</span>` : ''}
+                            ${anime.season ? `<span class="badge">${anime.season.charAt(0).toUpperCase() + anime.season.slice(1)} ${anime.season_year || ''}</span>` : ''}
+                            ${anime.duration ? `<span class="badge">${anime.duration} min</span>` : ''}
+                        </div>
+                        <div class="synopsis">${synopsis}</div>
+                        <div class="actions">
+                            <button class="btn btn-primary" id="addToWatchlist"><i class="fas fa-bookmark"></i> Add to Watchlist</button>
+                            <button class="btn btn-secondary" id="favoriteBtn"><i class="far fa-heart"></i> Favorite</button>
+                            <button class="btn btn-secondary" id="shareBtn"><i class="fas fa-share-alt"></i> Share</button>
+                        </div>
+                    </div>
+                `;
+
+                // Detail grid
+                const detailGrid = document.getElementById('animeDetailGrid');
+                const genreNames = anime.genres?.map(g => g.anime_genres?.name).filter(Boolean).join(', ') || 'N/A';
+                const aired = anime.start_date ? 
+                    `${anime.start_date}${anime.end_date ? ` to ${anime.end_date}` : ''}` : 
+                    'N/A';
+
+                detailGrid.innerHTML = `
+                    <div>
+                        <div class="section-header" style="margin-bottom:var(--spacing-md);">
+                            <span class="section-tag"><i class="fas fa-book-open"></i> Story</span>
+                            <h2 class="section-title">Synopsis</h2>
+                        </div>
+                        <div class="synopsis-content">${synopsis}</div>
+                    </div>
+                    <div>
+                        <div class="info-sidebar">
+                            <div class="info-item"><span class="label">Status</span><span class="value">${status}</span></div>
+                            ${anime.episodes ? `<div class="info-item"><span class="label">Episodes</span><span class="value">${anime.episodes}</span></div>` : ''}
+                            ${anime.duration ? `<div class="info-item"><span class="label">Duration</span><span class="value">${anime.duration} min</span></div>` : ''}
+                            ${anime.season ? `<div class="info-item"><span class="label">Season</span><span class="value">${anime.season.charAt(0).toUpperCase() + anime.season.slice(1)} ${anime.season_year || ''}</span></div>` : ''}
+                            ${anime.score ? `<div class="info-item"><span class="label">Score</span><span class="value">${anime.score}/10</span></div>` : ''}
+                            <div class="info-item"><span class="label">Genres</span><span class="value">${genreNames}</span></div>
+                            <div class="info-item"><span class="label">Aired</span><span class="value">${aired}</span></div>
+                            ${anime.popularity ? `<div class="info-item"><span class="label">Popularity</span><span class="value">#${anime.popularity}</span></div>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                // Set up button listeners
+                document.getElementById('addToWatchlist')?.addEventListener('click', function() {
+                    if (!currentUser) {
+                        alert('Please log in to add to watchlist.');
+                        return;
+                    }
+                    alert('Watchlist feature coming soon with Supabase integration.');
+                });
+
+                document.getElementById('favoriteBtn')?.addEventListener('click', function() {
+                    if (!currentUser) {
+                        alert('Please log in to favorite anime.');
+                        return;
+                    }
+                    this.classList.toggle('favorited');
+                    const isFav = this.classList.contains('favorited');
+                    this.innerHTML = isFav ? '<i class="fas fa-heart"></i> Favorited' : '<i class="far fa-heart"></i> Favorite';
+                });
+
+                document.getElementById('shareBtn')?.addEventListener('click', function() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: title,
+                            text: `Check out ${title} on AniVerse!`,
+                            url: window.location.href
+                        }).catch(() => {});
+                    } else {
+                        navigator.clipboard.writeText(window.location.href).then(function() {
+                            alert('Link copied to clipboard!');
+                        }).catch(function() {
+                            alert('Share feature coming soon.');
+                        });
+                    }
+                });
+
+                // Load characters (if we had character data, we'd load it here)
+                // For now, show empty state
+                const charGrid = document.getElementById('characterGrid');
+                charGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>No character data available</h3>
+                        <p>Character information will be added soon.</p>
+                    </div>
+                `;
+
+                // Load episodes (if we had episode data, we'd load it here)
+                // For now, show empty state
+                const epList = document.getElementById('episodeList');
+                epList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-list-slash"></i>
+                        <h3>No episodes available</h3>
+                        <p>Episode list will be added soon.</p>
+                    </div>
+                `;
+            }
+
+            // ============================================================
+            // LOAD RECOMMENDATIONS
+            // ============================================================
+            async function loadRecommendations(currentAnime) {
+                try {
+                    // Get recommendations based on genres
+                    const genreIds = currentAnime.genres?.map(g => g.genre_id) || [];
+                    
+                    let query = AniVerse.client
+                        .from('anime_library')
+                        .select('*')
+                        .neq('id', currentAnime.id)
+                        .limit(6);
+
+                    // If we have genres, try to find similar anime
+                    if (genreIds.length > 0) {
+                        // This would need a more complex query with joins
+                        // For simplicity, just get popular anime as recommendations
+                        query = query.order('popularity', { ascending: false });
+                    } else {
+                        query = query.order('popularity', { ascending: false });
+                    }
+
+                    const { data: recommendations, error } = await query;
+
+                    const recGrid = document.getElementById('recommendGrid');
+
+                    if (error || !recommendations || recommendations.length === 0) {
+                        recGrid.innerHTML = `
+                            <div class="empty-state" style="grid-column:1/-1;">
+                                <i class="fas fa-thumbs-up"></i>
+                                <h3>No recommendations yet</h3>
+                                <p>Check back later for recommendations.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    recGrid.innerHTML = recommendations.map(rec => {
+                        const title = rec.title_romaji || rec.title_english || 'Untitled';
+                        const score = rec.score || 'N/A';
+                        const coverImage = rec.cover_image || '';
+
+                        return `
+                            <a href="anime-details.html?id=${rec.id}" class="rec-card" style="text-decoration:none;color:inherit;">
+                                <div class="rec-image">
+                                    ${coverImage ? `<img src="${coverImage}" alt="${title}" loading="lazy" />` : `<i class="fas fa-film"></i>`}
+                                </div>
+                                <div class="rec-info">
+                                    <div class="rec-title">${title}</div>
+                                    <div class="rec-meta"><i class="fas fa-star"></i> ${score}</div>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load recommendations error:', error);
+                }
+            }
+
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            async function init() {
+                await updateAuthUI();
+                await loadAnimeDetails();
+
+                // Listen to auth changes
+                AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                        updateAuthUI();
+                    }
+                });
+            }
+
+            init();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('[AniVerse] Anime details page loaded (Supabase integrated)');
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            /* Colors */
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            /* Shadows */
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            /* Transitions */
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            /* Layout */
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand i {
+            font-size: 1.5rem;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Sidebar Toggle (mobile) */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+        }
+
+        .header .header-actions .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ============================================================
+                   PAGE CONTENT
+                   ============================================================ */
+        .page-content {
+            padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+            flex: 1;
+        }
+
+        /* ============================================================
+                   UTILITY
+                   ============================================================ */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.12);
+            padding: 4px 16px;
+            border-radius: 100px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ============================================================
+                   BUTTONS — Shared
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================
+                   PRIVACY LAYOUT
+                   ============================================================ */
+        .privacy-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: var(--spacing-2xl);
+            align-items: start;
+        }
+
+        /* ============================================================
+                   TABLE OF CONTENTS (Sticky)
+                   ============================================================ */
+        .toc-wrapper {
+            position: sticky;
+            top: calc(var(--header-height) + var(--spacing-xl));
+        }
+
+        .toc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+        }
+
+        .toc-card .toc-title {
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .toc-card .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .toc-card .toc-list .toc-item {
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            display: block;
+        }
+
+        .toc-card .toc-list .toc-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .toc-card .toc-list .toc-item.active {
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.08);
+        }
+
+        /* ============================================================
+                   CONTENT SECTIONS
+                   ============================================================ */
+        .privacy-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .privacy-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl) var(--spacing-xl);
+            transition: var(--transition-smooth);
+            scroll-margin-top: calc(var(--header-height) + var(--spacing-xl));
+        }
+
+        .privacy-section:hover {
+            border-color: rgba(124, 92, 252, 0.08);
+        }
+
+        .privacy-section .section-number {
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            color: var(--accent-1);
+            background: rgba(124, 92, 252, 0.1);
+            padding: 2px 12px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .privacy-section h2 {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .privacy-section p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .privacy-section ul {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            padding-left: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .privacy-section ul li {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        /* Data Cards */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .data-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .data-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .data-card .icon {
+            font-size: 1.8rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.6;
+        }
+
+        .data-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .data-card p {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+                   HERO
+                   ============================================================ */
+        .hero-privacy {
+            padding: 0 0 var(--spacing-2xl);
+        }
+
+        .hero-privacy .banner-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            padding: var(--spacing-2xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-privacy .banner-card .banner-glow {
+            position: absolute;
+            right: -10%;
+            top: -10%;
+            width: 60%;
+            height: 120%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-privacy .banner-card h1 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-xs);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-privacy .banner-card h1 .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-privacy .banner-card .meta {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-privacy .banner-card .meta i {
+            margin-right: var(--spacing-xs);
+        }
+
+        .hero-privacy .banner-card .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ============================================================
+                   READING PROGRESS
+                   ============================================================ */
+        .reading-progress {
+            position: fixed;
+            top: var(--header-height);
+            left: var(--sidebar-width);
+            right: 0;
+            height: 3px;
+            background: var(--bg-secondary);
+            z-index: 400;
+        }
+
+        .reading-progress .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            transition: width 0.1s ease;
+        }
+
+        /* ============================================================
+                   PRIVACY CONTROLS
+                   ============================================================ */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .control-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .control-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .control-card .icon {
+            font-size: 1.8rem;
+            color: var(--accent-1);
+            margin-bottom: var(--spacing-sm);
+            opacity: 0.5;
+        }
+
+        .control-card h4 {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .control-card p {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .control-card .btn {
+            margin-top: var(--spacing-sm);
+            padding: 6px 16px;
+            font-size: var(--font-size-xs);
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .hero-privacy .banner-card {
+                padding: var(--spacing-xl);
+                min-height: 140px;
+            }
+            .hero-privacy .banner-card h1 {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .page-content {
+                padding: var(--spacing-md);
+            }
+
+            .hero-privacy .banner-card {
+                padding: var(--spacing-lg) var(--spacing-md);
+                min-height: 120px;
+            }
+
+            .hero-privacy .banner-card h1 {
+                font-size: var(--font-size-lg);
+            }
+
+            .privacy-layout {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-lg);
+            }
+
+            .toc-wrapper {
+                position: static;
+            }
+
+            .toc-card {
+                padding: var(--spacing-md);
+            }
+
+            .toc-card .toc-list {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: var(--spacing-xs);
+            }
+
+            .toc-card .toc-list .toc-item {
+                padding: 4px 12px;
+                font-size: var(--font-size-xs);
+            }
+
+            .privacy-section {
+                padding: var(--spacing-md);
+            }
+
+            .privacy-section h2 {
+                font-size: var(--font-size-lg);
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .reading-progress {
+                left: 0;
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .privacy-section {
+                padding: var(--spacing-sm);
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-privacy .banner-card .hero-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <i class="fas fa-crown"></i> AniVerse
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge">3</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge">5</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    READING PROGRESS BAR
+    ============================================================ -->
+    <div class="reading-progress" id="readingProgress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot"></span>
+                </button>
+                <div class="user-avatar" aria-label="User avatar">U</div>
+                <span class="user-level">Lv.12</span>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            HERO
+            ============================================================ -->
+            <section class="hero-privacy" aria-label="Privacy hero">
+                <div class="container">
+                    <div class="banner-card">
+                        <div class="banner-glow"></div>
+                        <span class="section-tag"><i class="fas fa-shield-alt"></i> Privacy</span>
+                        <h1>Privacy <span class="highlight">Policy</span></h1>
+                        <div class="meta">
+                            <i class="fas fa-calendar-alt"></i> Last Updated: January 1, 2026
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn btn-secondary" id="backToTopBtn"><i class="fas fa-arrow-up"></i> Back to Top</button>
+                            <button class="btn btn-secondary" id="printBtn"><i class="fas fa-print"></i> Print Page</button>
+                            <button class="btn btn-secondary" disabled><i class="fas fa-file-pdf"></i> Download PDF</button>
+                            <a href="contact.html" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Support</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            PRIVACY LAYOUT
+            ============================================================ -->
+            <div class="container">
+                <div class="privacy-layout">
+
+                    <!-- Table of Contents -->
+                    <aside class="toc-wrapper">
+                        <div class="toc-card">
+                            <div class="toc-title"><i class="fas fa-list"></i> Contents</div>
+                            <ul class="toc-list" id="tocList">
+                                <li><a href="#section-introduction" class="toc-item">Introduction</a></li>
+                                <li><a href="#section-collect" class="toc-item">Information We Collect</a></li>
+                                <li><a href="#section-account" class="toc-item">Account Information</a></li>
+                                <li><a href="#section-profile" class="toc-item">Profile Information</a></li>
+                                <li><a href="#section-content" class="toc-item">Community Content</a></li>
+                                <li><a href="#section-messages" class="toc-item">Messages</a></li>
+                                <li><a href="#section-guild" class="toc-item">Guild Activity</a></li>
+                                <li><a href="#section-cookies" class="toc-item">Cookies & Analytics</a></li>
+                                <li><a href="#section-use" class="toc-item">How We Use Information</a></li>
+                                <li><a href="#section-storage" class="toc-item">Data Storage & Security</a></li>
+                                <li><a href="#section-third" class="toc-item">Third-Party Services</a></li>
+                                <li><a href="#section-rights" class="toc-item">User Rights</a></li>
+                                <li><a href="#section-deletion" class="toc-item">Account Deletion</a></li>
+                                <li><a href="#section-children" class="toc-item">Children's Privacy</a></li>
+                                <li><a href="#section-international" class="toc-item">International Users</a></li>
+                                <li><a href="#section-updates" class="toc-item">Policy Updates</a></li>
+                                <li><a href="#section-contact" class="toc-item">Contact</a></li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <!-- ============================================================
+                    PRIVACY CONTENT
+                    ============================================================ -->
+                    <div class="privacy-content">
+
+                        <!-- Introduction -->
+                        <section class="privacy-section" id="section-introduction">
+                            <span class="section-number">Section 1</span>
+                            <h2>Introduction</h2>
+                            <p>At AniVerse, your privacy is important to us. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our platform.</p>
+                            <p>By using AniVerse, you agree to the practices described in this policy. If you have any questions, please contact us through our <a href="contact.html" style="color:var(--accent-1); text-decoration:none;">Contact page</a>.</p>
+                        </section>
+
+                        <!-- Information We Collect -->
+                        <section class="privacy-section" id="section-collect">
+                            <span class="section-number">Section 2</span>
+                            <h2>Information We Collect</h2>
+                            <p>We collect information you provide directly to us when you create an account, use our services, or interact with the community.</p>
+                            <ul>
+                                <li><strong>Account Data:</strong> Email address, username, display name, and password (encrypted).</li>
+                                <li><strong>Profile Data:</strong> Profile picture, banner image, bio, location, and preferences.</li>
+                                <li><strong>Community Content:</strong> Posts, comments, guild activity, and shared media.</li>
+                                <li><strong>Messages:</strong> Direct messages and chat history within the platform.</li>
+                                <li><strong>Guild Activity:</strong> Guild memberships, roles, and interactions.</li>
+                                <li><strong>Technical Data:</strong> IP address, browser type, device information, and usage patterns.</li>
+                                <li><strong>Cookies:</strong> We use cookies to enhance your experience and analyze usage.</li>
+                            </ul>
+                            <p>All data is collected and processed in accordance with applicable privacy laws.</p>
+
+                            <div class="data-grid">
+                                <div class="data-card">
+                                    <div class="icon"><i class="fas fa-user"></i></div>
+                                    <h4>Account Data</h4>
+                                    <p>Email, username, display name</p>
+                                </div>
+                                <div class="data-card">
+                                    <div class="icon"><i class="fas fa-id-card"></i></div>
+                                    <h4>Profile Data</h4>
+                                    <p>Bio, avatar, banner, location</p>
+                                </div>
+                                <div class="data-card">
+                                    <div class="icon"><i class="fas fa-users"></i></div>
+                                    <h4>Guild Data</h4>
+                                    <p>Memberships, roles, activity</p>
+                                </div>
+                                <div class="data-card">
+                                    <div class="icon"><i class="fas fa-user-friends"></i></div>
+                                    <h4>Friends & Messages</h4>
+                                    <p>Connections, conversations</p>
+                                </div>
+                                <div class="data-card">
+                                    <div class="icon"><i class="fas fa-bell"></i></div>
+                                    <h4>Notifications</h4>
+                                    <p>Preferences, alerts, mentions</p>
+                                </div>
+                                <div class="data-card">
+                                    <div class="icon"><i class="fas fa-cog"></i></div>
+                                    <h4>Settings</h4>
+                                    <p>Preferences, privacy controls</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Account Information -->
+                        <section class="privacy-section" id="section-account">
+                            <span class="section-number">Section 3</span>
+                            <h2>Account Information</h2>
+                            <p>When you create an account, we collect your email address, chosen username, and display name. Your password is encrypted and securely stored.</p>
+                            <p>We use this information to authenticate your identity, communicate with you, and personalize your experience on AniVerse.</p>
+                        </section>
+
+                        <!-- Profile Information -->
+                        <section class="privacy-section" id="section-profile">
+                            <span class="section-number">Section 4</span>
+                            <h2>Profile Information</h2>
+                            <p>You may choose to provide additional information such as a profile picture, banner image, bio, and location. This information is visible to other users and helps build the community.</p>
+                            <p>You can update or remove your profile information at any time through your account settings.</p>
+                        </section>
+
+                        <!-- Community Content -->
+                        <section class="privacy-section" id="section-content">
+                            <span class="section-number">Section 5</span>
+                            <h2>Community Content</h2>
+                            <p>Content you post, such as messages, comments, images, and guild activity, is stored and displayed publicly within the community. Please be mindful of what you choose to share.</p>
+                            <p>You retain ownership of your content, but by posting it, you grant us permission to display and distribute it on AniVerse.</p>
+                        </section>
+
+                        <!-- Messages -->
+                        <section class="privacy-section" id="section-messages">
+                            <span class="section-number">Section 6</span>
+                            <h2>Messages</h2>
+                            <p>Direct messages sent through AniVerse are stored securely and are visible only to the participants of the conversation.</p>
+                            <p>We do not read your private messages. Message data is used to provide the messaging service and may be stored for a limited period.</p>
+                        </section>
+
+                        <!-- Guild Activity -->
+                        <section class="privacy-section" id="section-guild">
+                            <span class="section-number">Section 7</span>
+                            <h2>Guild Activity</h2>
+                            <p>Your guild memberships, roles, and interactions within guilds are stored and displayed to other guild members. This helps facilitate community engagement.</p>
+                            <p>Guild leaders may have access to guild member information for moderation purposes.</p>
+                        </section>
+
+                        <!-- Cookies & Analytics -->
+                        <section class="privacy-section" id="section-cookies">
+                            <span class="section-number">Section 8</span>
+                            <h2>Cookies & Analytics</h2>
+                            <p>We use cookies and similar tracking technologies to improve your experience, analyze usage patterns, and remember your preferences.</p>
+                            <p>We may use analytics tools to understand how our platform is used, which helps us improve and optimize the service.</p>
+                        </section>
+
+                        <!-- How We Use Information -->
+                        <section class="privacy-section" id="section-use">
+                            <span class="section-number">Section 9</span>
+                            <h2>How We Use Information</h2>
+                            <p>We use your information to provide and improve AniVerse, communicate with you, personalize content, and ensure a safe community environment.</p>
+                            <ul>
+                                <li>To create and manage your account.</li>
+                                <li>To provide community features like guilds, friends, and messaging.</li>
+                                <li>To send notifications and updates relevant to your activity.</li>
+                                <li>To analyze usage and improve our services.</li>
+                                <li>To enforce our terms and protect the community.</li>
+                            </ul>
+                        </section>
+
+                        <!-- Data Storage & Security -->
+                        <section class="privacy-section" id="section-storage">
+                            <span class="section-number">Section 10</span>
+                            <h2>Data Storage & Security</h2>
+                            <p>We store your data securely using industry-standard encryption and security practices. Access to personal data is limited to authorized personnel and is strictly controlled.</p>
+                            <ul>
+                                <li><strong>Encrypted Authentication:</strong> Passwords are hashed and encrypted.</li>
+                                <li><strong>Secure Database:</strong> Data is stored in a protected environment.</li>
+                                <li><strong>Protected API:</strong> All API requests are encrypted and authenticated.</li>
+                                <li><strong>Role-Based Permissions:</strong> Access is controlled by user roles.</li>
+                                <li><strong>Session Management:</strong> Sessions are managed securely with expiration.</li>
+                            </ul>
+                        </section>
+
+                        <!-- Third-Party Services -->
+                        <section class="privacy-section" id="section-third">
+                            <span class="section-number">Section 11</span>
+                            <h2>Third-Party Services</h2>
+                            <p>AniVerse may integrate with third-party services to enhance functionality. These may include:</p>
+                            <ul>
+                                <li><strong>Supabase:</strong> Our primary backend database and authentication service.</li>
+                                <li><strong>Anime APIs:</strong> External APIs for anime data (future integration).</li>
+                                <li><strong>Analytics Tools:</strong> To track usage and improve our platform.</li>
+                            </ul>
+                            <p>Third-party services have their own privacy policies. We recommend reviewing them for more information.</p>
+                        </section>
+
+                        <!-- User Rights -->
+                        <section class="privacy-section" id="section-rights">
+                            <span class="section-number">Section 12</span>
+                            <h2>User Rights</h2>
+                            <p>You have the right to access, update, or delete your personal data at any time.</p>
+                            <ul>
+                                <li>You can view and edit your account information in your profile settings.</li>
+                                <li>You can request a copy of your data by contacting us.</li>
+                                <li>You can delete your account through account settings.</li>
+                                <li>You can manage your privacy preferences in your settings.</li>
+                            </ul>
+
+                            <div class="controls-grid">
+                                <div class="control-card">
+                                    <div class="icon"><i class="fas fa-download"></i></div>
+                                    <h4>Download My Data</h4>
+                                    <p>Request a copy of your data</p>
+                                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                                </div>
+                                <div class="control-card">
+                                    <div class="icon"><i class="fas fa-trash-alt"></i></div>
+                                    <h4>Delete My Account</h4>
+                                    <p>Permanently remove your data</p>
+                                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                                </div>
+                                <div class="control-card">
+                                    <div class="icon"><i class="fas fa-cookie-bite"></i></div>
+                                    <h4>Manage Cookies</h4>
+                                    <p>Control cookie preferences</p>
+                                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                                </div>
+                                <div class="control-card">
+                                    <div class="icon"><i class="fas fa-eye"></i></div>
+                                    <h4>Privacy Preferences</h4>
+                                    <p>Control privacy settings</p>
+                                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Account Deletion -->
+                        <section class="privacy-section" id="section-deletion">
+                            <span class="section-number">Section 13</span>
+                            <h2>Account Deletion</h2>
+                            <p>You may request account deletion at any time. When you delete your account, we will permanently remove your personal data from our systems.</p>
+                            <p>Please note that some data may be retained for legal or compliance purposes. Deletion requests are processed within a reasonable timeframe.</p>
+                        </section>
+
+                        <!-- Children's Privacy -->
+                        <section class="privacy-section" id="section-children">
+                            <span class="section-number">Section 14</span>
+                            <h2>Children's Privacy</h2>
+                            <p>AniVerse is not intended for children under the age of 13. We do not knowingly collect personal data from children. If we become aware of such data, we will take steps to delete it.</p>
+                            <p>Users between the ages of 13 and 18 must have parental consent to use the platform.</p>
+                        </section>
+
+                        <!-- International Users -->
+                        <section class="privacy-section" id="section-international">
+                            <span class="section-number">Section 15</span>
+                            <h2>International Users</h2>
+                            <p>AniVerse is accessible worldwide. By using our platform, you consent to the transfer of your data to countries where we operate.</p>
+                            <p>We comply with applicable data protection laws, including the GDPR for users in the European Union and the CCPA for California residents.</p>
+                        </section>
+
+                        <!-- Policy Updates -->
+                        <section class="privacy-section" id="section-updates">
+                            <span class="section-number">Section 16</span>
+                            <h2>Policy Updates</h2>
+                            <p>We may update this Privacy Policy from time to time. We will notify you of significant changes through announcements or email.</p>
+                            <p>Continued use of AniVerse after updates constitutes acceptance of the new policy. Please review this page periodically for updates.</p>
+                        </section>
+
+                        <!-- Contact -->
+                        <section class="privacy-section" id="section-contact">
+                            <span class="section-number">Section 17</span>
+                            <h2>Contact</h2>
+                            <p>If you have any questions, concerns, or requests regarding this Privacy Policy, please reach out to us through our <a href="contact.html" style="color:var(--accent-1); text-decoration:none;">Contact page</a>.</p>
+                            <p>We are committed to protecting your privacy and will respond to inquiries as quickly as possible.</p>
+                        </section>
+
+                        <!-- Footer Actions -->
+                        <div style="display:flex; flex-wrap:wrap; gap:var(--spacing-md); padding-top:var(--spacing-md); border-top:1px solid var(--border-glass);">
+                            <button class="btn btn-secondary" id="backToTopBtn2"><i class="fas fa-arrow-up"></i> Back to Top</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // SIDEBAR TOGGLE (mobile)
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // READING PROGRESS
+            // ============================================================
+            const progressBar = document.getElementById('progressBar');
+
+            function updateProgress() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            }
+
+            window.addEventListener('scroll', updateProgress);
+            window.addEventListener('resize', updateProgress);
+
+            // ============================================================
+            // TABLE OF CONTENTS — Active Section Highlight
+            // ============================================================
+            const tocItems = document.querySelectorAll('.toc-item');
+            const sections = document.querySelectorAll('.privacy-section');
+
+            function updateActiveToc() {
+                let currentSection = '';
+                const scrollY = window.scrollY + 120;
+
+                sections.forEach(function(section) {
+                    const top = section.offsetTop;
+                    const height = section.offsetHeight;
+                    if (scrollY >= top && scrollY < top + height) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+
+                tocItems.forEach(function(item) {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href') === '#' + currentSection) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveToc);
+            window.addEventListener('load', updateActiveToc);
+
+            // ============================================================
+            // SMOOTH SCROLL FOR TOC
+            // ============================================================
+            tocItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId && targetId !== '#') {
+                        const target = document.querySelector(targetId);
+                        if (target) {
+                            const headerOffset = 80;
+                            const elementPosition = target.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // ============================================================
+            // BACK TO TOP
+            // ============================================================
+            function backToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            document.getElementById('backToTopBtn').addEventListener('click', backToTop);
+            document.getElementById('backToTopBtn2').addEventListener('click', backToTop);
+
+            // ============================================================
+            // PRINT BUTTON
+            // ============================================================
+            document.getElementById('printBtn').addEventListener('click', function() {
+                window.print();
+            });
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('AniVerse · privacy.html ready');
+
+            // Initial progress update
+            setTimeout(updateProgress, 100);
+
+        })();
+    </script>
+
+</body>
+</html>

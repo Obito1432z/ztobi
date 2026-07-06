@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guild · AniVerse</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supadase.js"></script>
+
+    <style>
+        /* ============================================================
+                   CSS VARIABLES — Shared Design System
+                   ============================================================ */
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #121217;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-glass: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f0f4;
+            --text-secondary: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --accent-1: #7c5cfc;
+            --accent-2: #5c8cfc;
+            --gradient-accent: linear-gradient(135deg, #7c5cfc, #5c8cfc);
+            --color-success: #51cf66;
+            --color-error: #ff6b6b;
+            --color-warning: #ffd93d;
+
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 0.95rem;
+            --font-size-lg: 1.1rem;
+            --font-size-xl: 1.3rem;
+            --font-size-2xl: 1.8rem;
+
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --animation-pulse: pulse 1.5s ease-in-out infinite;
+
+            --sidebar-width: 240px;
+            --header-height: 68px;
+        }
+
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-1);
+            border-radius: 20px;
+        }
+
+        /* ============================================================
+                   SIDEBAR — Fixed Left
+                   ============================================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-glass);
+            padding: var(--spacing-lg) var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .sidebar-nav .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .sidebar-nav .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-nav .nav-item.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .sidebar-nav .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: var(--gradient-accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 16px rgba(124, 92, 252, 0.4);
+        }
+
+        .sidebar-nav .nav-item i {
+            width: 20px;
+            font-size: var(--font-size-md);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-1);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: 1px 8px;
+            border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto;
+        }
+
+        .sidebar-footer .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-footer .nav-item:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-footer .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            z-index: 1100;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: var(--font-size-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* ============================================================
+                   MAIN CONTENT
+                   ============================================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+                   HEADER — Top Bar
+                   ============================================================ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0 var(--spacing-xl);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        .header .header-search {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            padding: 0 var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .header .header-search:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .header .header-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header .header-search i {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header .header-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-md);
+            position: relative;
+        }
+
+        .header .header-actions .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .header .header-actions .icon-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
+        }
+
+        .header .header-actions .user-avatar {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
+        }
+
+        .header .header-actions .user-avatar:hover {
+            border-color: var(--accent-1);
+            transform: scale(1.05);
+        }
+
+        .header .header-actions .user-level {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
+        }
+
+        /* ============================================================
+                   GUILD HERO
+                   ============================================================ */
+        .guild-hero {
+            padding: var(--spacing-xl) 0 var(--spacing-xl);
+            position: relative;
+        }
+
+        .guild-hero .hero-banner {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-secondary);
+            min-height: 200px;
+            padding: var(--spacing-xl) var(--spacing-2xl);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+        }
+
+        .guild-hero .hero-banner .banner-glow {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 50%, rgba(124, 92, 252, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .guild-hero .hero-content {
+            display: flex;
+            gap: var(--spacing-xl);
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .guild-hero .guild-logo {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.3);
+            flex-shrink: 0;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .guild-hero .guild-logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .guild-hero .hero-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .guild-hero .hero-info .guild-name-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .guild-hero .hero-info h1 {
+            font-size: var(--font-size-2xl);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .guild-hero .hero-info .official-badge {
+            background: var(--gradient-accent);
+            color: #fff;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            padding: 4px 16px;
+            border-radius: 100px;
+            letter-spacing: 0.06em;
+            box-shadow: 0 2px 12px rgba(124, 92, 252, 0.3);
+        }
+
+        .guild-hero .hero-info .guild-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+            margin: var(--spacing-xs) 0 var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .guild-hero .hero-info .guild-meta i {
+            color: var(--accent-1);
+            width: 18px;
+        }
+
+        .guild-hero .hero-info .guild-description {
+            color: var(--text-secondary);
+            font-size: var(--font-size-md);
+            max-width: 600px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .guild-hero .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .guild-hero .hero-actions .btn {
+            padding: 8px 18px;
+            font-size: var(--font-size-sm);
+        }
+
+        /* ============================================================
+                   GUILD TABS
+                   ============================================================ */
+        .guild-tabs {
+            padding: 0 0 var(--spacing-xl);
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            list-style: none;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .tab-list .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .tab-list .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-list .tab-btn.active {
+            color: #fff;
+            background: rgba(124, 92, 252, 0.12);
+        }
+
+        .tab-list .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: var(--gradient-accent);
+            border-radius: 4px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+                   EMPTY STATE
+                   ============================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.2;
+            color: var(--accent-1);
+        }
+
+        .empty-state h3 {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .empty-state p {
+            font-size: var(--font-size-md);
+        }
+
+        .empty-state .btn {
+            margin-top: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   ANNOUNCEMENTS
+                   ============================================================ */
+        .announcement-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .announcement-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+        }
+
+        .announcement-card .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .announcement-card .announcement-header h4 {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+        }
+
+        .announcement-card .announcement-header .date {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .announcement-card p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* ============================================================
+                   POSTS
+                   ============================================================ */
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            transition: var(--transition-smooth);
+        }
+
+        .post-card:hover {
+            border-color: rgba(124, 92, 252, 0.08);
+        }
+
+        .post-card .post-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .post-card .post-header .post-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--accent-1);
+            font-size: var(--font-size-sm);
+        }
+
+        .post-card .post-header .post-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post-card .post-header .post-author {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .post-card .post-header .post-date {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .post-card .post-title {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .post-card .post-content {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .post-card .post-stats {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .post-card .post-stats i {
+            color: var(--accent-1);
+        }
+
+        /* ============================================================
+                   MEMBERS
+                   ============================================================ */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .member-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .member-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .member-card .member-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            margin: 0 auto var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-1);
+        }
+
+        .member-card .member-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .member-card .member-name {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .member-card .member-role {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+                   BUTTONS
+                   ============================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 10px 24px;
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(124, 92, 252, 0.45);
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.20);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 14px;
+        }
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: #fff;
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(81, 207, 102, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--color-error);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
+        @media (max-width: 1024px) {
+            .guild-hero .hero-banner {
+                padding: var(--spacing-lg) var(--spacing-xl);
+                min-height: 160px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 0 var(--spacing-md);
+                height: 60px;
+                padding-left: 68px;
+            }
+
+            .header .header-search {
+                max-width: 100%;
+            }
+
+            .guild-hero .hero-banner {
+                padding: var(--spacing-md);
+                min-height: 140px;
+            }
+
+            .guild-hero .hero-content {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--spacing-md);
+            }
+
+            .guild-hero .guild-logo {
+                width: 72px;
+                height: 72px;
+                font-size: 2rem;
+            }
+
+            .guild-hero .hero-info .guild-name-row {
+                justify-content: center;
+            }
+
+            .guild-hero .hero-info .guild-meta {
+                justify-content: center;
+                gap: var(--spacing-md);
+            }
+
+            .guild-hero .hero-info .guild-description {
+                margin: 0 auto var(--spacing-md);
+            }
+
+            .guild-hero .hero-actions {
+                justify-content: center;
+            }
+
+            .tab-list .tab-btn {
+                padding: 8px 14px;
+                font-size: var(--font-size-xs);
+            }
+
+            .members-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header .header-actions .user-level {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .guild-hero .guild-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.6rem;
+            }
+
+            .guild-hero .hero-info h1 {
+                font-size: var(--font-size-xl);
+            }
+
+            .members-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .header .header-actions .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: var(--font-size-sm);
+            }
+
+            .header .header-actions .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    SIDEBAR OVERLAY (mobile)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================================
+    SIDEBAR TOGGLE (mobile)
+    ============================================================ -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ============================================================
+    SIDEBAR — Fixed Left
+    ============================================================ -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="sidebar-brand">
+            <img src="assets/logo.png" alt="AniVerse Logo" />
+        </a>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="anime.html" class="nav-item">
+                <i class="fas fa-film"></i> Anime
+            </a>
+            <a href="guilds.html" class="nav-item active">
+                <i class="fas fa-users"></i> Guilds
+            </a>
+            <a href="friends.html" class="nav-item">
+                <i class="fas fa-user-friends"></i> Friends
+            </a>
+            <a href="messages.html" class="nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+                <span class="badge" id="messageBadge"></span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <i class="fas fa-bell"></i> Notifications
+                <span class="badge" id="notifBadge"></span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i> Search
+            </a>
+            <a href="admin.html" class="nav-item admin-panel" id="adminPanelLink">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="settings.html" class="nav-item" id="settingsLink">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="profile.html" class="nav-item" id="profileLink">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+    MAIN CONTENT
+    ============================================================ -->
+    <div class="main-content">
+
+        <!-- ============================================================
+        HEADER — Top Bar
+        ============================================================ -->
+        <header class="header" role="banner">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+            </div>
+
+            <div class="header-actions">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level" id="headerLevel">Lv.0</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+        </header>
+
+        <!-- ============================================================
+        PAGE CONTENT
+        ============================================================ -->
+        <div class="page-content">
+
+            <!-- ============================================================
+            GUILD HERO
+            ============================================================ -->
+            <section class="guild-hero" aria-label="Guild hero">
+                <div class="container">
+                    <div class="hero-banner" id="guildBanner">
+                        <div class="banner-glow"></div>
+                        <div class="hero-content" id="guildHeroContent">
+                            <div class="guild-logo" id="guildLogo">G</div>
+                            <div class="hero-info">
+                                <div class="guild-name-row">
+                                    <h1 id="guildName">Loading...</h1>
+                                    <span class="official-badge" id="officialBadge" style="display:none;"><i class="fas fa-crown"></i> Official</span>
+                                </div>
+                                <div class="guild-meta" id="guildMeta">
+                                    <span><i class="fas fa-users"></i> <span id="memberCount">0</span> members</span>
+                                    <span><i class="fas fa-signal"></i> Level <span id="guildLevel">0</span></span>
+                                    <span><i class="fas fa-globe"></i> <span id="guildVisibility">Public</span></span>
+                                    <span><i class="fas fa-calendar"></i> Founded <span id="guildCreated">Loading...</span></span>
+                                </div>
+                                <div class="guild-description" id="guildDescription">Loading guild information...</div>
+                                <div class="hero-actions" id="guildActions">
+                                    <button class="btn btn-primary" id="joinBtn"><i class="fas fa-user-plus"></i> Join Guild</button>
+                                    <button class="btn btn-secondary" id="leaveBtn" style="display:none;"><i class="fas fa-user-minus"></i> Leave</button>
+                                    <button class="btn btn-secondary" id="inviteBtn"><i class="fas fa-envelope"></i> Invite</button>
+                                    <button class="btn btn-ghost" id="shareBtn"><i class="fas fa-share-alt"></i> Share</button>
+                                    <button class="btn btn-ghost" id="reportBtn"><i class="fas fa-flag"></i> Report</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+            GUILD TABS
+            ============================================================ -->
+            <section class="guild-tabs" aria-label="Guild content tabs">
+                <div class="container">
+                    <ul class="tab-list" role="tablist">
+                        <li><button class="tab-btn active" data-tab="overview" role="tab" aria-selected="true">Overview</button></li>
+                        <li><button class="tab-btn" data-tab="announcements" role="tab" aria-selected="false">Announcements</button></li>
+                        <li><button class="tab-btn" data-tab="posts" role="tab" aria-selected="false">Posts</button></li>
+                        <li><button class="tab-btn" data-tab="members" role="tab" aria-selected="false">Members</button></li>
+                        <li><button class="tab-btn" data-tab="about" role="tab" aria-selected="false">About</button></li>
+                    </ul>
+
+                    <!-- ============================================================
+                    TAB: OVERVIEW
+                    ============================================================ -->
+                    <div class="tab-content active" id="tab-overview" role="tabpanel">
+                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                            <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
+                                <i class="fas fa-info-circle" style="color:var(--accent-1);"></i> Guild Overview
+                            </h3>
+                            <p style="color:var(--text-secondary);" id="overviewDescription">Loading guild information...</p>
+                        </div>
+
+                        <div style="margin-top:var(--spacing-lg);">
+                            <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
+                                <i class="fas fa-users" style="color:var(--accent-1);"></i> Recent Members
+                            </h3>
+                            <div class="members-grid" id="recentMembers">
+                                <div class="empty-state" style="grid-column:1/-1;">
+                                    <i class="fas fa-users-slash"></i>
+                                    <h3>No members yet</h3>
+                                    <p>Be the first to join this guild!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: ANNOUNCEMENTS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-announcements" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-bullhorn"></i> Updates</span>
+                                <h2 class="section-title">Announcements</h2>
+                            </div>
+                            <button class="btn btn-primary" id="createAnnouncementBtn" style="padding:8px 20px; font-size:var(--font-size-sm);">
+                                <i class="fas fa-plus"></i> New Announcement
+                            </button>
+                        </div>
+                        <div id="announcementsContainer">
+                            <div class="empty-state">
+                                <i class="fas fa-bullhorn"></i>
+                                <h3>No announcements yet</h3>
+                                <p>Guild leaders will post important updates here.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: POSTS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-posts" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-pen"></i> Feed</span>
+                                <h2 class="section-title">Guild Posts</h2>
+                            </div>
+                            <button class="btn btn-primary" id="createPostBtn" style="padding:8px 20px; font-size:var(--font-size-sm);">
+                                <i class="fas fa-plus"></i> Create Post
+                            </button>
+                        </div>
+                        <div id="postsContainer">
+                            <div class="empty-state">
+                                <i class="fas fa-pen-fancy"></i>
+                                <h3>No posts yet</h3>
+                                <p>Be the first to share something with the guild!</p>
+                                <button class="btn btn-primary">Write First Post</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: MEMBERS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-members" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users"></i> Community</span>
+                                <h2 class="section-title">Members</h2>
+                            </div>
+                            <span style="color:var(--text-muted); font-size:var(--font-size-sm);" id="memberCountDisplay">0 members</span>
+                        </div>
+                        <div class="members-grid" id="membersGrid">
+                            <div class="empty-state" style="grid-column:1/-1;">
+                                <i class="fas fa-users-slash"></i>
+                                <h3>No members yet</h3>
+                                <p>Join this guild to see fellow members.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: ABOUT
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-about" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-info"></i> Details</span>
+                                <h2 class="section-title">About This Guild</h2>
+                            </div>
+                        </div>
+                        <div style="max-width:800px;">
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); margin-bottom:var(--spacing-md);">
+                                <h4 style="font-weight:600; margin-bottom:var(--spacing-sm);">Description</h4>
+                                <p style="color:var(--text-secondary);" id="aboutDescription">Loading guild information...</p>
+                            </div>
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); margin-bottom:var(--spacing-md);">
+                                <h4 style="font-weight:600; margin-bottom:var(--spacing-sm);">Guild Rules</h4>
+                                <ul style="color:var(--text-secondary); font-size:var(--font-size-sm); padding-left:var(--spacing-lg); list-style:disc;">
+                                    <li>Respect all members and treat others with kindness</li>
+                                    <li>No spam, harassment, or inappropriate content</li>
+                                    <li>Keep discussions civil and constructive</li>
+                                    <li>Follow the community guidelines at all times</li>
+                                </ul>
+                            </div>
+                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                                <h4 style="font-weight:600; margin-bottom:var(--spacing-sm);">Requirements</h4>
+                                <p style="color:var(--text-secondary); font-size:var(--font-size-sm);">Open to all members who agree to follow the rules and contribute positively to the community.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // GET GUILD ID FROM URL
+            // ============================================================
+            function getGuildIdFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id');
+            }
+
+            const guildId = getGuildIdFromUrl();
+
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+            let currentProfile = null;
+            let isMember = false;
+            let guildData = null;
+
+            // ============================================================
+            // UPDATE AUTH UI
+            // ============================================================
+            async function updateAuthUI() {
+                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                currentUser = user;
+                currentProfile = profile;
+
+                const isLoggedIn = !!user;
+
+                const headerAvatar = document.getElementById('headerAvatar');
+                const headerLevel = document.getElementById('headerLevel');
+                const headerLoginBtn = document.getElementById('headerLoginBtn');
+                const headerSignupBtn = document.getElementById('headerSignupBtn');
+                const loginLink = document.getElementById('loginLink');
+                const signupLink = document.getElementById('signupLink');
+                const profileLink = document.getElementById('profileLink');
+                const settingsLink = document.getElementById('settingsLink');
+                const logoutLink = document.getElementById('logoutLink');
+                const adminPanelLink = document.getElementById('adminPanelLink');
+
+                if (isLoggedIn && profile) {
+                    headerAvatar.classList.add('visible');
+                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                    headerLevel.textContent = `Lv.${profile.level || 0}`;
+                    headerLevel.classList.add('visible');
+                    headerLoginBtn.classList.remove('visible');
+                    headerSignupBtn.classList.remove('visible');
+
+                    loginLink.classList.add('hidden');
+                    signupLink.classList.add('hidden');
+                    loginLink.style.display = 'none';
+                    signupLink.style.display = 'none';
+                    profileLink.style.display = 'flex';
+                    settingsLink.style.display = 'flex';
+                    logoutLink.classList.add('visible');
+                    logoutLink.style.display = 'flex';
+
+                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                        adminPanelLink.classList.add('visible');
+                    } else {
+                        adminPanelLink.classList.remove('visible');
+                    }
+
+                    // Check if user is member of this guild
+                    if (guildId) {
+                        await checkMembership(user.id);
+                    }
+
+                } else {
+                    headerAvatar.classList.remove('visible');
+                    headerLevel.classList.remove('visible');
+                    headerLoginBtn.classList.add('visible');
+                    headerSignupBtn.classList.add('visible');
+
+                    loginLink.classList.remove('hidden');
+                    signupLink.classList.remove('hidden');
+                    loginLink.style.display = 'flex';
+                    signupLink.style.display = 'flex';
+                    profileLink.style.display = 'none';
+                    settingsLink.style.display = 'none';
+                    logoutLink.classList.remove('visible');
+                    logoutLink.style.display = 'none';
+                    adminPanelLink.classList.remove('visible');
+                }
+            }
+
+            // ============================================================
+            // CHECK MEMBERSHIP
+            // ============================================================
+            async function checkMembership(userId) {
+                try {
+                    const { data, error } = await AniVerse.client
+                        .from('guild_members')
+                        .select('*')
+                        .eq('guild_id', guildId)
+                        .eq('user_id', userId)
+                        .maybeSingle();
+
+                    if (error) {
+                        console.error('[AniVerse] Membership check error:', error);
+                        return;
+                    }
+
+                    isMember = !!data;
+                    updateMembershipUI();
+                } catch (error) {
+                    console.error('[AniVerse] Membership check error:', error);
+                }
+            }
+
+            // ============================================================
+            // UPDATE MEMBERSHIP UI
+            // ============================================================
+            function updateMembershipUI() {
+                const joinBtn = document.getElementById('joinBtn');
+                const leaveBtn = document.getElementById('leaveBtn');
+
+                if (isMember) {
+                    joinBtn.style.display = 'none';
+                    leaveBtn.style.display = 'inline-flex';
+                } else {
+                    joinBtn.style.display = 'inline-flex';
+                    leaveBtn.style.display = 'none';
+                }
+            }
+
+            // ============================================================
+            // LOAD GUILD DATA
+            // ============================================================
+            async function loadGuildData() {
+                if (!guildId) {
+                    document.getElementById('guildName').textContent = 'Guild Not Found';
+                    document.getElementById('guildDescription').textContent = 'No guild ID provided.';
+                    return;
+                }
+
+                try {
+                    const { data: guild, error } = await AniVerse.client
+                        .from('guilds')
+                        .select('*')
+                        .eq('id', guildId)
+                        .single();
+
+                    if (error) {
+                        console.error('[AniVerse] Guild load error:', error);
+                        document.getElementById('guildName').textContent = 'Guild Not Found';
+                        document.getElementById('guildDescription').textContent = 'This guild does not exist or has been removed.';
+                        return;
+                    }
+
+                    guildData = guild;
+
+                    // Update UI with guild data
+                    document.getElementById('guildName').textContent = guild.name || 'Unnamed Guild';
+                    document.getElementById('guildDescription').textContent = guild.description || 'No description provided.';
+                    document.getElementById('overviewDescription').textContent = guild.description || 'No description provided.';
+                    document.getElementById('aboutDescription').textContent = guild.description || 'No description provided.';
+
+                    // Logo
+                    const logoEl = document.getElementById('guildLogo');
+                    if (guild.logo_url) {
+                        logoEl.innerHTML = `<img src="${guild.logo_url}" alt="${guild.name}" />`;
+                    } else {
+                        logoEl.textContent = guild.name ? guild.name.charAt(0).toUpperCase() : 'G';
+                    }
+
+                    // Official badge
+                    const officialBadge = document.getElementById('officialBadge');
+                    if (guild.is_official) {
+                        officialBadge.style.display = 'inline-block';
+                    } else {
+                        officialBadge.style.display = 'none';
+                    }
+
+                    // Level (hide level for Official Headquarters)
+                    const levelEl = document.getElementById('guildLevel');
+                    if (guild.is_official) {
+                        levelEl.parentElement.style.display = 'none';
+                    } else {
+                        levelEl.parentElement.style.display = 'inline';
+                        levelEl.textContent = guild.level || 0;
+                    }
+
+                    // Visibility
+                    document.getElementById('guildVisibility').textContent = guild.visibility ? 
+                        guild.visibility.charAt(0).toUpperCase() + guild.visibility.slice(1) : 'Public';
+
+                    // Created date
+                    if (guild.created_at) {
+                        const date = new Date(guild.created_at);
+                        document.getElementById('guildCreated').textContent = date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    }
+
+                    // Member count
+                    await loadMemberCount();
+
+                    // Load members
+                    await loadMembers();
+
+                    // Load posts
+                    await loadPosts();
+
+                    // Load announcements
+                    await loadAnnouncements();
+
+                } catch (error) {
+                    console.error('[AniVerse] Guild load error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD MEMBER COUNT
+            // ============================================================
+            async function loadMemberCount() {
+                try {
+                    const { data, error, count } = await AniVerse.client
+                        .from('guild_members')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('guild_id', guildId);
+
+                    if (error) {
+                        console.error('[AniVerse] Member count error:', error);
+                        return;
+                    }
+
+                    const memberCount = count || 0;
+                    document.getElementById('memberCount').textContent = memberCount;
+                    document.getElementById('memberCountDisplay').textContent = `${memberCount} members`;
+                } catch (error) {
+                    console.error('[AniVerse] Member count error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD MEMBERS
+            // ============================================================
+            async function loadMembers() {
+                try {
+                    const { data: members, error } = await AniVerse.client
+                        .from('guild_members')
+                        .select(`
+                            user_id,
+                            role_id,
+                            joined_at,
+                            profiles!inner (
+                                id,
+                                username,
+                                display_name,
+                                avatar_url,
+                                level
+                            ),
+                            guild_roles!inner (
+                                name,
+                                color
+                            )
+                        `)
+                        .eq('guild_id', guildId)
+                        .order('joined_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) {
+                        console.error('[AniVerse] Members load error:', error);
+                        return;
+                    }
+
+                    const membersGrid = document.getElementById('membersGrid');
+                    const recentMembers = document.getElementById('recentMembers');
+
+                    if (!members || members.length === 0) {
+                        const emptyState = `
+                            <div class="empty-state" style="grid-column:1/-1;">
+                                <i class="fas fa-users-slash"></i>
+                                <h3>No members yet</h3>
+                                <p>Join this guild to see fellow members.</p>
+                            </div>
+                        `;
+                        membersGrid.innerHTML = emptyState;
+                        recentMembers.innerHTML = emptyState;
+                        return;
+                    }
+
+                    // Render full members list
+                    membersGrid.innerHTML = members.map(member => {
+                        const profile = member.profiles;
+                        const role = member.guild_roles;
+                        const initial = profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = profile?.avatar_url ? 
+                            `<img src="${profile.avatar_url}" alt="${profile.display_name}" />` : 
+                            initial;
+
+                        return `
+                            <div class="member-card">
+                                <div class="member-avatar">${avatarHtml}</div>
+                                <div class="member-name">${profile?.display_name || 'Unknown User'}</div>
+                                <div class="member-role" style="color:${role?.color || 'var(--text-muted)'}">${role?.name || 'Member'}</div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // Render recent members (first 6)
+                    const recent = members.slice(0, 6);
+                    recentMembers.innerHTML = recent.map(member => {
+                        const profile = member.profiles;
+                        const initial = profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = profile?.avatar_url ? 
+                            `<img src="${profile.avatar_url}" alt="${profile.display_name}" />` : 
+                            initial;
+
+                        return `
+                            <div class="member-card">
+                                <div class="member-avatar">${avatarHtml}</div>
+                                <div class="member-name">${profile?.display_name || 'Unknown User'}</div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Members load error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD POSTS
+            // ============================================================
+            async function loadPosts() {
+                try {
+                    const { posts, error } = await AniVerse.db.getGuildPosts(guildId, { limit: 20 });
+
+                    const container = document.getElementById('postsContainer');
+                    if (error || !posts || posts.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-pen-fancy"></i>
+                                <h3>No posts yet</h3>
+                                <p>Be the first to share something with the guild!</p>
+                                <button class="btn btn-primary" id="firstPostBtn">Write First Post</button>
+                            </div>
+                        `;
+                        const firstPostBtn = document.getElementById('firstPostBtn');
+                        if (firstPostBtn) {
+                            firstPostBtn.addEventListener('click', () => {
+                                alert('Post creation will be available with Supabase integration.');
+                            });
+                        }
+                        return;
+                    }
+
+                    container.innerHTML = posts.map(post => `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-avatar">
+                                    ${post.author?.avatar_url ? 
+                                        `<img src="${post.author.avatar_url}" alt="${post.author.display_name}" />` : 
+                                        (post.author?.display_name ? post.author.display_name.charAt(0).toUpperCase() : 'U')
+                                    }
+                                </div>
+                                <span class="post-author">${post.author?.display_name || 'Unknown User'}</span>
+                                <span class="post-date">${new Date(post.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div class="post-title">${post.title}</div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-stats">
+                                <span><i class="fas fa-heart"></i> ${post.upvotes || 0}</span>
+                                <span><i class="fas fa-comment"></i> ${post.comment_count || 0}</span>
+                            </div>
+                        </div>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Posts load error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD ANNOUNCEMENTS
+            // ============================================================
+            async function loadAnnouncements() {
+                try {
+                    const { data: announcements, error } = await AniVerse.client
+                        .from('guild_announcements')
+                        .select('*, profiles!author_id (display_name, avatar_url)')
+                        .eq('guild_id', guildId)
+                        .order('is_pinned', { ascending: false })
+                        .order('created_at', { ascending: false })
+                        .limit(20);
+
+                    const container = document.getElementById('announcementsContainer');
+                    if (error || !announcements || announcements.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-bullhorn"></i>
+                                <h3>No announcements yet</h3>
+                                <p>Guild leaders will post important updates here.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = announcements.map(announcement => `
+                        <div class="announcement-card">
+                            <div class="announcement-header">
+                                <h4>${announcement.is_pinned ? '<i class="fas fa-thumbtack" style="color:var(--accent-1);"></i> ' : ''}${announcement.title}</h4>
+                                <span class="date">${new Date(announcement.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <p>${announcement.content}</p>
+                            ${announcement.is_urgent ? '<span style="color:var(--color-error); font-size:var(--font-size-xs); font-weight:600;"><i class="fas fa-exclamation-circle"></i> Urgent</span>' : ''}
+                        </div>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Announcements load error:', error);
+                }
+            }
+
+            // ============================================================
+            // JOIN GUILD
+            // ============================================================
+            async function joinGuild() {
+                if (!currentUser) {
+                    alert('Please log in to join this guild.');
+                    return;
+                }
+
+                try {
+                    const { data: defaultRole, error: roleError } = await AniVerse.client
+                        .from('guild_roles')
+                        .select('id')
+                        .eq('guild_id', guildId)
+                        .eq('is_default', true)
+                        .single();
+
+                    if (roleError) {
+                        console.error('[AniVerse] Default role error:', roleError);
+                        alert('Could not find default role. Please contact guild admin.');
+                        return;
+                    }
+
+                    const { error } = await AniVerse.client
+                        .from('guild_members')
+                        .insert({
+                            guild_id: guildId,
+                            user_id: currentUser.id,
+                            role_id: defaultRole.id
+                        });
+
+                    if (error) {
+                        console.error('[AniVerse] Join guild error:', error);
+                        alert('Could not join guild. Please try again.');
+                        return;
+                    }
+
+                    isMember = true;
+                    updateMembershipUI();
+                    await loadMemberCount();
+                    await loadMembers();
+                    alert('Successfully joined the guild!');
+
+                } catch (error) {
+                    console.error('[AniVerse] Join guild error:', error);
+                    alert('An unexpected error occurred.');
+                }
+            }
+
+            // ============================================================
+            // LEAVE GUILD
+            // ============================================================
+            async function leaveGuild() {
+                if (!confirm('Are you sure you want to leave this guild?')) return;
+
+                try {
+                    const { error } = await AniVerse.client
+                        .from('guild_members')
+                        .delete()
+                        .eq('guild_id', guildId)
+                        .eq('user_id', currentUser.id);
+
+                    if (error) {
+                        console.error('[AniVerse] Leave guild error:', error);
+                        alert('Could not leave guild. Please try again.');
+                        return;
+                    }
+
+                    isMember = false;
+                    updateMembershipUI();
+                    await loadMemberCount();
+                    await loadMembers();
+                    alert('You have left the guild.');
+
+                } catch (error) {
+                    console.error('[AniVerse] Leave guild error:', error);
+                    alert('An unexpected error occurred.');
+                }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await AniVerse.auth.signOut();
+                    if (!error) {
+                        localStorage.removeItem('aniverse_session');
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // TABS
+            // ============================================================
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = {
+                overview: document.getElementById('tab-overview'),
+                announcements: document.getElementById('tab-announcements'),
+                posts: document.getElementById('tab-posts'),
+                members: document.getElementById('tab-members'),
+                about: document.getElementById('tab-about')
+            };
+
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    tabBtns.forEach(function(b) {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+
+                    Object.keys(tabContents).forEach(function(key) {
+                        if (tabContents[key]) {
+                            tabContents[key].classList.remove('active');
+                        }
+                    });
+
+                    const targetContent = tabContents[tabId];
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+
+            // ============================================================
+            // EVENT LISTENERS
+            // ============================================================
+            document.getElementById('joinBtn').addEventListener('click', joinGuild);
+            document.getElementById('leaveBtn').addEventListener('click', leaveGuild);
+
+            document.getElementById('inviteBtn').addEventListener('click', function() {
+                alert('Invite system coming soon with Supabase integration.');
+            });
+
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: guildData?.name || 'Guild',
+                        text: `Join ${guildData?.name || 'this guild'} on AniVerse!`,
+                        url: window.location.href
+                    }).catch(() => {});
+                } else {
+                    navigator.clipboard.writeText(window.location.href).then(function() {
+                        alert('Guild link copied to clipboard!');
+                    }).catch(function() {
+                        alert('Share feature coming soon.');
+                    });
+                }
+            });
+
+            document.getElementById('reportBtn').addEventListener('click', function() {
+                alert('Report functionality will be integrated with Supabase.');
+            });
+
+            document.getElementById('createPostBtn').addEventListener('click', function() {
+                alert('Post creation will be available with Supabase integration.');
+            });
+
+            document.getElementById('createAnnouncementBtn').addEventListener('click', function() {
+                alert('Announcement creation will be available with Supabase integration.');
+            });
+
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            async function init() {
+                await updateAuthUI();
+                
+                if (guildId) {
+                    await loadGuildData();
+                } else {
+                    document.getElementById('guildName').textContent = 'Guild Not Found';
+                    document.getElementById('guildDescription').textContent = 'No guild ID provided. Please go back to the guilds page.';
+                }
+
+                // Listen to auth changes
+                AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                        updateAuthUI();
+                        if (guildId) {
+                            loadGuildData();
+                        }
+                    }
+                });
+            }
+
+            init();
+
+            // ============================================================
+            // LOG
+            // ============================================================
+            console.log('[AniVerse] Guild page loaded (Supabase integrated)');
+
+        })();
+    </script>
+
+</body>
+</html>
