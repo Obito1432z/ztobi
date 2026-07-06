@@ -1195,6 +1195,7 @@
             <a href="search.html" class="nav-item">
                 <i class="fas fa-search"></i> Search
             </a>
+            <!-- Admin Panel - visible only for admins -->
             <a href="admin.html" class="nav-item admin-panel visible active">
                 <i class="fas fa-shield-alt"></i> Admin Panel
             </a>
@@ -1261,6 +1262,11 @@
                         <span class="section-tag"><i class="fas fa-shield-alt"></i> Administration</span>
                         <h1 class="section-title">Admin Panel</h1>
                         <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, missions, and community settings.</p>
+                    </div>
+                    <div>
+                        <a href="admin-login.html" class="btn btn-secondary" style="padding:8px 16px; font-size:var(--font-size-sm);">
+                            <i class="fas fa-sign-in-alt"></i> Admin Login
+                        </a>
                     </div>
                 </div>
 
@@ -1367,6 +1373,7 @@
                                         <th>User</th>
                                         <th>Level</th>
                                         <th>XP</th>
+                                        <th>Role</th>
                                         <th>Status</th>
                                         <th>Joined</th>
                                         <th>Actions</th>
@@ -1440,7 +1447,7 @@
                     </div>
 
                     <!-- ============================================================
-                    PANEL: MISSIONS (NEW - COMPLETE XP SYSTEM)
+                    PANEL: MISSIONS (COMPLETE XP SYSTEM)
                     ============================================================ -->
                     <div class="admin-panel" id="panel-missions">
                         <div class="section-header">
@@ -1671,12 +1678,12 @@
             let isAdmin = false;
 
             // ============================================================
-            // UPDATE AUTH UI
+            // UPDATE AUTH UI & CHECK ADMIN ACCESS
             // ============================================================
-            async function updateAuthUI() {
+            async function checkAdminAccess() {
                 try {
                     if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                        setTimeout(updateAuthUI, 300);
+                        setTimeout(checkAdminAccess, 300);
                         return;
                     }
 
@@ -1685,14 +1692,6 @@
                     currentProfile = profile;
 
                     const isLoggedIn = !!(user && profile);
-                    
-                    // Check if user is admin
-                    if (isLoggedIn && user) {
-                        const role = user.user_metadata?.role || user.role || 'user';
-                        isAdmin = role === 'admin' || role === 'moderator';
-                    } else {
-                        isAdmin = false;
-                    }
 
                     // Update sidebar
                     const loginLink = document.getElementById('loginLink');
@@ -1734,7 +1733,10 @@
                         headerLoginBtn.classList.remove('visible');
                         headerSignupBtn.classList.remove('visible');
 
-                        // Show admin panel only if admin
+                        // Check if user is admin
+                        const role = user.user_metadata?.role || profile.role || 'user';
+                        isAdmin = role === 'admin' || role === 'moderator';
+
                         if (adminPanelLink) {
                             if (isAdmin) {
                                 adminPanelLink.classList.add('visible');
@@ -1743,9 +1745,10 @@
                             }
                         }
 
-                        // Check access and load data
                         if (isAdmin) {
                             await loadAllData();
+                            document.querySelector('.admin-layout').style.display = 'grid';
+                            document.getElementById('accessDenied')?.remove();
                         } else {
                             showAccessDenied();
                         }
@@ -1765,7 +1768,7 @@
                     }
 
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[AniVerse] Admin access check error:', error);
                     showAccessDenied();
                 }
             }
@@ -1774,14 +1777,20 @@
             // SHOW ACCESS DENIED
             // ============================================================
             function showAccessDenied() {
-                document.querySelector('.admin-layout').innerHTML = `
+                const layout = document.querySelector('.admin-layout');
+                layout.innerHTML = `
                     <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
                         <i class="fas fa-shield-alt" style="font-size:4rem; color:var(--color-error); opacity:0.3; display:block; margin-bottom:var(--spacing-lg);"></i>
                         <h2 style="margin-bottom:var(--spacing-sm);">Access Denied</h2>
                         <p style="color:var(--text-secondary); margin-bottom:var(--spacing-lg);">You do not have permission to access the Admin Panel.</p>
-                        <a href="index.html" class="btn btn-primary"><i class="fas fa-home"></i> Return to Home</a>
+                        <div style="display:flex; gap:var(--spacing-sm); justify-content:center; flex-wrap:wrap;">
+                            <a href="admin-login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Admin Login</a>
+                            <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Return to Home</a>
+                        </div>
                     </div>
                 `;
+                layout.style.display = 'grid';
+                document.querySelector('.admin-nav').style.display = 'none';
             }
 
             // ============================================================
@@ -1890,12 +1899,10 @@
                         panels[panelId].classList.add('active');
                     }
 
-                    // Close mobile sidebar
                     if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
                         toggleSidebar();
                     }
 
-                    // Refresh panel content if needed
                     if (panelId === 'missions') {
                         loadMissions();
                     }
@@ -1922,7 +1929,6 @@
             // ============================================================
             async function loadDashboardStats() {
                 try {
-                    // Get counts
                     const { count: userCount } = await window.AniVerse.client
                         .from('profiles')
                         .select('*', { count: 'exact', head: true });
@@ -1942,7 +1948,6 @@
                         .select('*', { count: 'exact', head: true })
                         .eq('is_active', true);
 
-                    // Get total XP from all users
                     const { data: xpData } = await window.AniVerse.client
                         .from('profiles')
                         .select('experience_points');
@@ -1954,13 +1959,11 @@
                         });
                     }
 
-                    // Get active users (last 7 days)
                     const { count: activeCount } = await window.AniVerse.client
                         .from('profiles')
                         .select('*', { count: 'exact', head: true })
                         .gt('last_seen_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
 
-                    // Update stats
                     const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
                     const values = [
                         userCount || 0,
@@ -2000,7 +2003,7 @@
                     if (!users || users.length === 0) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="empty-state" style="padding:30px 20px;">
                                         <i class="fas fa-users-slash"></i>
                                         <h3>No users yet</h3>
@@ -2027,6 +2030,7 @@
                             </td>
                             <td><span class="status-badge active">${user.level || 0}</span></td>
                             <td>${user.experience_points || 0}</td>
+                            <td><span class="status-badge ${user.role === 'admin' ? 'approved' : 'active'}">${user.role || 'user'}</span></td>
                             <td><span class="status-badge ${user.is_online ? 'active' : 'inactive'}">${user.is_online ? 'Online' : 'Offline'}</span></td>
                             <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
                             <td>
@@ -2164,7 +2168,7 @@
             }
 
             // ============================================================
-            // LOAD MISSIONS (COMPLETE XP SYSTEM)
+            // LOAD MISSIONS
             // ============================================================
             async function loadMissions() {
                 try {
@@ -2176,14 +2180,12 @@
 
                     if (error) throw new Error(error.message);
 
-                    // Update stats
                     const totalMissions = missions ? missions.length : 0;
                     const activeMissions = missions ? missions.filter(m => m.is_active).length : 0;
                     
                     document.getElementById('totalMissions').textContent = totalMissions;
                     document.getElementById('activeMissions').textContent = activeMissions;
                     
-                    // Get completed missions count
                     const { data: completedData } = await window.AniVerse.client
                         .from('user_mission_progress')
                         .select('*', { count: 'exact' })
@@ -2191,7 +2193,6 @@
                     
                     document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
                     
-                    // Get total XP awarded
                     const { data: xpLogs } = await window.AniVerse.client
                         .from('user_xp_log')
                         .select('xp_gained');
@@ -2204,7 +2205,6 @@
                     }
                     document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
 
-                    // Update badge
                     document.getElementById('missionsBadge').textContent = activeMissions;
 
                     const tbody = document.getElementById('missionsTableBody');
@@ -2318,29 +2318,26 @@
             // MISSION CRUD OPERATIONS
             // ============================================================
 
-            // Open Create Mission Modal
             document.getElementById('createMissionBtn').addEventListener('click', function() {
-                document.getElementById('missionModalTitle').textContent = '<i class="fas fa-plus"></i> Create Mission';
+                document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Create Mission';
                 document.getElementById('missionSubmitText').textContent = 'Create Mission';
                 document.getElementById('missionForm').reset();
                 document.getElementById('missionEditId').value = '';
                 document.getElementById('missionModal').classList.add('open');
                 document.getElementById('criteriaGroup').style.display = 'none';
+                document.getElementById('missionAutoComplete').checked = true;
             });
 
-            // Cancel Mission Modal
             document.getElementById('missionCancelBtn').addEventListener('click', function() {
                 document.getElementById('missionModal').classList.remove('open');
             });
 
-            // Close modal on overlay click
             document.getElementById('missionModal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     this.classList.remove('open');
                 }
             });
 
-            // Toggle criteria field based on auto-complete
             document.getElementById('missionAutoComplete').addEventListener('change', function() {
                 document.getElementById('criteriaGroup').style.display = this.checked ? 'none' : 'block';
             });
@@ -2364,7 +2361,7 @@
 
                     if (error) throw new Error(error.message);
 
-                    document.getElementById('missionModalTitle').textContent = '<i class="fas fa-edit"></i> Edit Mission';
+                    document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Mission';
                     document.getElementById('missionSubmitText').textContent = 'Update Mission';
                     document.getElementById('missionEditId').value = mission.id;
                     document.getElementById('missionTitle').value = mission.title;
@@ -2417,7 +2414,7 @@
                 }
             }
 
-            // Submit Mission Form (Create/Update)
+            // Submit Mission Form
             document.getElementById('missionForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 hideToast();
@@ -2450,7 +2447,6 @@
 
                 try {
                     if (editId) {
-                        // Update existing mission
                         const { error } = await window.AniVerse.client
                             .from('missions')
                             .update({
@@ -2468,7 +2464,6 @@
                         showToast('Mission updated successfully!', 'success');
 
                     } else {
-                        // Create new mission
                         const { error } = await window.AniVerse.client
                             .from('missions')
                             .insert({
@@ -2552,11 +2547,11 @@
                     return;
                 }
 
-                await updateAuthUI();
+                await checkAdminAccess();
 
                 window.AniVerse.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                        updateAuthUI();
+                        checkAdminAccess();
                     }
                 });
             }
