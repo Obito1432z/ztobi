@@ -4,20 +4,28 @@
  */
 
 // ============================================================
-// SUPABASE CONFIGURATION - YOUR ACTUAL CREDENTIALS
+// SUPABASE CONFIGURATION
 // ============================================================
 
+// ⚠️ IMPORTANT: Replace with your actual Supabase credentials
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_P1NWw77Jrucazh4qozx2oQ_fcU0skIh';
 
 console.log('[AniVerse] Initializing Supabase client...');
+console.log('[AniVerse] Supabase URL:', SUPABASE_URL);
 
-// Initialize Supabase client
+// Initialize Supabase client with proper options
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true
+    },
+    // Add these to help with CORS
+    global: {
+        headers: {
+            'X-Client-Info': 'aniverse-web'
+        }
     }
 });
 
@@ -35,7 +43,6 @@ function clearSupabaseStorage() {
                 key.includes('sb-') || 
                 key.includes('aniverse') ||
                 key.includes('auth.token') ||
-                key.includes('oauth') ||
                 key.includes('refresh_token')) {
                 localStorage.removeItem(key);
             }
@@ -53,62 +60,73 @@ function clearSupabaseStorage() {
 
 const Auth = {
     /**
-     * Sign up a new user - WITHOUT profile creation
-     * Profile will be created by database trigger
+     * Sign up a new user - SIMPLIFIED VERSION
      */
     async signUp({ email, password, username, displayName, country, birthDate }) {
         try {
             // Validate inputs
-            if (!email || !password || !username || !displayName) {
-                throw new Error('All fields are required');
+            if (!email || !password) {
+                throw new Error('Email and password are required');
             }
             if (password.length < 8) {
                 throw new Error('Password must be at least 8 characters');
             }
-            if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
-                throw new Error('Username must be 3-30 characters, alphanumeric and underscore only');
-            }
 
             console.log('[Auth] Signing up user:', email);
+            console.log('[Auth] Supabase URL:', SUPABASE_URL);
 
             // Clear any existing session first
             clearSupabaseStorage();
 
-            // Attempt signup with Supabase Auth - ONLY AUTH, no profile
+            // Attempt signup with Supabase Auth - SIMPLIFIED
             const response = await supabaseClient.auth.signUp({
                 email: email,
                 password: password,
                 options: {
                     data: {
-                        username: username,
-                        display_name: displayName,
+                        username: username || email.split('@')[0],
+                        display_name: displayName || username || email.split('@')[0],
                         country: country || null,
                         birth_date: birthDate || null
                     }
                 }
             });
 
-            console.log('[Auth] Signup response:', {
+            console.log('[Auth] Signup response received:', {
                 hasData: !!response.data,
                 hasError: !!response.error,
                 user: response.data?.user?.id || 'none',
-                errorMessage: response.error?.message || 'none'
+                errorMessage: response.error?.message || 'none',
+                errorStatus: response.error?.status || 'none'
             });
 
             // Check for error
             if (response.error) {
-                console.error('[Auth] Signup error:', response.error);
+                console.error('[Auth] Signup error details:', {
+                    message: response.error.message,
+                    status: response.error.status,
+                    name: response.error.name,
+                    stack: response.error.stack
+                });
                 
-                let errorMessage = response.error.message;
-                if (response.error.message.includes('User already registered')) {
+                let errorMessage = response.error.message || 'Signup failed. Please try again.';
+                
+                // Handle common errors
+                if (errorMessage.includes('User already registered')) {
                     errorMessage = 'An account with this email already exists. Please log in instead.';
+                } else if (errorMessage.includes('Email not confirmed') || errorMessage.includes('Email confirmation')) {
+                    errorMessage = 'Please confirm your email before logging in. Check your inbox.';
+                } else if (response.error.status === 500) {
+                    errorMessage = 'Server error. Please try again later.';
                 }
+                
                 throw new Error(errorMessage);
             }
 
             // Check if we got user data
             if (!response.data || !response.data.user) {
-                throw new Error('Signup failed. Please try again.');
+                console.error('[Auth] No user data in response:', response.data);
+                throw new Error('Signup failed. No user data returned.');
             }
 
             console.log('[Auth] User created successfully:', response.data.user.id);
@@ -153,15 +171,19 @@ const Auth = {
             console.log('[Auth] Login response:', {
                 hasData: !!response.data,
                 hasError: !!response.error,
-                user: response.data?.user?.id || 'none'
+                user: response.data?.user?.id || 'none',
+                errorMessage: response.error?.message || 'none'
             });
 
             if (response.error) {
                 console.error('[Auth] Login error:', response.error);
-                if (response.error.message.includes('Invalid login credentials')) {
-                    throw new Error('Invalid email or password');
+                let errorMessage = response.error.message || 'Login failed. Please try again.';
+                if (errorMessage.includes('Invalid login credentials')) {
+                    errorMessage = 'Invalid email or password';
+                } else if (errorMessage.includes('Email not confirmed')) {
+                    errorMessage = 'Please verify your email address before logging in. Check your inbox.';
                 }
-                throw new Error(response.error.message || 'Login failed. Please try again.');
+                throw new Error(errorMessage);
             }
 
             if (!response.data || !response.data.user) {
@@ -217,67 +239,22 @@ const Auth = {
 
             console.log('[Auth] User found:', user.id);
 
-            // Get profile - try multiple times with retry
+            // Get profile from database
             let profile = null;
-            let retries = 0;
-            const maxRetries = 3;
-            
-            while (retries < maxRetries) {
-                try {
-                    const { data, error: profileError } = await supabaseClient
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', user.id)
-                        .maybeSingle();
+            try {
+                const { data, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle();
 
-                    if (profileError) {
-                        console.error('[Auth] Profile fetch error (attempt ' + (retries + 1) + '):', profileError);
-                    } else if (data) {
-                        profile = data;
-                        console.log('[Auth] Profile found');
-                        break;
-                    }
-                } catch (e) {
-                    console.error('[Auth] Profile error (attempt ' + (retries + 1) + '):', e);
+                if (profileError) {
+                    console.warn('[Auth] Profile fetch error:', profileError);
+                } else {
+                    profile = data;
                 }
-                retries++;
-                if (retries < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-            }
-
-            // If profile doesn't exist, try to create it manually
-            if (!profile) {
-                console.log('[Auth] Profile not found, attempting to create...');
-                try {
-                    const username = user.user_metadata?.username || user.email?.split('@')[0] || 'user';
-                    const displayName = user.user_metadata?.display_name || username;
-                    
-                    const { data: newProfile, error: createError } = await supabaseClient
-                        .from('profiles')
-                        .insert({
-                            id: user.id,
-                            username: username,
-                            display_name: displayName,
-                            email: user.email,
-                            created_at: new Date().toISOString(),
-                            level: 0,
-                            experience_points: 0,
-                            is_online: true,
-                            last_seen_at: new Date().toISOString()
-                        })
-                        .select()
-                        .single();
-
-                    if (createError) {
-                        console.error('[Auth] Profile creation error:', createError);
-                    } else {
-                        profile = newProfile;
-                        console.log('[Auth] Profile created successfully');
-                    }
-                } catch (createError) {
-                    console.error('[Auth] Profile creation failed:', createError);
-                }
+            } catch (e) {
+                console.warn('[Auth] Profile table may not exist yet');
             }
 
             return { user, profile, error: null };
@@ -331,7 +308,10 @@ const DB = {
                 .eq('id', userId)
                 .maybeSingle();
 
-            if (error) throw new Error(error.message);
+            if (error) {
+                console.warn('[DB] Profile fetch warning:', error);
+                return { data: null, error: null };
+            }
             return { data, error: null };
         } catch (error) {
             return { data: null, error: error.message };
@@ -560,7 +540,7 @@ window.AniVerse = {
     clearStorage: clearSupabaseStorage
 };
 
-// Individual functions
+// Individual functions for backward compatibility
 window.signUp = Auth.signUp.bind(Auth);
 window.signIn = Auth.signIn.bind(Auth);
 window.signOut = Auth.signOut.bind(Auth);
@@ -574,3 +554,5 @@ window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
 console.log('[AniVerse] Supabase client initialized successfully');
+console.log('[AniVerse] Using URL:', SUPABASE_URL);
+console.log('[AniVerse] Key exists:', !!SUPABASE_ANON_KEY);
