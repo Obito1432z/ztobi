@@ -1,11 +1,7 @@
 /**
  * AniVerse - Centralized Supabase Client
- * Version: 2.0.0 – Full DB & Storage Support
+ * Version: 2.1.0 – Full DB, Storage, Realtime & Guild Images
  */
-
-// ============================================================
-// SUPABASE CONFIGURATION
-// ============================================================
 
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_P1NWw77Jrucazh4qozx2oQ_fcU0skIh';
@@ -43,6 +39,19 @@ function clearSupabaseStorage() {
     } catch (error) {
         console.error('[AniVerse] Error clearing storage:', error);
     }
+}
+
+function getPublicUrl(bucket, path) {
+    const { publicURL, error } = supabaseClient.storage
+        .from(bucket)
+        .getPublicUrl(path);
+    
+    if (error) {
+        console.error('[AniVerse] Error getting public URL:', error);
+        return null;
+    }
+    
+    return publicURL;
 }
 
 // ============================================================
@@ -164,7 +173,6 @@ const Auth = {
 
             console.log('[Auth] Login successful for:', response.data.user.id);
 
-            // Update last seen (silent fail)
             try {
                 await supabaseClient
                     .from('profiles')
@@ -248,6 +256,11 @@ const Auth = {
             const { user } = await this.getCurrentUser();
             if (!user) throw new Error('Not authenticated');
 
+            // Validate avatar URL if provided
+            if (updates.avatar_url && !updates.avatar_url.startsWith('http')) {
+                throw new Error('Invalid avatar URL');
+            }
+
             // Update auth metadata
             const { error: metaError } = await supabaseClient.auth.updateUser({
                 data: updates
@@ -280,13 +293,11 @@ const Auth = {
         }
     },
 
-    // --- FRIEND REQUESTS ---
     async sendFriendRequest(receiverId) {
         try {
             const { user } = await this.getCurrentUser();
             if (!user) throw new Error('Not authenticated');
 
-            // Check if already friends or request pending
             const { data: existing, error: checkError } = await supabaseClient
                 .from('friend_requests')
                 .select('id, status')
@@ -314,14 +325,12 @@ const Auth = {
         }
     },
 
-    // --- MESSAGES ---
     async sendMessage({ receiverId, content, replyToId = null }) {
         try {
             const { user } = await this.getCurrentUser();
             if (!user) throw new Error('Not authenticated');
             if (!content || !content.trim()) throw new Error('Message cannot be empty');
 
-            // Find or create conversation
             let conversationId = await this._getOrCreateConversation(user.id, receiverId);
 
             const { data, error } = await supabaseClient
@@ -338,7 +347,6 @@ const Auth = {
 
             if (error) throw new Error(error.message);
 
-            // Update conversation last message
             await supabaseClient
                 .from('conversations')
                 .update({ last_message_id: data.id, last_message_at: data.created_at })
@@ -351,7 +359,6 @@ const Auth = {
     },
 
     async _getOrCreateConversation(userId1, userId2) {
-        // Find existing conversation
         const { data, error } = await supabaseClient
             .from('conversations')
             .select('id')
@@ -361,7 +368,6 @@ const Auth = {
 
         if (data) return data.id;
 
-        // Create new
         const { data: newConvo, error: createError } = await supabaseClient
             .from('conversations')
             .insert({
@@ -383,6 +389,152 @@ const Auth = {
             }
             callback(event, session);
         });
+    },
+
+    // ============================================================
+    // GUILD MANAGEMENT (NEW)
+    // ============================================================
+    
+    async createGuild(guildData) {
+        try {
+            const { user } = await this.getCurrentUser();
+            if (!user) throw new Error('Not authenticated');
+
+            const { 
+                name, 
+                description, 
+                category, 
+                visibility = 'public', 
+                language = 'en',
+                tags = null,
+                logo_url = null,
+                banner_url = null
+            } = guildData;
+
+            if (!name || name.length < 3 || name.length > 50) {
+                throw new Error('Guild name must be 3-50 characters');
+            }
+            if (!description || description.length < 20 || description.length > 500) {
+                throw new Error('Description must be 20-500 characters');
+            }
+
+            // Create slug from name
+            const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            // Check if name or slug exists
+            const { data: existing } = await supabaseClient
+                .from('guilds')
+                .select('id')
+                .or(`name.eq.${name},slug.eq.${slug}`)
+                .maybeSingle();
+
+            if (existing) {
+                throw new Error('A guild with this name already exists');
+            }
+
+            // Create the guild
+            const { data: guild, error } = await supabaseClient
+                .from('guilds')
+                .insert({
+                    name,
+                    slug,
+                    description,
+                    category,
+                    visibility,
+                    language,
+                    tags: tags || null,
+                    logo_url: logo_url || null,
+                    banner_url: banner_url || null,
+                    created_by: user.id,
+                    level: 1,
+                    experience_points: 0
+                })
+                .select()
+                .single();
+
+            if (error) throw new Error(error.message);
+
+            // Get default role
+            const { data: defaultRole, error: roleError } = await supabaseClient
+                .from('guild_roles')
+                .select('id')
+                .eq('guild_id', guild.id)
+                .eq('is_default', true)
+                .single();
+
+            if (roleError) {
+                // Create default roles if they don't exist
+                await supabaseClient
+                    .from('guild_roles')
+                    .insert([
+                        { guild_id: guild.id, name: 'Member', is_default: true },
+                        { guild_id: guild.id, name: 'Admin', is_default: false },
+                        { guild_id: guild.id, name: 'Moderator', is_default: false }
+                    ]);
+                
+                // Get the newly created default role
+                const { data: newDefault, error: newError } = await supabaseClient
+                    .from('guild_roles')
+                    .select('id')
+                    .eq('guild_id', guild.id)
+                    .eq('is_default', true)
+                    .single();
+                
+                if (!newError && newDefault) {
+                    await supabaseClient
+                        .from('guild_members')
+                        .insert({
+                            guild_id: guild.id,
+                            user_id: user.id,
+                            role_id: newDefault.id
+                        });
+                }
+            } else if (defaultRole) {
+                // Add creator as member with default role
+                await supabaseClient
+                    .from('guild_members')
+                    .insert({
+                        guild_id: guild.id,
+                        user_id: user.id,
+                        role_id: defaultRole.id
+                    });
+            }
+
+            return { data: guild, error: null };
+
+        } catch (error) {
+            console.error('[Auth] Create guild error:', error);
+            return { data: null, error: error.message };
+        }
+    },
+
+    async updateGuild(guildId, updates) {
+        try {
+            const { user } = await this.getCurrentUser();
+            if (!user) throw new Error('Not authenticated');
+
+            const allowed = ['name', 'description', 'category', 'visibility', 'language', 
+                'tags', 'logo_url', 'banner_url'];
+            const sanitized = {};
+            Object.keys(updates).forEach(key => {
+                if (allowed.includes(key)) sanitized[key] = updates[key];
+            });
+            sanitized.updated_at = new Date().toISOString();
+
+            const { data, error } = await supabaseClient
+                .from('guilds')
+                .update(sanitized)
+                .eq('id', guildId)
+                .select()
+                .single();
+
+            if (error) throw new Error(error.message);
+            return { data, error: null };
+
+        } catch (error) {
+            console.error('[Auth] Update guild error:', error);
+            return { data: null, error: error.message };
+        }
     }
 };
 
@@ -407,7 +559,6 @@ const DB = {
 
             if (error) throw new Error(error.message);
 
-            // Map to friend objects
             const friends = data.map(item => {
                 const isUser1 = item.user_id === userId;
                 const friend = isUser1 ? item.profiles_friend : item.profiles_user;
@@ -489,7 +640,7 @@ const DB = {
                     guild_id,
                     role_id,
                     joined_at,
-                    guilds!inner (id, name, slug, logo_url, category, visibility, level, is_official)
+                    guilds!inner (id, name, slug, logo_url, banner_url, category, visibility, level, is_official)
                 `)
                 .eq('user_id', userId);
 
@@ -519,6 +670,45 @@ const DB = {
             return { posts: data, error: null };
         } catch (error) {
             return { posts: null, error: error.message };
+        }
+    },
+
+    async getGuild(guildId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('guilds')
+                .select('*')
+                .eq('id', guildId)
+                .is('deleted_at', null)
+                .single();
+
+            if (error) throw new Error(error.message);
+            return { guild: data, error: null };
+        } catch (error) {
+            return { guild: null, error: error.message };
+        }
+    },
+
+    async getGuildMembers(guildId, options = {}) {
+        try {
+            const limit = options.limit || 50;
+            const { data, error } = await supabaseClient
+                .from('guild_members')
+                .select(`
+                    user_id,
+                    role_id,
+                    joined_at,
+                    profiles!inner (id, username, display_name, avatar_url, level),
+                    guild_roles!inner (name, color)
+                `)
+                .eq('guild_id', guildId)
+                .order('joined_at', { ascending: false })
+                .limit(limit);
+
+            if (error) throw new Error(error.message);
+            return { members: data, error: null };
+        } catch (error) {
+            return { members: null, error: error.message };
         }
     },
 
@@ -556,7 +746,6 @@ const DB = {
 
     async getUserActivity(userId) {
         try {
-            // Simulate activity from posts, comments, etc.
             const { data: posts, error: pErr } = await supabaseClient
                 .from('guild_posts')
                 .select('id, title, created_at')
@@ -576,6 +765,37 @@ const DB = {
             return { activities, error: null };
         } catch (error) {
             return { activities: null, error: error.message };
+        }
+    },
+
+    async searchUsers(query) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('id, username, display_name, avatar_url, level')
+                .textSearch('display_name', query, { config: 'english' })
+                .limit(20);
+
+            if (error) throw new Error(error.message);
+            return { users: data, error: null };
+        } catch (error) {
+            return { users: null, error: error.message };
+        }
+    },
+
+    async searchGuilds(query) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('guilds')
+                .select('id, name, description, logo_url, banner_url, category, member_count, level')
+                .textSearch('name', query, { config: 'english' })
+                .is('deleted_at', null)
+                .limit(20);
+
+            if (error) throw new Error(error.message);
+            return { guilds: data, error: null };
+        } catch (error) {
+            return { guilds: null, error: error.message };
         }
     }
 };
@@ -607,21 +827,34 @@ const Realtime = {
 };
 
 // ============================================================
-// STORAGE MODULE
+// STORAGE MODULE (FIXED)
 // ============================================================
 
 const Storage = {
-    async upload(bucket, path, file) {
+    /**
+     * Upload a file to Supabase Storage
+     * @param {string} bucket - Bucket name (avatars, banners, guilds, etc.)
+     * @param {string} path - File path in bucket
+     * @param {File} file - File object to upload
+     * @param {Object} options - Optional settings
+     * @returns {Promise<{url: string|null, error: string|null}>}
+     */
+    async upload(bucket, path, file, options = {}) {
         try {
-            // Validate file type and size
+            // Validate file
             const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type)) {
                 throw new Error('Only PNG, JPG, GIF, and WEBP images are allowed.');
             }
-            if (file.size > 5 * 1024 * 1024) {
-                throw new Error('File size must be less than 5MB.');
+            
+            const maxSize = options.maxSize || 5 * 1024 * 1024; // 5MB default
+            if (file.size > maxSize) {
+                throw new Error(`File size must be less than ${maxSize / 1024 / 1024}MB.`);
             }
 
+            console.log(`[Storage] Uploading to ${bucket}/${path}...`);
+
+            // Upload file
             const { data, error } = await supabaseClient.storage
                 .from(bucket)
                 .upload(path, file, {
@@ -629,18 +862,66 @@ const Storage = {
                     upsert: true
                 });
 
-            if (error) throw new Error(error.message);
+            if (error) {
+                console.error('[Storage] Upload error:', error);
+                throw new Error(error.message);
+            }
+
+            console.log('[Storage] Upload successful:', data);
 
             // Get public URL
-            const { publicURL, error: urlError } = supabaseClient.storage
-                .from(bucket)
-                .getPublicUrl(data.path);
+            const publicUrl = getPublicUrl(bucket, path);
+            
+            if (!publicUrl) {
+                throw new Error('Failed to get public URL');
+            }
 
-            if (urlError) throw new Error(urlError.message);
+            console.log('[Storage] Public URL:', publicUrl);
+            return { url: publicUrl, error: null };
 
-            return { url: publicURL, error: null };
         } catch (error) {
+            console.error('[Storage] Upload error:', error);
             return { url: null, error: error.message };
+        }
+    },
+
+    /**
+     * Delete a file from Supabase Storage
+     */
+    async delete(bucket, path) {
+        try {
+            const { data, error } = await supabaseClient.storage
+                .from(bucket)
+                .remove([path]);
+
+            if (error) throw new Error(error.message);
+            return { data, error: null };
+        } catch (error) {
+            console.error('[Storage] Delete error:', error);
+            return { data: null, error: error.message };
+        }
+    },
+
+    /**
+     * Get public URL for a file
+     */
+    getPublicUrl(bucket, path) {
+        return getPublicUrl(bucket, path);
+    },
+
+    /**
+     * List files in a bucket
+     */
+    async list(bucket, path = '') {
+        try {
+            const { data, error } = await supabaseClient.storage
+                .from(bucket)
+                .list(path);
+
+            if (error) throw new Error(error.message);
+            return { files: data, error: null };
+        } catch (error) {
+            return { files: null, error: error.message };
         }
     }
 };
@@ -655,7 +936,8 @@ window.AniVerse = {
     db: DB,
     realtime: Realtime,
     storage: Storage,
-    clearStorage: clearSupabaseStorage
+    clearStorage: clearSupabaseStorage,
+    getPublicUrl: getPublicUrl
 };
 
 // Backward compatibility
@@ -669,3 +951,4 @@ window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
 console.log('[AniVerse] Supabase client fully initialized');
+console.log('[AniVerse] Storage module ready with guild support');
