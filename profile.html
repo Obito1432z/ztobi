@@ -1438,8 +1438,15 @@
                                 <a href="edit-profile.html" class="btn btn-primary" id="editProfileBtn" style="display:none;">
                                     <i class="fas fa-pen"></i> Edit Profile
                                 </a>
+                                <!-- Friend Requests Button - always visible when logged in -->
+                                <a href="friends.html#pending" class="btn btn-secondary" id="friendRequestsBtn">
+                                    <i class="fas fa-user-friends"></i> Friend Requests
+                                </a>
+                                <!-- Add Friend - only for other users -->
+                                <button class="btn btn-success" id="addFriendBtn" style="display:none;">
+                                    <i class="fas fa-user-plus"></i> Add Friend
+                                </button>
                                 <button class="btn btn-secondary" id="messageBtn"><i class="fas fa-comment"></i> Message</button>
-                                <button class="btn btn-success" id="addFriendBtn"><i class="fas fa-user-plus"></i> Add Friend</button>
                                 <button class="btn btn-ghost" id="reportBtn"><i class="fas fa-flag"></i> Report</button>
                             </div>
                         </div>
@@ -1644,7 +1651,6 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    // Wait for AniVerse to be available
                     if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
                         console.warn('[AniVerse] Auth not ready, waiting...');
                         setTimeout(updateAuthUI, 300);
@@ -1667,6 +1673,8 @@
                     const logoutLink = document.getElementById('logoutLink');
                     const adminPanelLink = document.getElementById('adminPanelLink');
                     const editProfileBtn = document.getElementById('editProfileBtn');
+                    const addFriendBtn = document.getElementById('addFriendBtn');
+                    const friendRequestsBtn = document.getElementById('friendRequestsBtn');
 
                     if (isLoggedIn && profile) {
                         // Logged in - show user UI
@@ -1702,9 +1710,14 @@
                         // Show Edit Profile button only if viewing own profile
                         if (isOwnProfile) {
                             editProfileBtn.style.display = 'inline-flex';
+                            addFriendBtn.style.display = 'none';
                         } else {
                             editProfileBtn.style.display = 'none';
+                            addFriendBtn.style.display = 'inline-flex';
                         }
+
+                        // Always show friend requests button when logged in
+                        friendRequestsBtn.style.display = 'inline-flex';
 
                         // Load profile data
                         await loadProfile();
@@ -1726,6 +1739,8 @@
                         logoutLink.style.display = 'none';
                         adminPanelLink.classList.remove('visible');
                         editProfileBtn.style.display = 'none';
+                        addFriendBtn.style.display = 'none';
+                        friendRequestsBtn.style.display = 'none';
                         isOwnProfile = false;
 
                         // Show login required message
@@ -1800,8 +1815,9 @@
                 document.getElementById('username').textContent = '@guest';
                 document.getElementById('profileBio').textContent = 'Please log in to view your profile.';
                 document.getElementById('editProfileBtn').style.display = 'none';
-                document.getElementById('messageBtn').style.display = 'none';
                 document.getElementById('addFriendBtn').style.display = 'none';
+                document.getElementById('friendRequestsBtn').style.display = 'none';
+                document.getElementById('messageBtn').style.display = 'none';
                 document.getElementById('reportBtn').style.display = 'none';
 
                 document.getElementById('profileAvatar').innerHTML = `
@@ -1874,7 +1890,6 @@
 
                         if (newProfile) {
                             renderProfile(newProfile);
-                            // Load user data
                             await loadUserPosts(userId);
                             await loadUserGuilds(userId);
                             await loadUserFriends(userId);
@@ -1886,7 +1901,6 @@
 
                     if (profile) {
                         renderProfile(profile);
-                        // Load user's data
                         await loadUserPosts(userId);
                         await loadUserGuilds(userId);
                         await loadUserFriends(userId);
@@ -2012,10 +2026,13 @@
 
                 // Edit Profile button (only for own profile)
                 const editBtn = document.getElementById('editProfileBtn');
+                const addFriendBtn = document.getElementById('addFriendBtn');
                 if (isOwnProfile) {
                     editBtn.style.display = 'inline-flex';
+                    addFriendBtn.style.display = 'none';
                 } else {
                     editBtn.style.display = 'none';
+                    addFriendBtn.style.display = 'inline-flex';
                 }
 
                 // Remove skeletons
@@ -2316,26 +2333,35 @@
                     alert('Please log in to send messages.');
                     return;
                 }
-                alert('Messaging will be available with Supabase integration.');
+                if (targetUserId) {
+                    window.location.href = `messages.html?user=${targetUserId}`;
+                } else {
+                    alert('Messaging will be available.');
+                }
             });
 
-            document.getElementById('addFriendBtn').addEventListener('click', function() {
+            document.getElementById('addFriendBtn').addEventListener('click', async function() {
                 if (!currentUser) {
                     alert('Please log in to add friends.');
                     return;
                 }
-                alert('Friend requests will be available with Supabase integration.');
+                if (!targetUserId) return;
+                const result = await window.AniVerse.auth.sendFriendRequest(targetUserId);
+                if (result.error) {
+                    alert(result.error);
+                } else {
+                    alert('Friend request sent!');
+                }
             });
 
             document.getElementById('reportBtn').addEventListener('click', function() {
-                alert('Reporting will be available with Supabase integration.');
+                alert('Reporting will be available.');
             });
 
             // ============================================================
             // INITIALIZE
             // ============================================================
             async function init() {
-                // Wait for AniVerse to be available
                 if (typeof window.AniVerse === 'undefined') {
                     console.warn('[AniVerse] Waiting for client to initialize...');
                     setTimeout(init, 500);
@@ -2344,7 +2370,6 @@
 
                 await updateAuthUI();
 
-                // Listen to auth changes
                 window.AniVerse.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                         updateAuthUI();
@@ -2354,9 +2379,6 @@
 
             init();
 
-            // ============================================================
-            // LOG
-            // ============================================================
             console.log('[AniVerse] Profile page ready (Supabase integrated)');
 
         })();
