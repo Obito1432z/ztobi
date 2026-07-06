@@ -899,6 +899,62 @@
         }
 
         /* ============================================================
+                   MODAL OVERLAY (for new conversation)
+                   ============================================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .modal-box h3 {
+            margin-bottom: var(--spacing-md);
+            font-weight: 700;
+        }
+
+        .modal-box .input-wrapper {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .modal-box .btn {
+            width: 100%;
+        }
+
+        .modal-box .btn-ghost {
+            margin-top: var(--spacing-sm);
+        }
+
+        .modal-box .error-text {
+            color: var(--color-error);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-sm);
+            display: none;
+        }
+
+        .modal-box .error-text.show {
+            display: block;
+        }
+
+        /* ============================================================
                    RESPONSIVE
                    ============================================================ */
         @media (max-width: 1024px) {
@@ -1218,6 +1274,24 @@
     </div>
 
     <!-- ============================================================
+    MODAL FOR NEW CONVERSATION
+    ============================================================ -->
+    <div class="modal-overlay" id="newConvoModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-user-plus"></i> New Conversation</h3>
+            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-bottom:var(--spacing-md);">
+                Enter the username of the person you want to message.
+            </p>
+            <div class="input-wrapper">
+                <input type="text" id="convoUsername" placeholder="Username" />
+            </div>
+            <div class="error-text" id="convoError">User not found</div>
+            <button class="btn btn-primary" id="convoStartBtn"><i class="fas fa-comment"></i> Start Chat</button>
+            <button class="btn btn-ghost" id="convoCancelBtn">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
     JAVASCRIPT - COMPLETE MESSAGES
     ============================================================ -->
     <script>
@@ -1299,6 +1373,13 @@
 
                         // Load conversations
                         await loadConversations(user.id);
+
+                        // Check if there's a user parameter in URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const targetUser = urlParams.get('user');
+                        if (targetUser) {
+                            await startConversationWithUser(targetUser);
+                        }
 
                     } else {
                         loginLink.style.display = 'flex';
@@ -1418,22 +1499,7 @@
             // ============================================================
             async function loadConversations(userId) {
                 try {
-                    const { data: conversations, error } = await window.AniVerse.client
-                        .from('conversations')
-                        .select(`
-                            *,
-                            participant1:profiles!participant1_id (
-                                id, username, display_name, avatar_url, is_online
-                            ),
-                            participant2:profiles!participant2_id (
-                                id, username, display_name, avatar_url, is_online
-                            ),
-                            last_message:messages!last_message_id (
-                                id, content, created_at, sender_id
-                            )
-                        `)
-                        .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-                        .order('last_message_at', { ascending: false });
+                    const { conversations, error } = await window.AniVerse.db.getConversations(userId);
 
                     const container = document.getElementById('conversationList');
 
@@ -1449,11 +1515,8 @@
                     }
 
                     container.innerHTML = conversations.map(convo => {
-                        const otherUser = convo.participant1_id === userId ?
-                            convo.participant2 : convo.participant1;
-
-                        const initial = otherUser?.display_name ? otherUser.display_name.charAt(0).toUpperCase() :
-                            'U';
+                        const otherUser = convo.participant1_id === userId ? convo.participant2 : convo.participant1;
+                        const initial = otherUser?.display_name ? otherUser.display_name.charAt(0).toUpperCase() : 'U';
                         const avatarHtml = otherUser?.avatar_url ?
                             `<img src="${otherUser.avatar_url}" alt="${otherUser.display_name}" />` :
                             initial;
@@ -1596,8 +1659,7 @@
                 try {
                     const result = await window.AniVerse.auth.sendMessage({
                         receiverId: selectedUserId,
-                        content: content,
-                        replyToId: null
+                        content: content
                     });
 
                     if (result.error) {
@@ -1652,7 +1714,8 @@
                                 }
                             }
                         }
-                    }, { column: 'conversation_id', value: conversationId }
+                    },
+                    { column: 'conversation_id', value: conversationId }
                 );
             }
 
@@ -1660,61 +1723,170 @@
             // CREATE NEW CONVERSATION
             // ============================================================
             async function createNewConversation() {
-                const friendId = prompt('Enter the username of the person you want to message:');
-                if (!friendId) return;
+                const modal = document.getElementById('newConvoModal');
+                const usernameInput = document.getElementById('convoUsername');
+                const errorEl = document.getElementById('convoError');
 
+                modal.classList.add('open');
+                usernameInput.value = '';
+                errorEl.classList.remove('show');
+                usernameInput.focus();
+
+                // Remove old listener to avoid duplicates
+                const startBtn = document.getElementById('convoStartBtn');
+                const cancelBtn = document.getElementById('convoCancelBtn');
+
+                // Remove existing listeners (clone and replace)
+                const newStartBtn = startBtn.cloneNode(true);
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                startBtn.parentNode.replaceChild(newStartBtn, startBtn);
+                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+                newCancelBtn.addEventListener('click', function() {
+                    modal.classList.remove('open');
+                });
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) modal.classList.remove('open');
+                });
+
+                newStartBtn.addEventListener('click', async function() {
+                    const username = usernameInput.value.trim();
+                    if (!username) {
+                        errorEl.textContent = 'Please enter a username.';
+                        errorEl.classList.add('show');
+                        return;
+                    }
+
+                    try {
+                        // Find user by username
+                        const { data: user, error } = await window.AniVerse.client
+                            .from('profiles')
+                            .select('id, display_name')
+                            .ilike('username', username)
+                            .maybeSingle();
+
+                        if (error || !user) {
+                            errorEl.textContent = 'User not found. Please check the username.';
+                            errorEl.classList.add('show');
+                            return;
+                        }
+
+                        if (user.id === currentUser.id) {
+                            errorEl.textContent = 'You cannot message yourself.';
+                            errorEl.classList.add('show');
+                            return;
+                        }
+
+                        // Find or create conversation
+                        const { conversations, error: convError } = await window.AniVerse.db.getConversations(currentUser.id);
+                        if (convError) throw new Error(convError);
+
+                        let conversationId = null;
+                        const existing = conversations.find(conv =>
+                            (conv.participant1_id === user.id || conv.participant2_id === user.id)
+                        );
+                        if (existing) {
+                            conversationId = existing.id;
+                        } else {
+                            // Create new conversation
+                            const { data: newConvo, error: createError } = await window.AniVerse.client
+                                .from('conversations')
+                                .insert({
+                                    participant1_id: currentUser.id < user.id ? currentUser.id : user.id,
+                                    participant2_id: currentUser.id < user.id ? user.id : currentUser.id
+                                })
+                                .select()
+                                .single();
+                            if (createError) throw new Error(createError.message);
+                            conversationId = newConvo.id;
+                        }
+
+                        modal.classList.remove('open');
+                        await selectConversation(conversationId, user.id);
+                        await loadConversations(currentUser.id);
+
+                    } catch (error) {
+                        console.error('[AniVerse] Start conversation error:', error);
+                        errorEl.textContent = error.message || 'Could not start conversation.';
+                        errorEl.classList.add('show');
+                    }
+                });
+
+                usernameInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        newStartBtn.click();
+                    }
+                });
+            }
+
+            // ============================================================
+            // START CONVERSATION WITH SPECIFIC USER (from URL param)
+            // ============================================================
+            async function startConversationWithUser(userId) {
                 try {
+                    // Find user by ID
                     const { data: user, error } = await window.AniVerse.client
                         .from('profiles')
-                        .select('id, display_name')
-                        .ilike('username', friendId)
+                        .select('id, display_name, username')
+                        .eq('id', userId)
                         .single();
 
                     if (error || !user) {
-                        alert('User not found. Please check the username.');
+                        console.warn('[AniVerse] User not found:', userId);
                         return;
                     }
 
                     if (user.id === currentUser.id) {
-                        alert('You cannot message yourself.');
+                        console.warn('[AniVerse] Cannot message yourself');
                         return;
                     }
 
-                    const { data: existing } = await window.AniVerse.client
-                        .from('conversations')
-                        .select('id')
-                        .or(`participant1_id.eq.${currentUser.id},participant1_id.eq.${user.id}`)
-                        .or(`participant2_id.eq.${currentUser.id},participant2_id.eq.${user.id}`)
-                        .maybeSingle();
+                    // Find or create conversation
+                    const { conversations, error: convError } = await window.AniVerse.db.getConversations(currentUser.id);
+                    if (convError) throw new Error(convError);
 
-                    let conversationId;
+                    let conversationId = null;
+                    const existing = conversations.find(conv =>
+                        (conv.participant1_id === user.id || conv.participant2_id === user.id)
+                    );
                     if (existing) {
                         conversationId = existing.id;
                     } else {
-                        const [p1, p2] = currentUser.id < user.id ? [currentUser.id, user.id] : [user.id, currentUser
-                            .id
-                        ];
-                        const { data: newConvo, error: convoError } = await window.AniVerse.client
+                        const { data: newConvo, error: createError } = await window.AniVerse.client
                             .from('conversations')
-                            .insert({ participant1_id: p1, participant2_id: p2 })
+                            .insert({
+                                participant1_id: currentUser.id < user.id ? currentUser.id : user.id,
+                                participant2_id: currentUser.id < user.id ? user.id : currentUser.id
+                            })
                             .select()
                             .single();
-
-                        if (convoError) {
-                            throw new Error(convoError.message);
-                        }
+                        if (createError) throw new Error(createError.message);
                         conversationId = newConvo.id;
                     }
 
                     await selectConversation(conversationId, user.id);
                     await loadConversations(currentUser.id);
-                    document.getElementById('messageInput').focus();
 
                 } catch (error) {
-                    console.error('[AniVerse] Create conversation error:', error);
-                    alert('Could not start conversation. Please try again.');
+                    console.error('[AniVerse] Start conversation with user error:', error);
                 }
             }
+
+            // ============================================================
+            // SEARCH CONVERSATIONS
+            // ============================================================
+            const convoSearch = document.getElementById('convoSearch');
+            convoSearch.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.convo-item');
+                items.forEach(item => {
+                    const name = item.querySelector('.convo-name')?.textContent?.toLowerCase() || '';
+                    const preview = item.querySelector('.convo-preview')?.textContent?.toLowerCase() || '';
+                    const match = name.includes(query) || preview.includes(query);
+                    item.style.display = match ? 'flex' : 'none';
+                });
+            });
 
             // ============================================================
             // UTILITY: TIME AGO
@@ -1733,21 +1905,6 @@
                 if (diffDays < 7) return `${diffDays}d`;
                 return date.toLocaleDateString();
             }
-
-            // ============================================================
-            // SEARCH CONVERSATIONS
-            // ============================================================
-            const convoSearch = document.getElementById('convoSearch');
-            convoSearch.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                const items = document.querySelectorAll('.convo-item');
-                items.forEach(item => {
-                    const name = item.querySelector('.convo-name')?.textContent?.toLowerCase() || '';
-                    const preview = item.querySelector('.convo-preview')?.textContent?.toLowerCase() || '';
-                    const match = name.includes(query) || preview.includes(query);
-                    item.style.display = match ? 'flex' : 'none';
-                });
-            });
 
             // ============================================================
             // EVENT LISTENERS
