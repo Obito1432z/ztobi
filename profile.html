@@ -1434,15 +1434,12 @@
                             </div>
 
                             <div class="profile-actions" id="profileActions">
-                                <!-- Edit Profile - owner only (visible based on auth) -->
                                 <a href="edit-profile.html" class="btn btn-primary" id="editProfileBtn" style="display:none;">
                                     <i class="fas fa-pen"></i> Edit Profile
                                 </a>
-                                <!-- Friend Requests Button - always visible when logged in -->
                                 <a href="friends.html#pending" class="btn btn-secondary" id="friendRequestsBtn">
                                     <i class="fas fa-user-friends"></i> Friend Requests
                                 </a>
-                                <!-- Add Friend - only for other users -->
                                 <button class="btn btn-success" id="addFriendBtn" style="display:none;">
                                     <i class="fas fa-user-plus"></i> Add Friend
                                 </button>
@@ -1622,7 +1619,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - COMPLETE PROFILE
+    JAVASCRIPT - COMPLETE PROFILE (WITH FIXES FOR DP & BANNER)
     ============================================================ -->
     <script>
         (function() {
@@ -1952,10 +1949,10 @@
             }
 
             // ============================================================
-            // RENDER PROFILE
+            // RENDER PROFILE (FIXED DP & BANNER)
             // ============================================================
             function renderProfile(profile) {
-                // Update profile info
+                // --- Update text info ---
                 document.getElementById('displayName').textContent = profile.display_name || 'Unknown User';
                 document.getElementById('username').textContent = `@${profile.username || 'unknown'}`;
                 document.getElementById('profileBio').textContent = profile.bio || 'No bio yet.';
@@ -1993,11 +1990,15 @@
                 document.getElementById('xpNext').textContent = nextLevelXp;
                 document.getElementById('xpFill').style.width = `${progress}%`;
 
-                // Avatar
+                // --- AVATAR (with fallback) ---
                 const avatarEl = document.getElementById('profileAvatar');
-                if (profile.avatar_url) {
+                const avatarUrl = profile.avatar_url;
+
+                if (avatarUrl) {
+                    // Try to load the image, fallback to initial on error
                     avatarEl.innerHTML = `
-                        <img src="${profile.avatar_url}" alt="${profile.display_name}" />
+                        <img src="${avatarUrl}" alt="${profile.display_name}" 
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--gradient-accent);font-size:2.4rem;font-weight:700;color:#fff;\\'>${profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}</div><div class=\\'status-dot\\'></div>';" />
                         <div class="status-dot"></div>
                     `;
                 } else {
@@ -2010,21 +2011,28 @@
                     `;
                 }
 
-                // Banner
+                // --- BANNER (with fallback) ---
                 const bannerEl = document.querySelector('.profile-banner');
-                if (profile.banner_url) {
+                const bannerUrl = profile.banner_url;
+
+                if (bannerUrl) {
                     bannerEl.innerHTML = `
-                        <img src="${profile.banner_url}" alt="Profile banner" />
+                        <img src="${bannerUrl}" alt="Profile banner" 
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'banner-skeleton\\' style=\\'display:block;\\'></div><div class=\\'banner-glow\\'></div>';" />
                         <div class="banner-glow"></div>
                     `;
                 } else {
-                    const bannerSkeleton = bannerEl.querySelector('.banner-skeleton');
-                    if (bannerSkeleton) {
-                        bannerSkeleton.style.display = 'block';
+                    // Keep skeleton if no banner
+                    const existingSkeleton = bannerEl.querySelector('.banner-skeleton');
+                    if (!existingSkeleton) {
+                        bannerEl.innerHTML = `
+                            <div class="banner-skeleton"></div>
+                            <div class="banner-glow"></div>
+                        `;
                     }
                 }
 
-                // Edit Profile button (only for own profile)
+                // --- Show/hide edit and add friend buttons ---
                 const editBtn = document.getElementById('editProfileBtn');
                 const addFriendBtn = document.getElementById('addFriendBtn');
                 if (isOwnProfile) {
@@ -2035,11 +2043,7 @@
                     addFriendBtn.style.display = 'inline-flex';
                 }
 
-                // Remove skeletons
-                const bannerSkeletonEl = document.querySelector('.banner-skeleton');
-                if (bannerSkeletonEl) {
-                    bannerSkeletonEl.remove();
-                }
+                console.log('[AniVerse] Profile rendered successfully');
             }
 
             // ============================================================
