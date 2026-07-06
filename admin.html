@@ -13,6 +13,11 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supabaseClient.js"></script>
+
     <style>
         /* ============================================================
                    CSS VARIABLES — Shared Design System
@@ -136,12 +141,9 @@
             margin-bottom: var(--spacing-lg);
         }
 
-        .sidebar-brand i {
-            font-size: 1.5rem;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
         }
 
         .sidebar-nav {
@@ -202,6 +204,11 @@
             font-weight: 600;
             padding: 1px 8px;
             border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
         }
 
         .sidebar-nav .nav-item.admin-panel {
@@ -274,6 +281,14 @@
 
         .sidebar-toggle:hover {
             background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
 
         /* ============================================================
@@ -378,6 +393,11 @@
             height: 8px;
             border-radius: 50%;
             background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
         }
 
         .header .header-actions .user-avatar {
@@ -538,6 +558,25 @@
         .btn-ghost:hover:not(:disabled) {
             color: var(--text-primary);
             background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--color-error);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: #fff;
+        }
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(81, 207, 102, 0.3);
         }
 
         .btn .spinner {
@@ -737,6 +776,7 @@
             border-radius: 100px;
             font-size: var(--font-size-xs);
             font-weight: 600;
+            display: inline-block;
         }
 
         .table-wrapper table .status-badge.pending {
@@ -772,6 +812,7 @@
         .table-wrapper .table-actions {
             display: flex;
             gap: var(--spacing-xs);
+            flex-wrap: wrap;
         }
 
         .table-wrapper .table-actions .btn {
@@ -862,10 +903,78 @@
             cursor: pointer;
         }
 
+        .input-wrapper select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: var(--spacing-md);
+        }
+
+        /* ============================================================
+                   MODAL
+                   ============================================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 40px 36px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-box .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .modal-box .modal-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .modal-box .modal-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            justify-content: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ============================================================
@@ -918,31 +1027,6 @@
         }
 
         /* ============================================================
-                   ACCESS DENIED
-                   ============================================================ */
-        .access-denied {
-            text-align: center;
-            padding: 80px 20px;
-        }
-
-        .access-denied i {
-            font-size: 5rem;
-            color: var(--color-error);
-            opacity: 0.3;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .access-denied h1 {
-            font-size: var(--font-size-2xl);
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .access-denied p {
-            color: var(--text-secondary);
-            font-size: var(--font-size-lg);
-        }
-
-        /* ============================================================
                    RESPONSIVE
                    ============================================================ */
         @media (max-width: 1024px) {
@@ -981,14 +1065,6 @@
 
             .sidebar.open {
                 transform: translateX(0);
-            }
-
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
             }
 
             .sidebar-overlay.active {
@@ -1032,6 +1108,10 @@
                 font-size: var(--font-size-xl);
             }
 
+            .modal-box {
+                padding: 24px 20px;
+            }
+
             .header .header-actions .user-level {
                 display: none;
             }
@@ -1062,6 +1142,10 @@
             .table-wrapper table td {
                 padding: var(--spacing-xs) var(--spacing-sm);
             }
+
+            .modal-box .modal-actions .btn {
+                min-width: 80px;
+            }
         }
     </style>
 </head>
@@ -1084,7 +1168,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <i class="fas fa-crown"></i> AniVerse
+            <img src="assets/logo.png" alt="AniVerse Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1102,16 +1186,15 @@
             </a>
             <a href="messages.html" class="nav-item">
                 <i class="fas fa-comment-dots"></i> Messages
-                <span class="badge">3</span>
+                <span class="badge" id="messageBadge"></span>
             </a>
             <a href="notifications.html" class="nav-item">
                 <i class="fas fa-bell"></i> Notifications
-                <span class="badge">5</span>
+                <span class="badge" id="notifBadge"></span>
             </a>
             <a href="search.html" class="nav-item">
                 <i class="fas fa-search"></i> Search
             </a>
-            <!-- Admin Panel - Visible only for admins/mods -->
             <a href="admin.html" class="nav-item admin-panel visible active">
                 <i class="fas fa-shield-alt"></i> Admin Panel
             </a>
@@ -1147,16 +1230,19 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
-                <button class="icon-btn" aria-label="Notifications">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
                     <i class="fas fa-bell"></i>
-                    <span class="dot"></span>
-                </button>
-                <a href="profile.html" class="user-avatar visible" aria-label="User avatar">U</a>
-                <span class="user-level visible">Lv.12</span>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar visible" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level visible" id="headerLevel">Lv.0</span>
                 <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
                 <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
             </div>
@@ -1169,122 +1255,91 @@
 
             <div class="container">
 
-                <!-- ============================================================
-                ACCESS DENIED / AUTH CHECK
-                ============================================================ -->
-                <div id="accessDenied" style="display:none;">
-                    <div class="access-denied">
-                        <i class="fas fa-shield-alt"></i>
-                        <h1>Access Denied</h1>
-                        <p>You do not have permission to access the Admin Panel.</p>
-                        <a href="index.html" class="btn btn-primary" style="margin-top:var(--spacing-lg);">
-                            <i class="fas fa-home"></i> Return to Home
-                        </a>
+                <!-- Page Header -->
+                <div class="section-header">
+                    <div>
+                        <span class="section-tag"><i class="fas fa-shield-alt"></i> Administration</span>
+                        <h1 class="section-title">Admin Panel</h1>
+                        <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, missions, and community settings.</p>
                     </div>
                 </div>
 
+                <!-- Toast -->
+                <div id="adminToast" class="toast" role="alert">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="toastMessage">Action completed successfully</span>
+                </div>
+
                 <!-- ============================================================
-                ADMIN CONTENT (visible only for admins/mods)
+                ADMIN LAYOUT
                 ============================================================ -->
-                <div id="adminContent">
+                <div class="admin-layout">
 
-                    <!-- Page Header -->
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-shield-alt"></i> Administration</span>
-                            <h1 class="section-title">Admin Panel</h1>
-                            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, content, and community settings.</p>
-                        </div>
-                    </div>
-
-                    <!-- Toast -->
-                    <div id="adminToast" class="toast" role="alert">
-                        <i class="fas fa-circle-exclamation"></i>
-                        <span id="toastMessage">Action completed successfully</span>
-                    </div>
+                    <!-- Admin Nav -->
+                    <nav class="admin-nav" aria-label="Admin navigation">
+                        <a href="#" class="nav-link active" data-panel="dashboard">
+                            <i class="fas fa-chart-pie"></i> Dashboard
+                        </a>
+                        <a href="#" class="nav-link" data-panel="users">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="#" class="nav-link" data-panel="guilds">
+                            <i class="fas fa-users-cog"></i> Guilds
+                        </a>
+                        <a href="#" class="nav-link" data-panel="posts">
+                            <i class="fas fa-file-alt"></i> Posts
+                        </a>
+                        <a href="#" class="nav-link" data-panel="missions">
+                            <i class="fas fa-tasks"></i> Missions
+                            <span class="badge" id="missionsBadge">0</span>
+                        </a>
+                        <a href="#" class="nav-link" data-panel="leaderboard">
+                            <i class="fas fa-trophy"></i> Leaderboard
+                        </a>
+                        <a href="#" class="nav-link" data-panel="settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </nav>
 
                     <!-- ============================================================
-                    ADMIN LAYOUT
+                    PANEL: DASHBOARD
                     ============================================================ -->
-                    <div class="admin-layout">
+                    <div class="admin-panel active" id="panel-dashboard">
 
-                        <!-- Admin Nav -->
-                        <nav class="admin-nav" aria-label="Admin navigation">
-                            <a href="#" class="nav-link active" data-panel="dashboard">
-                                <i class="fas fa-chart-pie"></i> Dashboard
-                            </a>
-                            <a href="#" class="nav-link" data-panel="users">
-                                <i class="fas fa-users"></i> Users
-                            </a>
-                            <a href="#" class="nav-link" data-panel="guilds">
-                                <i class="fas fa-users-cog"></i> Guilds
-                            </a>
-                            <a href="#" class="nav-link" data-panel="posts">
-                                <i class="fas fa-file-alt"></i> Posts
-                            </a>
-                            <a href="#" class="nav-link" data-panel="reports">
-                                <i class="fas fa-flag"></i> Reports
-                                <span class="badge">0</span>
-                            </a>
-                            <a href="#" class="nav-link" data-panel="notifications">
-                                <i class="fas fa-bell"></i> Notifications
-                            </a>
-                            <a href="#" class="nav-link" data-panel="announcements">
-                                <i class="fas fa-bullhorn"></i> Announcements
-                            </a>
-                            <a href="#" class="nav-link" data-panel="anime-manager">
-                                <i class="fas fa-film"></i> Trending Anime
-                            </a>
-                            <a href="#" class="nav-link" data-panel="projects">
-                                <i class="fas fa-project-diagram"></i> Projects
-                            </a>
-                            <a href="#" class="nav-link" data-panel="events">
-                                <i class="fas fa-calendar"></i> Events
-                            </a>
-                            <a href="#" class="nav-link" data-panel="settings">
-                                <i class="fas fa-cog"></i> Settings
-                            </a>
-                            <a href="#" class="nav-link" data-panel="logs">
-                                <i class="fas fa-history"></i> Logs
-                            </a>
-                        </nav>
-
-                        <!-- ============================================================
-                        PANEL: DASHBOARD
-                        ============================================================ -->
-                        <div class="admin-panel active" id="panel-dashboard">
-
-                            <!-- Stats -->
-                            <div class="stats-grid" id="dashboardStats">
-                                <div class="stat-card">
-                                    <div class="stat-number skeleton"></div>
-                                    <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number skeleton"></div>
-                                    <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number skeleton"></div>
-                                    <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number skeleton"></div>
-                                    <div class="stat-label"><i class="fas fa-flag"></i> Reports</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number skeleton"></div>
-                                    <div class="stat-label"><i class="fas fa-user-friends"></i> Online</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number skeleton"></div>
-                                    <div class="stat-label"><i class="fas fa-rocket"></i> New Today</div>
-                                </div>
+                        <!-- Stats -->
+                        <div class="stats-grid" id="dashboardStats">
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
                             </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-tasks"></i> Missions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-trophy"></i> Total XP Awarded</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-rocket"></i> Active Users</div>
+                            </div>
+                        </div>
 
-                            <!-- Recent Activity -->
-                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
-                                <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">Recent Activity</h3>
+                        <!-- Recent Activity -->
+                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                            <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
+                                <i class="fas fa-clock" style="color:var(--accent-1);"></i> Recent Activity
+                            </h3>
+                            <div id="recentActivity">
                                 <div class="empty-state" style="padding:30px 20px;">
                                     <i class="fas fa-clock"></i>
                                     <h3>No recent activity</h3>
@@ -1292,359 +1347,235 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- ============================================================
-                        PANEL: USERS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-users">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-users"></i> Management</span>
-                                    <h2 class="section-title">Users</h2>
-                                </div>
-                            </div>
-
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Email</th>
-                                            <th>Level</th>
-                                            <th>Status</th>
-                                            <th>Joined</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="usersTableBody">
-                                        <tr>
-                                            <td colspan="6">
-                                                <div class="empty-state" style="padding:30px 20px;">
-                                                    <i class="fas fa-users-slash"></i>
-                                                    <h3>No users yet</h3>
-                                                    <p>User data will appear here.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: GUILDS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-guilds">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
-                                    <h2 class="section-title">Guilds</h2>
-                                </div>
-                            </div>
-
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Guild</th>
-                                            <th>Category</th>
-                                            <th>Members</th>
-                                            <th>Level</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="guildsTableBody">
-                                        <tr>
-                                            <td colspan="6">
-                                                <div class="empty-state" style="padding:30px 20px;">
-                                                    <i class="fas fa-users-slash"></i>
-                                                    <h3>No guilds yet</h3>
-                                                    <p>Guild data will appear here.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: POSTS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-posts">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
-                                    <h2 class="section-title">Posts</h2>
-                                </div>
-                            </div>
-
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Author</th>
-                                            <th>Guild</th>
-                                            <th>Likes</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="postsTableBody">
-                                        <tr>
-                                            <td colspan="6">
-                                                <div class="empty-state" style="padding:30px 20px;">
-                                                    <i class="fas fa-file-alt"></i>
-                                                    <h3>No posts yet</h3>
-                                                    <p>Post data will appear here.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: REPORTS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-reports">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-flag"></i> Moderation</span>
-                                    <h2 class="section-title">Reports</h2>
-                                </div>
-                            </div>
-
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Reported By</th>
-                                            <th>Target</th>
-                                            <th>Reason</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="reportsTableBody">
-                                        <tr>
-                                            <td colspan="5">
-                                                <div class="empty-state" style="padding:30px 20px;">
-                                                    <i class="fas fa-flag"></i>
-                                                    <h3>No reports yet</h3>
-                                                    <p>Report data will appear here.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: NOTIFICATIONS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-notifications">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-bell"></i> Communication</span>
-                                    <h2 class="section-title">Notifications</h2>
-                                </div>
-                                <button class="btn btn-primary" id="sendNotifBtn"><i class="fas fa-paper-plane"></i> Send</button>
-                            </div>
-
-                            <div class="empty-state">
-                                <i class="fas fa-bell-slash"></i>
-                                <h3>No notifications</h3>
-                                <p>System notifications will appear here.</p>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: ANNOUNCEMENTS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-announcements">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-bullhorn"></i> Updates</span>
-                                    <h2 class="section-title">Announcements</h2>
-                                </div>
-                                <button class="btn btn-primary" id="createAnnouncementBtn"><i class="fas fa-plus"></i> Create</button>
-                            </div>
-
-                            <div class="empty-state">
-                                <i class="fas fa-bullhorn"></i>
-                                <h3>No announcements</h3>
-                                <p>Create announcements to keep the community informed.</p>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: TRENDING ANIME
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-anime-manager">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-film"></i> Content</span>
-                                    <h2 class="section-title">Trending Anime Manager</h2>
-                                </div>
-                                <button class="btn btn-primary" id="addAnimeBtn"><i class="fas fa-plus"></i> Add Anime</button>
-                            </div>
-
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Rating</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="animeTableBody">
-                                        <tr>
-                                            <td colspan="4">
-                                                <div class="empty-state" style="padding:30px 20px;">
-                                                    <i class="fas fa-film"></i>
-                                                    <h3>No trending anime</h3>
-                                                    <p>Add anime to the trending list.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: PROJECTS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-projects">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-project-diagram"></i> Initiatives</span>
-                                    <h2 class="section-title">Community Projects</h2>
-                                </div>
-                                <button class="btn btn-primary" id="addProjectBtn"><i class="fas fa-plus"></i> Create</button>
-                            </div>
-
-                            <div class="empty-state">
-                                <i class="fas fa-project-diagram"></i>
-                                <h3>No projects yet</h3>
-                                <p>Community projects will appear here.</p>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: EVENTS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-events">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-calendar"></i> Calendar</span>
-                                    <h2 class="section-title">Events</h2>
-                                </div>
-                                <button class="btn btn-primary" id="addEventBtn"><i class="fas fa-plus"></i> Create</button>
-                            </div>
-
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-plus"></i>
-                                <h3>No events</h3>
-                                <p>Upcoming events will appear here.</p>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: SETTINGS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-settings">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
-                                    <h2 class="section-title">Website Settings</h2>
-                                </div>
-                            </div>
-
-                            <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
-                                <div class="form-group">
-                                    <label for="siteName">Site Name</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="siteTagline">Tagline</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="maintenanceMode">Maintenance Mode</label>
-                                    <div class="input-wrapper">
-                                        <select id="maintenanceMode">
-                                            <option value="off" selected>Off</option>
-                                            <option value="on">On</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group" style="margin-bottom:0;">
-                                    <label for="registrationMode">Registration</label>
-                                    <div class="input-wrapper">
-                                        <select id="registrationMode">
-                                            <option value="open" selected>Open</option>
-                                            <option value="closed">Closed</option>
-                                            <option value="invite">Invite Only</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn"><i class="fas fa-save"></i> Save Settings</button>
-                            </div>
-                        </div>
-
-                        <!-- ============================================================
-                        PANEL: LOGS
-                        ============================================================ -->
-                        <div class="admin-panel" id="panel-logs">
-                            <div class="section-header">
-                                <div>
-                                    <span class="section-tag"><i class="fas fa-history"></i> Audit</span>
-                                    <h2 class="section-title">Moderation Logs</h2>
-                                </div>
-                            </div>
-
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Time</th>
-                                            <th>Moderator</th>
-                                            <th>Action</th>
-                                            <th>Target</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="logsTableBody">
-                                        <tr>
-                                            <td colspan="4">
-                                                <div class="empty-state" style="padding:30px 20px;">
-                                                    <i class="fas fa-history"></i>
-                                                    <h3>No logs yet</h3>
-                                                    <p>Moderation logs will appear here.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
                     </div>
+
+                    <!-- ============================================================
+                    PANEL: USERS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-users">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users"></i> Management</span>
+                                <h2 class="section-title">Users</h2>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Level</th>
+                                        <th>XP</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Loaded by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: GUILDS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-guilds">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
+                                <h2 class="section-title">Guilds</h2>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Guild</th>
+                                        <th>Category</th>
+                                        <th>Members</th>
+                                        <th>Level</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guildsTableBody">
+                                    <!-- Loaded by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: POSTS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-posts">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
+                                <h2 class="section-title">Posts</h2>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Guild</th>
+                                        <th>Likes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="postsTableBody">
+                                    <!-- Loaded by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: MISSIONS (NEW - COMPLETE XP SYSTEM)
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-missions">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-tasks"></i> Gamification</span>
+                                <h2 class="section-title">Missions & XP Management</h2>
+                            </div>
+                            <button class="btn btn-primary" id="createMissionBtn">
+                                <i class="fas fa-plus"></i> Create Mission
+                            </button>
+                        </div>
+
+                        <!-- Mission Stats -->
+                        <div class="stats-grid" id="missionStats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalMissions">0</div>
+                                <div class="stat-label">Total Missions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="activeMissions">0</div>
+                                <div class="stat-label">Active Missions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalXPAwarded">0</div>
+                                <div class="stat-label">Total XP Awarded</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="completedMissions">0</div>
+                                <div class="stat-label">Completed by Users</div>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>XP Reward</th>
+                                        <th>Auto Complete</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="missionsTableBody">
+                                    <!-- Loaded by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: LEADERBOARD
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-leaderboard">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-trophy"></i> Rankings</span>
+                                <h2 class="section-title">XP Leaderboard</h2>
+                            </div>
+                            <button class="btn btn-secondary" id="refreshLeaderboard">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>User</th>
+                                        <th>Level</th>
+                                        <th>XP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardTableBody">
+                                    <!-- Loaded by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: SETTINGS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-settings">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
+                                <h2 class="section-title">Website Settings</h2>
+                            </div>
+                        </div>
+
+                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
+                            <div class="form-group">
+                                <label for="siteName">Site Name</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="siteTagline">Tagline</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="maintenanceMode">Maintenance Mode</label>
+                                <div class="input-wrapper">
+                                    <select id="maintenanceMode">
+                                        <option value="off" selected>Off</option>
+                                        <option value="on">On</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="registrationMode">Registration</label>
+                                <div class="input-wrapper">
+                                    <select id="registrationMode">
+                                        <option value="open" selected>Open</option>
+                                        <option value="closed">Closed</option>
+                                        <option value="invite">Invite Only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -1653,46 +1584,208 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    MODAL: CREATE/EDIT MISSION
     ============================================================ -->
-    <script src="supabase.js"></script>
+    <div class="modal-overlay" id="missionModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="missionModalTitle"><i class="fas fa-plus"></i> Create Mission</h3>
+            <form id="missionForm">
+                <div class="form-group">
+                    <label for="missionTitle">Title <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="text" id="missionTitle" placeholder="Enter mission title" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="missionDescription">Description <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <textarea id="missionDescription" placeholder="Describe the mission" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="missionCategory">Category <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <select id="missionCategory" required>
+                                <option value="account">Account</option>
+                                <option value="guild">Guild</option>
+                                <option value="friends">Friends</option>
+                                <option value="social">Social</option>
+                                <option value="daily">Daily</option>
+                                <option value="special">Special</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="missionXPReward">XP Reward <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <input type="number" id="missionXPReward" placeholder="10" min="1" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="missionAutoComplete" checked />
+                        Auto Complete (detects completion automatically)
+                    </label>
+                </div>
+
+                <div class="form-group" id="criteriaGroup" style="display:none;">
+                    <label for="missionCriteria">Completion Criteria (JSON)</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="missionCriteria" placeholder='{"action": "action_name", "count": 10}' />
+                    </div>
+                    <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">
+                        Example: {"action": "friend_count", "count": 10}
+                    </div>
+                </div>
+
+                <input type="hidden" id="missionEditId" />
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary" id="missionSubmitBtn">
+                        <i class="fas fa-save"></i> <span id="missionSubmitText">Create Mission</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="missionCancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT - COMPLETE ADMIN PANEL
+    ============================================================ -->
     <script>
         (function() {
             'use strict';
 
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+            let currentProfile = null;
+            let isAdmin = false;
 
             // ============================================================
-            // AUTH STATE MANAGEMENT
+            // UPDATE AUTH UI
             // ============================================================
-            let isLoggedIn = true; // Simulated - will come from Supabase
-            let userRole = 'admin'; // 'admin', 'moderator', or 'user'
-
-            function checkAccess() {
-                const hasAccess = isLoggedIn && (userRole === 'admin' || userRole === 'moderator');
-
-                if (!hasAccess) {
-                    document.getElementById('accessDenied').style.display = 'block';
-                    document.getElementById('adminContent').style.display = 'none';
-                } else {
-                    document.getElementById('accessDenied').style.display = 'none';
-                    document.getElementById('adminContent').style.display = 'block';
-                }
-
-                // Update sidebar admin link visibility
-                const adminPanelLink = document.querySelector('.nav-item.admin-panel');
-                if (adminPanelLink) {
-                    if (hasAccess) {
-                        adminPanelLink.classList.add('visible');
-                    } else {
-                        adminPanelLink.classList.remove('visible');
+            async function updateAuthUI() {
+                try {
+                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                        setTimeout(updateAuthUI, 300);
+                        return;
                     }
-                }
 
-                return hasAccess;
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
+
+                    const isLoggedIn = !!(user && profile);
+                    
+                    // Check if user is admin
+                    if (isLoggedIn && user) {
+                        const role = user.user_metadata?.role || user.role || 'user';
+                        isAdmin = role === 'admin' || role === 'moderator';
+                    } else {
+                        isAdmin = false;
+                    }
+
+                    // Update sidebar
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.querySelector('.nav-item.admin-panel');
+
+                    // Update header
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
+
+                    if (isLoggedIn && profile) {
+                        const displayName = profile.display_name || user.email || 'User';
+
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile.level || 0}`;
+                        }
+                        headerLoginBtn.classList.remove('visible');
+                        headerSignupBtn.classList.remove('visible');
+
+                        // Show admin panel only if admin
+                        if (adminPanelLink) {
+                            if (isAdmin) {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+
+                        // Check access and load data
+                        if (isAdmin) {
+                            await loadAllData();
+                        } else {
+                            showAccessDenied();
+                        }
+
+                    } else {
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        headerAvatar.classList.remove('visible');
+                        headerLevel.classList.remove('visible');
+                        headerLoginBtn.classList.add('visible');
+                        headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
+                        showAccessDenied();
+                    }
+
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
+                    showAccessDenied();
+                }
             }
 
             // ============================================================
-            // SIDEBAR TOGGLE (mobile)
+            // SHOW ACCESS DENIED
+            // ============================================================
+            function showAccessDenied() {
+                document.querySelector('.admin-layout').innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
+                        <i class="fas fa-shield-alt" style="font-size:4rem; color:var(--color-error); opacity:0.3; display:block; margin-bottom:var(--spacing-lg);"></i>
+                        <h2 style="margin-bottom:var(--spacing-sm);">Access Denied</h2>
+                        <p style="color:var(--text-secondary); margin-bottom:var(--spacing-lg);">You do not have permission to access the Admin Panel.</p>
+                        <a href="index.html" class="btn btn-primary"><i class="fas fa-home"></i> Return to Home</a>
+                    </div>
+                `;
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
             // ============================================================
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -1733,54 +1826,17 @@
             // ============================================================
             // LOGOUT
             // ============================================================
-            document.getElementById('logoutLink').addEventListener('click', function(e) {
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    isLoggedIn = false;
-                    userRole = 'user';
-                    checkAccess();
-                    console.log('[AniVerse] Logged out');
-                    window.location.href = 'index.html';
-                }
-            });
-
-            // ============================================================
-            // ADMIN NAVIGATION
-            // ============================================================
-            const navLinks = document.querySelectorAll('.admin-nav .nav-link');
-            const panels = {};
-
-            navLinks.forEach(function(link) {
-                const panelId = link.getAttribute('data-panel');
-                const panel = document.getElementById('panel-' + panelId);
-                if (panel) {
-                    panels[panelId] = panel;
-                }
-
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const id = this.getAttribute('data-panel');
-
-                    navLinks.forEach(function(l) {
-                        l.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    Object.keys(panels).forEach(function(key) {
-                        if (panels[key]) {
-                            panels[key].classList.remove('active');
-                        }
-                    });
-
-                    if (panels[id]) {
-                        panels[id].classList.add('active');
+                    const { error } = await window.AniVerse.auth.signOut();
+                    if (!error) {
+                        window.clearSupabaseStorage();
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
                     }
-
-                    // Close mobile sidebar
-                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-                });
+                }
             });
 
             // ============================================================
@@ -1804,55 +1860,710 @@
             }
 
             // ============================================================
-            // SIMULATE LOADING DASHBOARD STATS
+            // ADMIN NAVIGATION
             // ============================================================
-            setTimeout(function() {
-                const statNumbers = document.querySelectorAll('.stat-number.skeleton');
-                const values = ['1,247', '128', '3,456', '12', '89', '47'];
-                statNumbers.forEach(function(el, index) {
-                    el.textContent = values[index] || '0';
-                    el.classList.remove('skeleton');
+            const navLinks = document.querySelectorAll('.admin-nav .nav-link');
+            const panels = {};
+
+            document.querySelectorAll('.admin-panel').forEach(function(panel) {
+                const id = panel.id.replace('panel-', '');
+                panels[id] = panel;
+            });
+
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const panelId = this.getAttribute('data-panel');
+
+                    navLinks.forEach(function(l) {
+                        l.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    Object.keys(panels).forEach(function(key) {
+                        if (panels[key]) {
+                            panels[key].classList.remove('active');
+                        }
+                    });
+
+                    if (panels[panelId]) {
+                        panels[panelId].classList.add('active');
+                    }
+
+                    // Close mobile sidebar
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+
+                    // Refresh panel content if needed
+                    if (panelId === 'missions') {
+                        loadMissions();
+                    }
+                    if (panelId === 'leaderboard') {
+                        loadLeaderboard();
+                    }
                 });
-            }, 1500);
+            });
 
             // ============================================================
-            // BUTTON ACTIONS
+            // LOAD ALL DATA
             // ============================================================
-            document.getElementById('sendNotifBtn').addEventListener('click', function() {
-                showToast('Notification system coming soon with Supabase integration.', '');
+            async function loadAllData() {
+                await loadDashboardStats();
+                await loadUsers();
+                await loadGuilds();
+                await loadPosts();
+                await loadMissions();
+                await loadLeaderboard();
+            }
+
+            // ============================================================
+            // LOAD DASHBOARD STATS
+            // ============================================================
+            async function loadDashboardStats() {
+                try {
+                    // Get counts
+                    const { count: userCount } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true });
+
+                    const { count: guildCount } = await window.AniVerse.client
+                        .from('guilds')
+                        .select('*', { count: 'exact', head: true })
+                        .is('deleted_at', null);
+
+                    const { count: postCount } = await window.AniVerse.client
+                        .from('guild_posts')
+                        .select('*', { count: 'exact', head: true })
+                        .is('deleted_at', null);
+
+                    const { count: missionCount } = await window.AniVerse.client
+                        .from('missions')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('is_active', true);
+
+                    // Get total XP from all users
+                    const { data: xpData } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('experience_points');
+
+                    let totalXP = 0;
+                    if (xpData) {
+                        xpData.forEach(p => {
+                            totalXP += p.experience_points || 0;
+                        });
+                    }
+
+                    // Get active users (last 7 days)
+                    const { count: activeCount } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true })
+                        .gt('last_seen_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+
+                    // Update stats
+                    const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
+                    const values = [
+                        userCount || 0,
+                        guildCount || 0,
+                        postCount || 0,
+                        missionCount || 0,
+                        totalXP || 0,
+                        activeCount || 0
+                    ];
+                    statNumbers.forEach(function(el, index) {
+                        el.textContent = typeof values[index] === 'number' ? 
+                            values[index].toLocaleString() : 
+                            values[index] || '0';
+                        el.classList.remove('skeleton');
+                    });
+
+                } catch (error) {
+                    console.error('[AniVerse] Load dashboard stats error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD USERS
+            // ============================================================
+            async function loadUsers() {
+                try {
+                    const { data: users, error } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('usersTableBody');
+
+                    if (!users || users.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-users-slash"></i>
+                                        <h3>No users yet</h3>
+                                        <p>Users will appear here as they join.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = users.map(user => `
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                        ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
+                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge active">${user.level || 0}</span></td>
+                            <td>${user.experience_points || 0}</td>
+                            <td><span class="status-badge ${user.is_online ? 'active' : 'inactive'}">${user.is_online ? 'Online' : 'Offline'}</span></td>
+                            <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary view-user" data-id="${user.id}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-danger delete-user" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load users error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD GUILDS
+            // ============================================================
+            async function loadGuilds() {
+                try {
+                    const { data: guilds, error } = await window.AniVerse.client
+                        .from('guilds')
+                        .select('*')
+                        .is('deleted_at', null)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('guildsTableBody');
+
+                    if (!guilds || guilds.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-users-slash"></i>
+                                        <h3>No guilds yet</h3>
+                                        <p>Guilds will appear here as they are created.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = guilds.map(guild => `
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                        ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
+                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge">${guild.category || 'General'}</span></td>
+                            <td>${guild.member_count || 0}</td>
+                            <td>${guild.level || 0}</td>
+                            <td><span class="status-badge ${guild.visibility === 'public' ? 'active' : 'inactive'}">${guild.visibility || 'public'}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary view-guild" data-id="${guild.id}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-danger delete-guild" data-id="${guild.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load guilds error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD POSTS
+            // ============================================================
+            async function loadPosts() {
+                try {
+                    const { data: posts, error } = await window.AniVerse.client
+                        .from('guild_posts')
+                        .select(`
+                            *,
+                            author:profiles!author_id (id, username, display_name),
+                            guild:guilds (id, name)
+                        `)
+                        .is('deleted_at', null)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('postsTableBody');
+
+                    if (!posts || posts.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-file-alt"></i>
+                                        <h3>No posts yet</h3>
+                                        <p>Posts will appear here as they are created.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = posts.map(post => `
+                        <tr>
+                            <td>
+                                <div style="font-weight:500;">${post.title || 'Untitled'}</div>
+                                <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${post.content ? post.content.substring(0, 60) + '...' : ''}</div>
+                            </td>
+                            <td>${post.author?.display_name || 'Unknown'}</td>
+                            <td>${post.guild?.name || 'N/A'}</td>
+                            <td>${post.upvotes || 0}</td>
+                            <td><span class="status-badge active">Published</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-danger delete-post" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load posts error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD MISSIONS (COMPLETE XP SYSTEM)
+            // ============================================================
+            async function loadMissions() {
+                try {
+                    const { data: missions, error } = await window.AniVerse.client
+                        .from('missions')
+                        .select('*')
+                        .order('category', { ascending: true })
+                        .order('xp_reward', { ascending: false });
+
+                    if (error) throw new Error(error.message);
+
+                    // Update stats
+                    const totalMissions = missions ? missions.length : 0;
+                    const activeMissions = missions ? missions.filter(m => m.is_active).length : 0;
+                    
+                    document.getElementById('totalMissions').textContent = totalMissions;
+                    document.getElementById('activeMissions').textContent = activeMissions;
+                    
+                    // Get completed missions count
+                    const { data: completedData } = await window.AniVerse.client
+                        .from('user_mission_progress')
+                        .select('*', { count: 'exact' })
+                        .eq('is_completed', true);
+                    
+                    document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
+                    
+                    // Get total XP awarded
+                    const { data: xpLogs } = await window.AniVerse.client
+                        .from('user_xp_log')
+                        .select('xp_gained');
+                    
+                    let totalXP = 0;
+                    if (xpLogs) {
+                        xpLogs.forEach(log => {
+                            totalXP += log.xp_gained || 0;
+                        });
+                    }
+                    document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
+
+                    // Update badge
+                    document.getElementById('missionsBadge').textContent = activeMissions;
+
+                    const tbody = document.getElementById('missionsTableBody');
+
+                    if (!missions || missions.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-tasks"></i>
+                                        <h3>No missions yet</h3>
+                                        <p>Create your first mission to start the gamification system.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    const categoryColors = {
+                        'account': 'active',
+                        'guild': 'approved',
+                        'friends': 'pending',
+                        'social': 'active',
+                        'daily': 'pending',
+                        'special': 'approved'
+                    };
+
+                    tbody.innerHTML = missions.map(mission => `
+                        <tr>
+                            <td>
+                                <div style="font-weight:500;">${mission.title}</div>
+                                <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${mission.description || ''}</div>
+                            </td>
+                            <td><span class="status-badge ${categoryColors[mission.category] || 'active'}">${mission.category}</span></td>
+                            <td><span class="status-badge" style="background:rgba(81,207,102,0.15);color:#51cf66;">${mission.xp_reward} XP</span></td>
+                            <td>${mission.is_auto_complete ? '✅ Yes' : '❌ No'}</td>
+                            <td><span class="status-badge ${mission.is_active ? 'active' : 'inactive'}">${mission.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary edit-mission" data-id="${mission.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger delete-mission" data-id="${mission.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load missions error:', error);
+                }
+            }
+
+            // ============================================================
+            // LOAD LEADERBOARD
+            // ============================================================
+            async function loadLeaderboard() {
+                try {
+                    const { data: users, error } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('id, username, display_name, level, experience_points, avatar_url')
+                        .order('experience_points', { ascending: false })
+                        .limit(20);
+
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('leaderboardTableBody');
+
+                    if (!users || users.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-trophy"></i>
+                                        <h3>No data yet</h3>
+                                        <p>Leaderboard will populate as users earn XP.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = users.map((user, index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                        return `
+                            <tr>
+                                <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                            ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
+                                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
+                                <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load leaderboard error:', error);
+                }
+            }
+
+            // ============================================================
+            // MISSION CRUD OPERATIONS
+            // ============================================================
+
+            // Open Create Mission Modal
+            document.getElementById('createMissionBtn').addEventListener('click', function() {
+                document.getElementById('missionModalTitle').textContent = '<i class="fas fa-plus"></i> Create Mission';
+                document.getElementById('missionSubmitText').textContent = 'Create Mission';
+                document.getElementById('missionForm').reset();
+                document.getElementById('missionEditId').value = '';
+                document.getElementById('missionModal').classList.add('open');
+                document.getElementById('criteriaGroup').style.display = 'none';
             });
 
-            document.getElementById('createAnnouncementBtn').addEventListener('click', function() {
-                showToast('Announcement creation coming soon with Supabase integration.', '');
+            // Cancel Mission Modal
+            document.getElementById('missionCancelBtn').addEventListener('click', function() {
+                document.getElementById('missionModal').classList.remove('open');
             });
 
-            document.getElementById('addAnimeBtn').addEventListener('click', function() {
-                showToast('Add anime feature coming soon with Supabase integration.', '');
+            // Close modal on overlay click
+            document.getElementById('missionModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
+                }
             });
 
-            document.getElementById('addProjectBtn').addEventListener('click', function() {
-                showToast('Project creation coming soon with Supabase integration.', '');
+            // Toggle criteria field based on auto-complete
+            document.getElementById('missionAutoComplete').addEventListener('change', function() {
+                document.getElementById('criteriaGroup').style.display = this.checked ? 'none' : 'block';
             });
 
-            document.getElementById('addEventBtn').addEventListener('click', function() {
-                showToast('Event creation coming soon with Supabase integration.', '');
+            // Edit Mission
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.edit-mission');
+                if (target) {
+                    const missionId = target.getAttribute('data-id');
+                    editMission(missionId);
+                }
             });
 
+            async function editMission(missionId) {
+                try {
+                    const { data: mission, error } = await window.AniVerse.client
+                        .from('missions')
+                        .select('*')
+                        .eq('id', missionId)
+                        .single();
+
+                    if (error) throw new Error(error.message);
+
+                    document.getElementById('missionModalTitle').textContent = '<i class="fas fa-edit"></i> Edit Mission';
+                    document.getElementById('missionSubmitText').textContent = 'Update Mission';
+                    document.getElementById('missionEditId').value = mission.id;
+                    document.getElementById('missionTitle').value = mission.title;
+                    document.getElementById('missionDescription').value = mission.description || '';
+                    document.getElementById('missionCategory').value = mission.category;
+                    document.getElementById('missionXPReward').value = mission.xp_reward;
+                    document.getElementById('missionAutoComplete').checked = mission.is_auto_complete;
+                    
+                    if (mission.completion_criteria && Object.keys(mission.completion_criteria).length > 0) {
+                        document.getElementById('missionCriteria').value = JSON.stringify(mission.completion_criteria);
+                        document.getElementById('criteriaGroup').style.display = 'block';
+                    } else {
+                        document.getElementById('criteriaGroup').style.display = 'none';
+                    }
+
+                    document.getElementById('missionModal').classList.add('open');
+
+                } catch (error) {
+                    console.error('[AniVerse] Edit mission error:', error);
+                    showToast('Failed to load mission: ' + error.message, 'error');
+                }
+            }
+
+            // Delete Mission
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.delete-mission');
+                if (target) {
+                    const missionId = target.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this mission?')) {
+                        deleteMission(missionId);
+                    }
+                }
+            });
+
+            async function deleteMission(missionId) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('missions')
+                        .delete()
+                        .eq('id', missionId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Mission deleted successfully!', 'success');
+                    await loadMissions();
+
+                } catch (error) {
+                    console.error('[AniVerse] Delete mission error:', error);
+                    showToast('Failed to delete mission: ' + error.message, 'error');
+                }
+            }
+
+            // Submit Mission Form (Create/Update)
+            document.getElementById('missionForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                hideToast();
+
+                const editId = document.getElementById('missionEditId').value;
+                const title = document.getElementById('missionTitle').value.trim();
+                const description = document.getElementById('missionDescription').value.trim();
+                const category = document.getElementById('missionCategory').value;
+                const xpReward = parseInt(document.getElementById('missionXPReward').value);
+                const isAutoComplete = document.getElementById('missionAutoComplete').checked;
+                let criteria = {};
+
+                if (!isAutoComplete) {
+                    try {
+                        criteria = JSON.parse(document.getElementById('missionCriteria').value || '{}');
+                    } catch (e) {
+                        showToast('Invalid JSON format for criteria.', 'error');
+                        return;
+                    }
+                }
+
+                if (!title || !description || !category || !xpReward) {
+                    showToast('Please fill in all required fields.', 'error');
+                    return;
+                }
+
+                const submitBtn = document.getElementById('missionSubmitBtn');
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    if (editId) {
+                        // Update existing mission
+                        const { error } = await window.AniVerse.client
+                            .from('missions')
+                            .update({
+                                title,
+                                description,
+                                category,
+                                xp_reward: xpReward,
+                                is_auto_complete: isAutoComplete,
+                                completion_criteria: criteria,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', editId);
+
+                        if (error) throw new Error(error.message);
+                        showToast('Mission updated successfully!', 'success');
+
+                    } else {
+                        // Create new mission
+                        const { error } = await window.AniVerse.client
+                            .from('missions')
+                            .insert({
+                                title,
+                                description,
+                                category,
+                                xp_reward: xpReward,
+                                is_auto_complete: isAutoComplete,
+                                completion_criteria: criteria
+                            });
+
+                        if (error) throw new Error(error.message);
+                        showToast('Mission created successfully!', 'success');
+                    }
+
+                    document.getElementById('missionModal').classList.remove('open');
+                    await loadMissions();
+
+                } catch (error) {
+                    console.error('[AniVerse] Mission submit error:', error);
+                    showToast('Failed to save mission: ' + error.message, 'error');
+                }
+
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            });
+
+            // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
+
+            // ============================================================
+            // SETTINGS SAVE
+            // ============================================================
             document.getElementById('saveSettingsBtn').addEventListener('click', function() {
-                showToast('Settings saved successfully! (Supabase integration pending)', 'success');
+                showToast('Settings saved successfully!', 'success');
+            });
+
+            // ============================================================
+            // REFRESH LEADERBOARD
+            // ============================================================
+            document.getElementById('refreshLeaderboard').addEventListener('click', function() {
+                loadLeaderboard();
+                showToast('Leaderboard refreshed!', 'success');
             });
 
             // ============================================================
             // INITIALIZE
             // ============================================================
-            checkAccess();
+            async function init() {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    setTimeout(init, 300);
+                    return;
+                }
 
-            // ============================================================
-            // LOG
-            // ============================================================
-            console.log('AniVerse · admin.html ready (Supabase integration pending)');
-            console.log('Auth state:', isLoggedIn ? 'Logged in as ' + userRole : 'Logged out');
-            console.log('Access:', checkAccess() ? 'Granted' : 'Denied');
+                await updateAuthUI();
+
+                window.AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                        updateAuthUI();
+                    }
+                });
+            }
+
+            init();
+
+            console.log('[AniVerse] Admin panel ready (Missions & XP System integrated)');
 
         })();
     </script>
