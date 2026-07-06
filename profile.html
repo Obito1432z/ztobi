@@ -1434,12 +1434,15 @@
                             </div>
 
                             <div class="profile-actions" id="profileActions">
+                                <!-- Edit Profile - owner only -->
                                 <a href="edit-profile.html" class="btn btn-primary" id="editProfileBtn" style="display:none;">
                                     <i class="fas fa-pen"></i> Edit Profile
                                 </a>
+                                <!-- Friend Requests Button -->
                                 <a href="friends.html#pending" class="btn btn-secondary" id="friendRequestsBtn">
                                     <i class="fas fa-user-friends"></i> Friend Requests
                                 </a>
+                                <!-- Add Friend - only for other users -->
                                 <button class="btn btn-success" id="addFriendBtn" style="display:none;">
                                     <i class="fas fa-user-plus"></i> Add Friend
                                 </button>
@@ -1619,7 +1622,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - COMPLETE PROFILE (WITH FIXES FOR DP & BANNER)
+    JAVASCRIPT - COMPLETE PROFILE WITH FIXED DP & BANNER
     ============================================================ -->
     <script>
         (function() {
@@ -1677,6 +1680,12 @@
                         // Logged in - show user UI
                         headerAvatar.classList.add('visible');
                         headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                        if (profile.avatar_url) {
+                            headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                            headerAvatar.style.backgroundSize = 'cover';
+                            headerAvatar.style.backgroundPosition = 'center';
+                            headerAvatar.textContent = '';
+                        }
                         headerLevel.textContent = `Lv.${profile.level || 0}`;
                         headerLevel.classList.add('visible');
                         headerLoginBtn.classList.remove('visible');
@@ -1949,9 +1958,14 @@
             }
 
             // ============================================================
-            // RENDER PROFILE (FIXED DP & BANNER)
+            // RENDER PROFILE - FIXED DP & BANNER
             // ============================================================
             function renderProfile(profile) {
+                console.log('[AniVerse] Rendering profile:', {
+                    avatar_url: profile.avatar_url,
+                    banner_url: profile.banner_url
+                });
+
                 // --- Update text info ---
                 document.getElementById('displayName').textContent = profile.display_name || 'Unknown User';
                 document.getElementById('username').textContent = `@${profile.username || 'unknown'}`;
@@ -1998,7 +2012,7 @@
                     // Try to load the image, fallback to initial on error
                     avatarEl.innerHTML = `
                         <img src="${avatarUrl}" alt="${profile.display_name}" 
-                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--gradient-accent);font-size:2.4rem;font-weight:700;color:#fff;\\'>${profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}</div><div class=\\'status-dot\\'></div>';" />
+                             onerror="console.error('Avatar failed to load:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--gradient-accent);font-size:2.4rem;font-weight:700;color:#fff;\\'>${profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}</div><div class=\\'status-dot\\'></div>';" />
                         <div class="status-dot"></div>
                     `;
                 } else {
@@ -2018,7 +2032,7 @@
                 if (bannerUrl) {
                     bannerEl.innerHTML = `
                         <img src="${bannerUrl}" alt="Profile banner" 
-                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'banner-skeleton\\' style=\\'display:block;\\'></div><div class=\\'banner-glow\\'></div>';" />
+                             onerror="console.error('Banner failed to load:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div class=\\'banner-skeleton\\' style=\\'display:block;\\'></div><div class=\\'banner-glow\\'></div>';" />
                         <div class="banner-glow"></div>
                     `;
                 } else {

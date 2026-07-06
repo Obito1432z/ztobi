@@ -1399,7 +1399,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - EDIT PROFILE
+    JAVASCRIPT - EDIT PROFILE (FIXED IMAGE UPLOAD)
     ============================================================ -->
     <script>
         (function() {
@@ -1456,6 +1456,12 @@
 
                         headerAvatar.classList.add('visible');
                         headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
+                        if (profile.avatar_url) {
+                            headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                            headerAvatar.style.backgroundSize = 'cover';
+                            headerAvatar.style.backgroundPosition = 'center';
+                            headerAvatar.textContent = '';
+                        }
                         headerLevel.textContent = `Lv.${profile.level || 0}`;
                         headerLevel.classList.add('visible');
                         headerLoginBtn.classList.remove('visible');
@@ -1499,6 +1505,11 @@
             async function loadProfileData(profile) {
                 if (!profile) return;
 
+                console.log('[AniVerse] Loading profile data:', {
+                    avatar_url: profile.avatar_url,
+                    banner_url: profile.banner_url
+                });
+
                 // Preview
                 const avatarEl = document.getElementById('previewAvatar');
                 if (profile.avatar_url) {
@@ -1541,11 +1552,18 @@
                     document.getElementById('avatarPreview').style.display = 'block';
                     document.getElementById('avatarImg').src = profile.avatar_url;
                     document.getElementById('avatarUpload').style.display = 'none';
+                } else {
+                    document.getElementById('avatarPreview').style.display = 'none';
+                    document.getElementById('avatarUpload').style.display = 'block';
                 }
+
                 if (profile.banner_url) {
                     document.getElementById('bannerPreview').style.display = 'block';
                     document.getElementById('bannerImg').src = profile.banner_url;
                     document.getElementById('bannerUpload').style.display = 'none';
+                } else {
+                    document.getElementById('bannerPreview').style.display = 'none';
+                    document.getElementById('bannerUpload').style.display = 'block';
                 }
 
                 // Validate username
@@ -1703,7 +1721,7 @@
                 const val = usernameInput.value.trim();
                 const pattern = /^[a-zA-Z0-9_]{3,30}$/;
                 const isValid = pattern.test(val);
-                const isAvailable = true; // Placeholder - check against DB later
+                const isAvailable = true;
 
                 usernameWrapper.classList.remove('error', 'success');
                 usernameError.classList.remove('show');
@@ -1740,7 +1758,7 @@
             });
 
             // ============================================================
-            // FORM SUBMISSION - REAL SUPABASE
+            // FORM SUBMISSION - FIXED IMAGE UPLOAD
             // ============================================================
             const form = document.getElementById('editProfileForm');
             const saveBtn = document.getElementById('saveBtn');
@@ -1788,45 +1806,84 @@
                     }
                 };
 
+                // Check if avatar or banner was uploaded
+                const avatarInput = document.getElementById('avatarInput');
+                const bannerInput = document.getElementById('bannerInput');
+
+                let hasAvatarFile = avatarInput.files && avatarInput.files[0];
+                let hasBannerFile = bannerInput.files && bannerInput.files[0];
+
                 saveBtn.classList.add('loading');
                 saveBtn.disabled = true;
 
                 try {
-                    // Update profile using Supabase
+                    // Step 1: Update profile text data
+                    console.log('[AniVerse] Updating profile text...');
                     const { data, error } = await window.AniVerse.auth.updateProfile(updateData);
-
                     if (error) {
                         showToast('Failed to update profile: ' + error, 'error');
                         saveBtn.classList.remove('loading');
                         saveBtn.disabled = false;
                         return;
                     }
+                    console.log('[AniVerse] Profile text updated successfully');
 
-                    // Handle avatar upload if new file
-                    const avatarInput = document.getElementById('avatarInput');
-                    if (avatarInput.files && avatarInput.files[0]) {
+                    // Step 2: Handle avatar upload
+                    let avatarUrl = null;
+                    if (hasAvatarFile) {
                         const file = avatarInput.files[0];
                         const ext = file.name.split('.').pop();
                         const path = `${currentUser.id}/avatar.${ext}`;
+                        
+                        console.log('[AniVerse] Uploading avatar...');
                         const { url, error: uploadError } = await window.AniVerse.storage.upload('avatars', path, file);
-                        if (!uploadError && url) {
+                        
+                        if (uploadError) {
+                            console.error('[AniVerse] Avatar upload error:', uploadError);
+                            showToast('Failed to upload avatar: ' + uploadError, 'error');
+                        } else if (url) {
+                            console.log('[AniVerse] Avatar uploaded successfully:', url);
+                            avatarUrl = url;
+                            // Save the URL to profile
                             await window.AniVerse.auth.updateProfile({ avatar_url: url });
-                        } else if (uploadError) {
-                            console.warn('[AniVerse] Avatar upload error:', uploadError);
+                            console.log('[AniVerse] Avatar URL saved to profile');
                         }
                     }
 
-                    // Handle banner upload if new file
-                    const bannerInput = document.getElementById('bannerInput');
-                    if (bannerInput.files && bannerInput.files[0]) {
+                    // Step 3: Handle banner upload
+                    let bannerUrl = null;
+                    if (hasBannerFile) {
                         const file = bannerInput.files[0];
                         const ext = file.name.split('.').pop();
                         const path = `${currentUser.id}/banner.${ext}`;
+                        
+                        console.log('[AniVerse] Uploading banner...');
                         const { url, error: uploadError } = await window.AniVerse.storage.upload('banners', path, file);
-                        if (!uploadError && url) {
+                        
+                        if (uploadError) {
+                            console.error('[AniVerse] Banner upload error:', uploadError);
+                            showToast('Failed to upload banner: ' + uploadError, 'error');
+                        } else if (url) {
+                            console.log('[AniVerse] Banner uploaded successfully:', url);
+                            bannerUrl = url;
                             await window.AniVerse.auth.updateProfile({ banner_url: url });
-                        } else if (uploadError) {
-                            console.warn('[AniVerse] Banner upload error:', uploadError);
+                            console.log('[AniVerse] Banner URL saved to profile');
+                        }
+                    }
+
+                    // Step 4: If avatar or banner was uploaded, refresh profile data
+                    if (hasAvatarFile || hasBannerFile) {
+                        // Wait a moment for database to update
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Fetch updated profile
+                        const { profile: updatedProfile } = await window.AniVerse.auth.getCurrentUser();
+                        if (updatedProfile) {
+                            console.log('[AniVerse] Updated profile data:', {
+                                avatar_url: updatedProfile.avatar_url,
+                                banner_url: updatedProfile.banner_url
+                            });
+                            await loadProfileData(updatedProfile);
                         }
                     }
 
@@ -1834,15 +1891,9 @@
                     saveBtn.classList.remove('loading');
                     saveBtn.disabled = false;
 
-                    // Reload profile data
-                    const { profile: updatedProfile } = await window.AniVerse.auth.getCurrentUser();
-                    if (updatedProfile) {
-                        await loadProfileData(updatedProfile);
-                    }
-
                     setTimeout(() => {
                         window.location.href = 'profile.html';
-                    }, 1500);
+                    }, 2000);
 
                 } catch (error) {
                     console.error('[AniVerse] Profile update error:', error);
