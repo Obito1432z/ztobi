@@ -1,6 +1,6 @@
 /**
  * AniVerse - Centralized Supabase Client
- * Version: 1.0.0
+ * Version: 1.0.0 - NO PROFILE TABLE
  */
 
 // ============================================================
@@ -12,7 +12,6 @@ const SUPABASE_ANON_KEY = 'sb_publishable_P1NWw77Jrucazh4qozx2oQ_fcU0skIh';
 
 console.log('[AniVerse] Initializing Supabase client...');
 
-// Initialize Supabase client
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         autoRefreshToken: true,
@@ -52,11 +51,10 @@ function clearSupabaseStorage() {
 
 const Auth = {
     /**
-     * Sign up a new user - NO TRIGGER DEPENDENCY
+     * Sign up a new user - NO PROFILE CREATION
      */
     async signUp({ email, password, username, displayName, country, birthDate }) {
         try {
-            // Validate inputs
             if (!email || !password) {
                 throw new Error('Email and password are required');
             }
@@ -66,10 +64,8 @@ const Auth = {
 
             console.log('[Auth] Signing up user:', email);
 
-            // Clear any existing session first
             clearSupabaseStorage();
 
-            // Step 1: Create the auth user
             const response = await supabaseClient.auth.signUp({
                 email: email,
                 password: password,
@@ -91,67 +87,27 @@ const Auth = {
                 errorStatus: response.error?.status || 'none'
             });
 
-            // Check for error
             if (response.error) {
                 console.error('[Auth] Signup error:', response.error);
-                
                 let errorMessage = response.error.message || 'Signup failed. Please try again.';
-                
                 if (errorMessage.includes('User already registered')) {
                     errorMessage = 'An account with this email already exists. Please log in instead.';
-                } else if (errorMessage.includes('Email not confirmed')) {
-                    errorMessage = 'Please check your email to confirm your account.';
                 }
-                
                 throw new Error(errorMessage);
             }
 
-            // Check if we got user data
             if (!response.data || !response.data.user) {
                 throw new Error('Signup failed. No user data returned.');
             }
 
             console.log('[Auth] User created successfully:', response.data.user.id);
 
-            // Step 2: Create profile manually (since we removed the trigger)
-            try {
-                const profileData = {
-                    id: response.data.user.id,
-                    username: username || email.split('@')[0],
-                    display_name: displayName || username || email.split('@')[0],
-                    email: email,
-                    country: country || null,
-                    birth_date: birthDate || null,
-                    created_at: new Date().toISOString(),
-                    level: 0,
-                    experience_points: 0,
-                    is_online: false
-                };
-
-                console.log('[Auth] Creating profile:', profileData);
-
-                const { error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .insert(profileData);
-
-                if (profileError) {
-                    console.error('[Auth] Profile creation error:', profileError);
-                    // Don't throw - user already created, profile can be retried later
-                } else {
-                    console.log('[Auth] Profile created successfully');
-                }
-            } catch (profileErr) {
-                console.error('[Auth] Profile creation exception:', profileErr);
-                // Don't throw - user already created
-            }
-
             clearSupabaseStorage();
 
             return {
                 user: response.data.user,
                 session: response.data.session,
-                error: null,
-                profileCreated: true
+                error: null
             };
 
         } catch (error) {
@@ -190,13 +146,14 @@ const Auth = {
 
             if (response.error) {
                 console.error('[Auth] Login error:', response.error);
-                if (response.error.message && response.error.message.includes('Invalid login credentials')) {
-                    throw new Error('Invalid email or password');
+                let errorMessage = response.error.message || 'Login failed. Please try again.';
+                if (errorMessage.includes('Invalid login credentials')) {
+                    errorMessage = 'Invalid email or password';
                 }
-                if (response.error.message && response.error.message.includes('Email not confirmed')) {
-                    throw new Error('Please verify your email address before logging in.');
+                if (errorMessage.includes('Email not confirmed')) {
+                    errorMessage = 'Please verify your email address before logging in. Check your inbox.';
                 }
-                throw new Error(response.error.message || 'Login failed. Please try again.');
+                throw new Error(errorMessage);
             }
 
             if (!response.data || !response.data.user) {
@@ -205,10 +162,10 @@ const Auth = {
 
             console.log('[Auth] Login successful for:', response.data.user.id);
 
-            return { 
-                user: response.data.user, 
-                session: response.data.session, 
-                error: null 
+            return {
+                user: response.data.user,
+                session: response.data.session,
+                error: null
             };
         } catch (error) {
             console.error('[Auth] Login error:', error);
@@ -233,7 +190,7 @@ const Auth = {
     },
 
     /**
-     * Get current user with profile
+     * Get current user - NO PROFILE
      */
     async getCurrentUser() {
         try {
@@ -244,7 +201,7 @@ const Auth = {
                 console.error('[Auth] Get user error:', error);
                 return { user: null, profile: null, error: error.message };
             }
-            
+
             if (!user) {
                 console.log('[Auth] No user logged in');
                 return { user: null, profile: null, error: null };
@@ -252,58 +209,8 @@ const Auth = {
 
             console.log('[Auth] User found:', user.id);
 
-            // Get profile from database
-            let profile = null;
-            try {
-                const { data, error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .maybeSingle();
-
-                if (profileError) {
-                    console.warn('[Auth] Profile fetch error:', profileError);
-                } else {
-                    profile = data;
-                }
-            } catch (e) {
-                console.warn('[Auth] Profile fetch error:', e);
-            }
-
-            // If profile doesn't exist, create it
-            if (!profile) {
-                console.log('[Auth] Profile not found, creating one...');
-                try {
-                    const username = user.user_metadata?.username || user.email?.split('@')[0] || 'user';
-                    const displayName = user.user_metadata?.display_name || username;
-                    
-                    const { data: newProfile, error: createError } = await supabaseClient
-                        .from('profiles')
-                        .insert({
-                            id: user.id,
-                            username: username,
-                            display_name: displayName,
-                            email: user.email,
-                            created_at: new Date().toISOString(),
-                            level: 0,
-                            experience_points: 0,
-                            is_online: false
-                        })
-                        .select()
-                        .single();
-
-                    if (createError) {
-                        console.error('[Auth] Auto-profile creation error:', createError);
-                    } else {
-                        profile = newProfile;
-                        console.log('[Auth] Profile created automatically');
-                    }
-                } catch (createErr) {
-                    console.error('[Auth] Auto-profile creation error:', createErr);
-                }
-            }
-
-            return { user, profile, error: null };
+            // No profile loading - just return the user
+            return { user, profile: null, error: null };
         } catch (error) {
             console.error('[Auth] Get current user error:', error);
             return { user: null, profile: null, error: error.message };
@@ -328,39 +235,15 @@ const Auth = {
     },
 
     /**
-     * Update user profile
+     * Check if user is authenticated
      */
-    async updateProfile(updates) {
+    async isAuthenticated() {
         try {
-            const { user } = await this.getCurrentUser();
-            if (!user) throw new Error('Not authenticated');
-
-            const allowedFields = [
-                'display_name', 'bio', 'country', 'birth_date', 'preferred_language', 
-                'avatar_url', 'banner_url', 'favorite_genres', 'favorite_anime', 
-                'favorite_character', 'favorite_studio', 'favorite_quote', 'social_links'
-            ];
-            
-            const sanitized = {};
-            Object.keys(updates).forEach(key => {
-                if (allowedFields.includes(key)) {
-                    sanitized[key] = updates[key];
-                }
-            });
-            sanitized.updated_at = new Date().toISOString();
-
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .update(sanitized)
-                .eq('id', user.id)
-                .select()
-                .single();
-
-            if (error) throw new Error(error.message);
-            return { data, error: null };
+            const { session, error } = await this.getSession();
+            if (error) return false;
+            return !!session;
         } catch (error) {
-            console.error('[Auth] Update profile error:', error);
-            return { data: null, error: error.message };
+            return false;
         }
     },
 
@@ -379,225 +262,22 @@ const Auth = {
 };
 
 // ============================================================
-// DATABASE MODULE
-// ============================================================
-
-const DB = {
-    async getProfile(userId) {
-        try {
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .maybeSingle();
-
-            if (error) {
-                console.warn('[DB] Profile fetch warning:', error);
-                return { data: null, error: null };
-            }
-            return { data, error: null };
-        } catch (error) {
-            return { data: null, error: error.message };
-        }
-    },
-
-    async getFriends(userId) {
-        try {
-            const { data, error } = await supabaseClient
-                .from('friends')
-                .select(`
-                    user_id,
-                    friend_id,
-                    created_at,
-                    profile_friend:profiles!friend_id (
-                        id, username, display_name, avatar_url, is_online, last_seen_at
-                    )
-                `)
-                .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
-
-            if (error) throw new Error(error.message);
-            return { friends: data || [], error: null };
-        } catch (error) {
-            return { friends: null, error: error.message };
-        }
-    },
-
-    async getUserGuilds(userId) {
-        try {
-            const { data, error } = await supabaseClient
-                .from('guild_members')
-                .select(`
-                    guild_id,
-                    role_id,
-                    joined_at,
-                    guilds!inner (
-                        id, name, slug, logo_url, category, visibility, level, is_official
-                    )
-                `)
-                .eq('user_id', userId);
-
-            if (error) throw new Error(error.message);
-            return { guilds: data || [], error: null };
-        } catch (error) {
-            return { guilds: null, error: error.message };
-        }
-    },
-
-    async getNotifications(userId, options = {}) {
-        try {
-            const { limit = 20, offset = 0, unreadOnly = false } = options;
-
-            let query = supabaseClient
-                .from('notifications')
-                .select('*', { count: 'exact' })
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
-                .range(offset, offset + limit - 1);
-
-            if (unreadOnly) {
-                query = query.eq('is_read', false);
-            }
-
-            const { data, count, error } = await query;
-            if (error) throw new Error(error.message);
-            return { notifications: data || [], count: count || 0, error: null };
-        } catch (error) {
-            return { notifications: null, count: 0, error: error.message };
-        }
-    },
-
-    async markNotificationRead(notificationId, userId) {
-        try {
-            const { error } = await supabaseClient
-                .from('notifications')
-                .update({ is_read: true, read_at: new Date().toISOString() })
-                .eq('id', notificationId)
-                .eq('user_id', userId);
-
-            if (error) throw new Error(error.message);
-            return { error: null };
-        } catch (error) {
-            return { error: error.message };
-        }
-    },
-
-    async getGuildPosts(guildId, options = {}) {
-        try {
-            const { limit = 20, offset = 0 } = options;
-
-            const { data, count, error } = await supabaseClient
-                .from('guild_posts')
-                .select('*, author:profiles!author_id (id, username, display_name, avatar_url)', { count: 'exact' })
-                .eq('guild_id', guildId)
-                .is('deleted_at', null)
-                .order('created_at', { ascending: false })
-                .range(offset, offset + limit - 1);
-
-            if (error) throw new Error(error.message);
-            return { posts: data || [], count: count || 0, error: null };
-        } catch (error) {
-            return { posts: null, count: 0, error: error.message };
-        }
-    },
-
-    async getMessages(conversationId, options = {}) {
-        try {
-            const { limit = 50, offset = 0 } = options;
-
-            const { data, error } = await supabaseClient
-                .from('messages')
-                .select(`
-                    *,
-                    sender:profiles!sender_id (id, username, display_name, avatar_url)
-                `)
-                .eq('conversation_id', conversationId)
-                .is('deleted_by_sender', false)
-                .is('deleted_by_receiver', false)
-                .order('created_at', { ascending: false })
-                .range(offset, offset + limit - 1);
-
-            if (error) throw new Error(error.message);
-            return { messages: data ? data.reverse() : [], error: null };
-        } catch (error) {
-            return { messages: null, error: error.message };
-        }
-    },
-
-    async getUserActivity(userId, options = {}) {
-        try {
-            const { limit = 20, offset = 0 } = options;
-
-            const { data, error } = await supabaseClient
-                .from('user_activity_log')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
-                .range(offset, offset + limit - 1);
-
-            if (error) throw new Error(error.message);
-            return { activities: data || [], error: null };
-        } catch (error) {
-            return { activities: null, error: error.message };
-        }
-    }
-};
-
-// ============================================================
-// STORAGE MODULE
-// ============================================================
-
-const Storage = {
-    async upload(bucket, path, file) {
-        try {
-            const { error: uploadError } = await supabaseClient.storage
-                .from(bucket)
-                .upload(path, file, { upsert: true });
-
-            if (uploadError) throw new Error(uploadError.message);
-
-            const { data: { publicUrl } } = supabaseClient.storage
-                .from(bucket)
-                .getPublicUrl(path);
-
-            return { url: publicUrl, error: null };
-        } catch (error) {
-            return { url: null, error: error.message };
-        }
-    },
-
-    async delete(bucket, path) {
-        try {
-            const { error } = await supabaseClient.storage
-                .from(bucket)
-                .remove([path]);
-
-            if (error) throw new Error(error.message);
-            return { error: null };
-        } catch (error) {
-            return { error: error.message };
-        }
-    }
-};
-
-// ============================================================
 // EXPOSE GLOBALLY
 // ============================================================
 
 window.AniVerse = {
     client: supabaseClient,
     auth: Auth,
-    db: DB,
-    storage: Storage,
     clearStorage: clearSupabaseStorage
 };
 
+// Individual functions
 window.signUp = Auth.signUp.bind(Auth);
 window.signIn = Auth.signIn.bind(Auth);
 window.signOut = Auth.signOut.bind(Auth);
 window.getCurrentUser = Auth.getCurrentUser.bind(Auth);
 window.getSession = Auth.getSession.bind(Auth);
 window.isAuthenticated = Auth.isAuthenticated.bind(Auth);
-window.updateUserProfile = Auth.updateProfile.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
