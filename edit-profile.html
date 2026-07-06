@@ -1416,7 +1416,7 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
@@ -1424,7 +1424,7 @@
                     currentUser = user;
                     currentProfile = profile;
 
-                    const isLoggedIn = !!user;
+                    const isLoggedIn = !!(user && profile);
 
                     // Sidebar
                     const loginLink = document.getElementById('loginLink');
@@ -1523,8 +1523,7 @@
 
                 // Social links
                 if (profile.social_links) {
-                    const social = typeof profile.social_links === 'string' ? JSON.parse(profile.social_links) : profile
-                        .social_links;
+                    const social = typeof profile.social_links === 'string' ? JSON.parse(profile.social_links) : profile.social_links;
                     document.getElementById('website').value = social.website || '';
                     document.getElementById('github').value = social.github || '';
                     document.getElementById('discord').value = social.discord || '';
@@ -1534,8 +1533,7 @@
                 }
 
                 // Counters
-                document.getElementById('displayNameCount').textContent = document.getElementById('displayName').value
-                    .length;
+                document.getElementById('displayNameCount').textContent = document.getElementById('displayName').value.length;
                 document.getElementById('bioCount').textContent = document.getElementById('bio').value.length;
 
                 // Avatar preview if exists
@@ -1810,10 +1808,11 @@
                         const file = avatarInput.files[0];
                         const ext = file.name.split('.').pop();
                         const path = `${currentUser.id}/avatar.${ext}`;
-                        const { url, error: uploadError } = await window.AniVerse.storage.upload('avatars', path,
-                        file);
+                        const { url, error: uploadError } = await window.AniVerse.storage.upload('avatars', path, file);
                         if (!uploadError && url) {
                             await window.AniVerse.auth.updateProfile({ avatar_url: url });
+                        } else if (uploadError) {
+                            console.warn('[AniVerse] Avatar upload error:', uploadError);
                         }
                     }
 
@@ -1823,10 +1822,11 @@
                         const file = bannerInput.files[0];
                         const ext = file.name.split('.').pop();
                         const path = `${currentUser.id}/banner.${ext}`;
-                        const { url, error: uploadError } = await window.AniVerse.storage.upload('banners', path,
-                        file);
+                        const { url, error: uploadError } = await window.AniVerse.storage.upload('banners', path, file);
                         if (!uploadError && url) {
                             await window.AniVerse.auth.updateProfile({ banner_url: url });
+                        } else if (uploadError) {
+                            console.warn('[AniVerse] Banner upload error:', uploadError);
                         }
                     }
 
@@ -1834,9 +1834,15 @@
                     saveBtn.classList.remove('loading');
                     saveBtn.disabled = false;
 
+                    // Reload profile data
+                    const { profile: updatedProfile } = await window.AniVerse.auth.getCurrentUser();
+                    if (updatedProfile) {
+                        await loadProfileData(updatedProfile);
+                    }
+
                     setTimeout(() => {
                         window.location.href = 'profile.html';
-                    }, 1200);
+                    }, 1500);
 
                 } catch (error) {
                     console.error('[AniVerse] Profile update error:', error);
@@ -1874,7 +1880,7 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
                     setTimeout(init, 300);
                     return;
                 }
