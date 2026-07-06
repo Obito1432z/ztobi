@@ -7,25 +7,17 @@
 // SUPABASE CONFIGURATION
 // ============================================================
 
-// ⚠️ IMPORTANT: Replace with your actual Supabase credentials
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_P1NWw77Jrucazh4qozx2oQ_fcU0skIh';
 
 console.log('[AniVerse] Initializing Supabase client...');
-console.log('[AniVerse] Supabase URL:', SUPABASE_URL);
 
-// Initialize Supabase client with proper options
+// Initialize Supabase client
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true
-    },
-    // Add these to help with CORS
-    global: {
-        headers: {
-            'X-Client-Info': 'aniverse-web'
-        }
     }
 });
 
@@ -60,7 +52,7 @@ function clearSupabaseStorage() {
 
 const Auth = {
     /**
-     * Sign up a new user - SIMPLIFIED VERSION
+     * Sign up a new user
      */
     async signUp({ email, password, username, displayName, country, birthDate }) {
         try {
@@ -73,12 +65,11 @@ const Auth = {
             }
 
             console.log('[Auth] Signing up user:', email);
-            console.log('[Auth] Supabase URL:', SUPABASE_URL);
 
             // Clear any existing session first
             clearSupabaseStorage();
 
-            // Attempt signup with Supabase Auth - SIMPLIFIED
+            // Attempt signup with Supabase Auth
             const response = await supabaseClient.auth.signUp({
                 email: email,
                 password: password,
@@ -92,7 +83,7 @@ const Auth = {
                 }
             });
 
-            console.log('[Auth] Signup response received:', {
+            console.log('[Auth] Signup response:', {
                 hasData: !!response.data,
                 hasError: !!response.error,
                 user: response.data?.user?.id || 'none',
@@ -102,22 +93,12 @@ const Auth = {
 
             // Check for error
             if (response.error) {
-                console.error('[Auth] Signup error details:', {
-                    message: response.error.message,
-                    status: response.error.status,
-                    name: response.error.name,
-                    stack: response.error.stack
-                });
+                console.error('[Auth] Signup error:', response.error);
                 
                 let errorMessage = response.error.message || 'Signup failed. Please try again.';
                 
-                // Handle common errors
-                if (errorMessage.includes('User already registered')) {
+                if (response.error.message && response.error.message.includes('User already registered')) {
                     errorMessage = 'An account with this email already exists. Please log in instead.';
-                } else if (errorMessage.includes('Email not confirmed') || errorMessage.includes('Email confirmation')) {
-                    errorMessage = 'Please confirm your email before logging in. Check your inbox.';
-                } else if (response.error.status === 500) {
-                    errorMessage = 'Server error. Please try again later.';
                 }
                 
                 throw new Error(errorMessage);
@@ -125,7 +106,6 @@ const Auth = {
 
             // Check if we got user data
             if (!response.data || !response.data.user) {
-                console.error('[Auth] No user data in response:', response.data);
                 throw new Error('Signup failed. No user data returned.');
             }
 
@@ -171,19 +151,15 @@ const Auth = {
             console.log('[Auth] Login response:', {
                 hasData: !!response.data,
                 hasError: !!response.error,
-                user: response.data?.user?.id || 'none',
-                errorMessage: response.error?.message || 'none'
+                user: response.data?.user?.id || 'none'
             });
 
             if (response.error) {
                 console.error('[Auth] Login error:', response.error);
-                let errorMessage = response.error.message || 'Login failed. Please try again.';
-                if (errorMessage.includes('Invalid login credentials')) {
-                    errorMessage = 'Invalid email or password';
-                } else if (errorMessage.includes('Email not confirmed')) {
-                    errorMessage = 'Please verify your email address before logging in. Check your inbox.';
+                if (response.error.message && response.error.message.includes('Invalid login credentials')) {
+                    throw new Error('Invalid email or password');
                 }
-                throw new Error(errorMessage);
+                throw new Error(response.error.message || 'Login failed. Please try again.');
             }
 
             if (!response.data || !response.data.user) {
@@ -239,7 +215,6 @@ const Auth = {
 
             console.log('[Auth] User found:', user.id);
 
-            // Get profile from database
             let profile = null;
             try {
                 const { data, error: profileError } = await supabaseClient
@@ -254,7 +229,7 @@ const Auth = {
                     profile = data;
                 }
             } catch (e) {
-                console.warn('[Auth] Profile table may not exist yet');
+                console.warn('[Auth] Profile fetch error:', e);
             }
 
             return { user, profile, error: null };
@@ -292,6 +267,43 @@ const Auth = {
             }
             callback(event, session);
         });
+    },
+
+    /**
+     * Update user profile
+     */
+    async updateProfile(updates) {
+        try {
+            const { user } = await this.getCurrentUser();
+            if (!user) throw new Error('Not authenticated');
+
+            const allowedFields = [
+                'display_name', 'bio', 'country', 'birth_date', 'preferred_language', 
+                'avatar_url', 'banner_url', 'favorite_genres', 'favorite_anime', 
+                'favorite_character', 'favorite_studio', 'favorite_quote', 'social_links'
+            ];
+            
+            const sanitized = {};
+            Object.keys(updates).forEach(key => {
+                if (allowedFields.includes(key)) {
+                    sanitized[key] = updates[key];
+                }
+            });
+            sanitized.updated_at = new Date().toISOString();
+
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .update(sanitized)
+                .eq('id', user.id)
+                .select()
+                .single();
+
+            if (error) throw new Error(error.message);
+            return { data, error: null };
+        } catch (error) {
+            console.error('[Auth] Update profile error:', error);
+            return { data: null, error: error.message };
+        }
     }
 };
 
@@ -460,37 +472,6 @@ const DB = {
 };
 
 // ============================================================
-// REAL-TIME SUBSCRIPTIONS
-// ============================================================
-
-const Realtime = {
-    subscribe(table, callback, filter = null) {
-        let channel = supabaseClient
-            .channel(`${table}-changes`)
-            .on('postgres_changes', 
-                { event: '*', schema: 'public', table: table },
-                (payload) => callback(payload)
-            );
-
-        if (filter) {
-            channel = channel.on('postgres_changes',
-                { event: '*', schema: 'public', table: table, filter: `${filter.column}=eq.${filter.value}` },
-                (payload) => callback(payload)
-            );
-        }
-
-        channel.subscribe();
-        return channel;
-    },
-
-    unsubscribe(channel) {
-        if (channel) {
-            supabaseClient.removeChannel(channel);
-        }
-    }
-};
-
-// ============================================================
 // STORAGE MODULE
 // ============================================================
 
@@ -535,12 +516,11 @@ window.AniVerse = {
     client: supabaseClient,
     auth: Auth,
     db: DB,
-    realtime: Realtime,
     storage: Storage,
     clearStorage: clearSupabaseStorage
 };
 
-// Individual functions for backward compatibility
+// Individual functions
 window.signUp = Auth.signUp.bind(Auth);
 window.signIn = Auth.signIn.bind(Auth);
 window.signOut = Auth.signOut.bind(Auth);
@@ -548,11 +528,7 @@ window.getCurrentUser = Auth.getCurrentUser.bind(Auth);
 window.getSession = Auth.getSession.bind(Auth);
 window.isAuthenticated = Auth.isAuthenticated.bind(Auth);
 window.updateUserProfile = Auth.updateProfile.bind(Auth);
-window.sendFriendRequest = Auth.sendFriendRequest.bind(Auth);
-window.sendMessage = Auth.sendMessage.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
 console.log('[AniVerse] Supabase client initialized successfully');
-console.log('[AniVerse] Using URL:', SUPABASE_URL);
-console.log('[AniVerse] Key exists:', !!SUPABASE_ANON_KEY);
