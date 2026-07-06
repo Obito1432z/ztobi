@@ -1391,7 +1391,6 @@
             <a href="search.html" class="nav-item">
                 <i class="fas fa-search"></i> Search
             </a>
-            <!-- Admin Panel - visible only for admins -->
             <a href="admin.html" class="nav-item admin-panel visible active">
                 <i class="fas fa-shield-alt"></i> Admin Panel
             </a>
@@ -1457,7 +1456,7 @@
                     <div>
                         <span class="section-tag"><i class="fas fa-shield-alt"></i> Administration</span>
                         <h1 class="section-title">Admin Panel</h1>
-                        <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, missions, and community settings.</p>
+                        <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, missions, anime, and community settings.</p>
                     </div>
                 </div>
 
@@ -1558,6 +1557,13 @@
                     <a href="#" class="nav-link" data-panel="guilds">
                         <i class="fas fa-users-cog"></i> Guilds
                     </a>
+                    <a href="#" class="nav-link" data-panel="official-guilds">
+                        <i class="fas fa-crown"></i> Official Guilds
+                    </a>
+                    <a href="#" class="nav-link" data-panel="anime">
+                        <i class="fas fa-film"></i> Popular Anime
+                        <span class="badge" id="animeBadge">0</span>
+                    </a>
                     <a href="#" class="nav-link" data-panel="posts">
                         <i class="fas fa-file-alt"></i> Posts
                     </a>
@@ -1602,7 +1608,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-rocket"></i> Active Users</div>
+                            <div class="stat-label"><i class="fas fa-film"></i> Anime</div>
                         </div>
                     </div>
 
@@ -1683,6 +1689,86 @@
                 </div>
 
                 <!-- ============================================================
+                PANEL: OFFICIAL GUILDS
+                ============================================================ -->
+                <div class="admin-panel" id="panel-official-guilds">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-crown"></i> Featured</span>
+                            <h2 class="section-title">Official Guilds</h2>
+                            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage which guilds are marked as official.</p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Guild</th>
+                                    <th>Category</th>
+                                    <th>Members</th>
+                                    <th>Official Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="officialGuildsTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: POPULAR ANIME
+                ============================================================ -->
+                <div class="admin-panel" id="panel-anime">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-film"></i> Content</span>
+                            <h2 class="section-title">Popular Anime Manager</h2>
+                            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Add, edit, and manage popular anime in the library.</p>
+                        </div>
+                        <button class="btn btn-primary" id="addAnimeBtn">
+                            <i class="fas fa-plus"></i> Add Anime
+                        </button>
+                    </div>
+
+                    <!-- Anime Stats -->
+                    <div class="stats-grid" id="animeStats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalAnime">0</div>
+                            <div class="stat-label">Total Anime</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="popularAnime">0</div>
+                            <div class="stat-label">Popular</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="animeGenres">0</div>
+                            <div class="stat-label">Genres</div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Rating</th>
+                                    <th>Episodes</th>
+                                    <th>Status</th>
+                                    <th>Popularity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="animeTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
                 PANEL: POSTS
                 ============================================================ -->
                 <div class="admin-panel" id="panel-posts">
@@ -1713,7 +1799,7 @@
                 </div>
 
                 <!-- ============================================================
-                PANEL: MISSIONS (COMPLETE XP SYSTEM)
+                PANEL: MISSIONS
                 ============================================================ -->
                 <div class="admin-panel" id="panel-missions">
                     <div class="section-header">
@@ -1726,7 +1812,6 @@
                         </button>
                     </div>
 
-                    <!-- Mission Stats -->
                     <div class="stats-grid" id="missionStats">
                         <div class="stat-card">
                             <div class="stat-number" id="totalMissions">0</div>
@@ -1930,7 +2015,121 @@ MODAL: CREATE/EDIT MISSION
 </div>
 
 <!-- ============================================================
-JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
+MODAL: CREATE/EDIT ANIME
+============================================================ -->
+<div class="modal-overlay" id="animeModal">
+    <div class="modal-box">
+        <h3 class="modal-title" id="animeModalTitle"><i class="fas fa-plus"></i> Add Anime</h3>
+        <form id="animeForm">
+            <div class="form-group">
+                <label for="animeTitle">Title <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <input type="text" id="animeTitle" placeholder="Enter anime title" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="animeEnglishTitle">English Title</label>
+                <div class="input-wrapper">
+                    <input type="text" id="animeEnglishTitle" placeholder="Enter English title" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="animeNativeTitle">Native Title</label>
+                <div class="input-wrapper">
+                    <input type="text" id="animeNativeTitle" placeholder="Enter native title (Japanese)" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="animeStatus">Status <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <select id="animeStatus" required>
+                            <option value="airing">Airing</option>
+                            <option value="completed">Completed</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="hiatus">Hiatus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="animeEpisodes">Episodes</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="animeEpisodes" placeholder="12" min="1" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="animeScore">Score (1-10)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="animeScore" placeholder="7.5" min="0" max="10" step="0.1" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="animePopularity">Popularity</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="animePopularity" placeholder="1000" min="0" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="animeGenres">Genres (comma separated)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="animeGenres" placeholder="Action, Adventure, Fantasy" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="animeSynopsis">Synopsis</label>
+                <div class="input-wrapper">
+                    <textarea id="animeSynopsis" placeholder="Enter anime description"></textarea>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="animeCover">Cover Image URL</label>
+                    <div class="input-wrapper">
+                        <input type="url" id="animeCover" placeholder="https://example.com/image.jpg" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="animeBanner">Banner Image URL</label>
+                    <div class="input-wrapper">
+                        <input type="url" id="animeBanner" placeholder="https://example.com/banner.jpg" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="animeSeason">Season</label>
+                <div class="input-wrapper">
+                    <input type="text" id="animeSeason" placeholder="Winter 2024" />
+                </div>
+            </div>
+
+            <input type="hidden" id="animeEditId" />
+
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary" id="animeSubmitBtn">
+                    <i class="fas fa-save"></i> <span id="animeSubmitText">Add Anime</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="animeCancelBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================
+JAVASCRIPT - COMPLETE ADMIN PANEL
 ============================================================ -->
 <script>
     (function() {
@@ -2044,7 +2243,6 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
 
                 console.log('[Admin] Attempting login for:', email);
 
-                // Step 1: Login
                 const result = await window.AniVerse.auth.signIn({ email, password });
 
                 if (result.error) {
@@ -2061,10 +2259,8 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
                     return;
                 }
 
-                // Step 2: Check if user is admin
                 const { user } = result;
                 
-                // Get profile to check role
                 const { data: profile, error: profileError } = await window.AniVerse.client
                     .from('profiles')
                     .select('role')
@@ -2084,11 +2280,9 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
                 console.log('[Admin] Login successful, role:', role);
                 showToast('Welcome Admin! Loading panel...', 'success');
 
-                // Hide login, show admin layout
                 loginSection.style.display = 'none';
                 adminLayout.classList.add('active');
 
-                // Load admin data
                 await loadAllData();
 
                 loginBtn.classList.remove('loading');
@@ -2198,6 +2392,12 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
                 if (panelId === 'leaderboard') {
                     loadLeaderboard();
                 }
+                if (panelId === 'anime') {
+                    loadAnime();
+                }
+                if (panelId === 'official-guilds') {
+                    loadOfficialGuilds();
+                }
             });
         });
 
@@ -2208,6 +2408,8 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
             await loadDashboardStats();
             await loadUsers();
             await loadGuilds();
+            await loadOfficialGuilds();
+            await loadAnime();
             await loadPosts();
             await loadMissions();
             await loadLeaderboard();
@@ -2248,10 +2450,9 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
                     });
                 }
 
-                const { count: activeCount } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('*', { count: 'exact', head: true })
-                    .gt('last_seen_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+                const { count: animeCount } = await window.AniVerse.client
+                    .from('anime_library')
+                    .select('*', { count: 'exact', head: true });
 
                 const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
                 const values = [
@@ -2260,7 +2461,7 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
                     postCount || 0,
                     missionCount || 0,
                     totalXP || 0,
-                    activeCount || 0
+                    animeCount || 0
                 ];
                 statNumbers.forEach(function(el, index) {
                     el.textContent = typeof values[index] === 'number' ? 
@@ -2399,6 +2600,402 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
         }
 
         // ============================================================
+        // LOAD OFFICIAL GUILDS
+        // ============================================================
+        async function loadOfficialGuilds() {
+            try {
+                const { data: guilds, error } = await window.AniVerse.client
+                    .from('guilds')
+                    .select('*')
+                    .is('deleted_at', null)
+                    .order('is_official', { ascending: false })
+                    .order('created_at', { ascending: false });
+
+                if (error) throw new Error(error.message);
+
+                const tbody = document.getElementById('officialGuildsTableBody');
+
+                if (!guilds || guilds.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-crown"></i>
+                                    <h3>No guilds yet</h3>
+                                    <p>Guilds will appear here as they are created.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = guilds.map(guild => `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                    ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
+                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge">${guild.category || 'General'}</span></td>
+                        <td>${guild.member_count || 0}</td>
+                        <td>
+                            <span class="status-badge ${guild.is_official ? 'approved' : 'inactive'}">
+                                ${guild.is_official ? '✅ Official' : '❌ Not Official'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn ${guild.is_official ? 'btn-danger' : 'btn-success'} toggle-official" data-id="${guild.id}" data-current="${guild.is_official}">
+                                    ${guild.is_official ? '<i class="fas fa-times"></i> Remove Official' : '<i class="fas fa-crown"></i> Make Official'}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                document.querySelectorAll('.toggle-official').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const guildId = this.getAttribute('data-id');
+                        const current = this.getAttribute('data-current') === 'true';
+                        await toggleOfficialGuild(guildId, !current);
+                    });
+                });
+
+            } catch (error) {
+                console.error('[AniVerse] Load official guilds error:', error);
+            }
+        }
+
+        // ============================================================
+        // TOGGLE OFFICIAL GUILD
+        // ============================================================
+        async function toggleOfficialGuild(guildId, newStatus) {
+            try {
+                const { error } = await window.AniVerse.client
+                    .from('guilds')
+                    .update({ 
+                        is_official: newStatus,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', guildId);
+
+                if (error) throw new Error(error.message);
+
+                showToast(`Guild ${newStatus ? 'marked as official' : 'removed from official'}!`, 'success');
+                await loadOfficialGuilds();
+                await loadGuilds();
+
+            } catch (error) {
+                console.error('[AniVerse] Toggle official guild error:', error);
+                showToast('Failed to update guild: ' + error.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // LOAD ANIME
+        // ============================================================
+        async function loadAnime() {
+            try {
+                const { data: anime, error } = await window.AniVerse.client
+                    .from('anime_library')
+                    .select('*')
+                    .order('popularity', { ascending: false })
+                    .order('created_at', { ascending: false });
+
+                if (error) throw new Error(error.message);
+
+                const totalAnime = anime ? anime.length : 0;
+                const popularAnime = anime ? anime.filter(a => a.popularity > 0).length : 0;
+                
+                document.getElementById('totalAnime').textContent = totalAnime;
+                document.getElementById('popularAnime').textContent = popularAnime;
+                document.getElementById('animeBadge').textContent = totalAnime;
+
+                // Get genres count
+                const { data: genres } = await window.AniVerse.client
+                    .from('anime_genres')
+                    .select('*');
+                document.getElementById('animeGenres').textContent = genres ? genres.length : 0;
+
+                const tbody = document.getElementById('animeTableBody');
+
+                if (!anime || anime.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-film"></i>
+                                    <h3>No anime in library</h3>
+                                    <p>Add anime to start building your library.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = anime.map(item => `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                <div style="width:32px;height:32px;border-radius:4px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                                    ${item.cover_image ? `<img src="${item.cover_image}" style="width:100%;height:100%;object-fit:cover;" />` : '<i class="fas fa-film" style="color:var(--text-muted);"></i>'}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;">${item.title_romaji || item.title_english || 'Untitled'}</div>
+                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${item.title_english || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${item.score || 'N/A'}</td>
+                        <td>${item.episodes || '?'}</td>
+                        <td><span class="status-badge ${item.status === 'completed' ? 'approved' : 'active'}">${item.status || 'Unknown'}</span></td>
+                        <td>#${item.popularity || 'N/A'}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary edit-anime" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger delete-anime" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('[AniVerse] Load anime error:', error);
+            }
+        }
+
+        // ============================================================
+        // ANIME CRUD OPERATIONS
+        // ============================================================
+
+        document.getElementById('addAnimeBtn').addEventListener('click', function() {
+            document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-plus"></i> Add Anime';
+            document.getElementById('animeSubmitText').textContent = 'Add Anime';
+            document.getElementById('animeForm').reset();
+            document.getElementById('animeEditId').value = '';
+            document.getElementById('animeModal').classList.add('open');
+        });
+
+        document.getElementById('animeCancelBtn').addEventListener('click', function() {
+            document.getElementById('animeModal').classList.remove('open');
+        });
+
+        document.getElementById('animeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('open');
+            }
+        });
+
+        // Edit Anime
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.edit-anime');
+            if (target) {
+                const animeId = target.getAttribute('data-id');
+                editAnime(animeId);
+            }
+        });
+
+        async function editAnime(animeId) {
+            try {
+                const { data: anime, error } = await window.AniVerse.client
+                    .from('anime_library')
+                    .select('*')
+                    .eq('id', animeId)
+                    .single();
+
+                if (error) throw new Error(error.message);
+
+                document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Anime';
+                document.getElementById('animeSubmitText').textContent = 'Update Anime';
+                document.getElementById('animeEditId').value = anime.id;
+                document.getElementById('animeTitle').value = anime.title_romaji || '';
+                document.getElementById('animeEnglishTitle').value = anime.title_english || '';
+                document.getElementById('animeNativeTitle').value = anime.title_native || '';
+                document.getElementById('animeStatus').value = anime.status || 'airing';
+                document.getElementById('animeEpisodes').value = anime.episodes || '';
+                document.getElementById('animeScore').value = anime.score || '';
+                document.getElementById('animePopularity').value = anime.popularity || '';
+                document.getElementById('animeSynopsis').value = anime.synopsis || '';
+                document.getElementById('animeCover').value = anime.cover_image || '';
+                document.getElementById('animeBanner').value = anime.banner_image || '';
+                document.getElementById('animeSeason').value = anime.season || '';
+
+                // Handle genres
+                if (anime.genres) {
+                    const genreNames = await getGenreNames(anime.genres);
+                    document.getElementById('animeGenres').value = genreNames.join(', ');
+                }
+
+                document.getElementById('animeModal').classList.add('open');
+
+            } catch (error) {
+                console.error('[AniVerse] Edit anime error:', error);
+                showToast('Failed to load anime: ' + error.message, 'error');
+            }
+        }
+
+        async function getGenreNames(genreIds) {
+            try {
+                const { data, error } = await window.AniVerse.client
+                    .from('anime_genres')
+                    .select('name')
+                    .in('id', genreIds);
+
+                if (error) throw new Error(error.message);
+                return data.map(g => g.name);
+            } catch (error) {
+                return [];
+            }
+        }
+
+        // Delete Anime
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.delete-anime');
+            if (target) {
+                const animeId = target.getAttribute('data-id');
+                if (confirm('Are you sure you want to delete this anime?')) {
+                    deleteAnime(animeId);
+                }
+            }
+        });
+
+        async function deleteAnime(animeId) {
+            try {
+                const { error } = await window.AniVerse.client
+                    .from('anime_library')
+                    .delete()
+                    .eq('id', animeId);
+
+                if (error) throw new Error(error.message);
+
+                showToast('Anime deleted successfully!', 'success');
+                await loadAnime();
+
+            } catch (error) {
+                console.error('[AniVerse] Delete anime error:', error);
+                showToast('Failed to delete anime: ' + error.message, 'error');
+            }
+        }
+
+        // Submit Anime Form
+        document.getElementById('animeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideToast();
+
+            const editId = document.getElementById('animeEditId').value;
+            const title = document.getElementById('animeTitle').value.trim();
+            const englishTitle = document.getElementById('animeEnglishTitle').value.trim();
+            const nativeTitle = document.getElementById('animeNativeTitle').value.trim();
+            const status = document.getElementById('animeStatus').value;
+            const episodes = parseInt(document.getElementById('animeEpisodes').value) || null;
+            const score = parseFloat(document.getElementById('animeScore').value) || null;
+            const popularity = parseInt(document.getElementById('animePopularity').value) || null;
+            const synopsis = document.getElementById('animeSynopsis').value.trim();
+            const coverImage = document.getElementById('animeCover').value.trim();
+            const bannerImage = document.getElementById('animeBanner').value.trim();
+            const season = document.getElementById('animeSeason').value.trim();
+            const genresInput = document.getElementById('animeGenres').value.trim();
+
+            if (!title) {
+                showToast('Please enter an anime title.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('animeSubmitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            try {
+                const animeData = {
+                    title_romaji: title,
+                    title_english: englishTitle || null,
+                    title_native: nativeTitle || null,
+                    status: status,
+                    episodes: episodes,
+                    score: score,
+                    popularity: popularity,
+                    synopsis: synopsis || null,
+                    cover_image: coverImage || null,
+                    banner_image: bannerImage || null,
+                    season: season || null
+                };
+
+                let result;
+
+                if (editId) {
+                    result = await window.AniVerse.client
+                        .from('anime_library')
+                        .update(animeData)
+                        .eq('id', editId);
+                } else {
+                    result = await window.AniVerse.client
+                        .from('anime_library')
+                        .insert(animeData);
+                }
+
+                if (result.error) throw new Error(result.error.message);
+
+                // Handle genres
+                if (genresInput) {
+                    const genreNames = genresInput.split(',').map(g => g.trim());
+                    const animeId = editId || result.data[0]?.id;
+                    
+                    if (animeId) {
+                        // Get or create genres
+                        for (const name of genreNames) {
+                            const { data: genre, error: gError } = await window.AniVerse.client
+                                .from('anime_genres')
+                                .select('id')
+                                .eq('name', name)
+                                .maybeSingle();
+
+                            let genreId;
+                            if (genre) {
+                                genreId = genre.id;
+                            } else {
+                                const { data: newGenre, error: cError } = await window.AniVerse.client
+                                    .from('anime_genres')
+                                    .insert({ name })
+                                    .select()
+                                    .single();
+                                if (cError) throw new Error(cError.message);
+                                genreId = newGenre.id;
+                            }
+
+                            // Link genre to anime
+                            await window.AniVerse.client
+                                .from('anime_library_genres')
+                                .insert({
+                                    anime_id: animeId,
+                                    genre_id: genreId
+                                })
+                                .select();
+                        }
+                    }
+                }
+
+                showToast(`Anime ${editId ? 'updated' : 'added'} successfully!`, 'success');
+                document.getElementById('animeModal').classList.remove('open');
+                await loadAnime();
+
+            } catch (error) {
+                console.error('[AniVerse] Anime submit error:', error);
+                showToast('Failed to save anime: ' + error.message, 'error');
+            }
+
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        });
+
+        // ============================================================
         // LOAD POSTS
         // ============================================================
         async function loadPosts() {
@@ -2453,6 +3050,35 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
 
             } catch (error) {
                 console.error('[AniVerse] Load posts error:', error);
+            }
+        }
+
+        // Delete Post
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.delete-post');
+            if (target) {
+                const postId = target.getAttribute('data-id');
+                if (confirm('Are you sure you want to delete this post?')) {
+                    deletePost(postId);
+                }
+            }
+        });
+
+        async function deletePost(postId) {
+            try {
+                const { error } = await window.AniVerse.client
+                    .from('guild_posts')
+                    .update({ deleted_at: new Date().toISOString() })
+                    .eq('id', postId);
+
+                if (error) throw new Error(error.message);
+
+                showToast('Post deleted successfully!', 'success');
+                await loadPosts();
+
+            } catch (error) {
+                console.error('[AniVerse] Delete post error:', error);
+                showToast('Failed to delete post: ' + error.message, 'error');
             }
         }
 
@@ -2543,63 +3169,6 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
 
             } catch (error) {
                 console.error('[AniVerse] Load missions error:', error);
-            }
-        }
-
-        // ============================================================
-        // LOAD LEADERBOARD
-        // ============================================================
-        async function loadLeaderboard() {
-            try {
-                const { data: users, error } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('id, username, display_name, level, experience_points, avatar_url')
-                    .order('experience_points', { ascending: false })
-                    .limit(20);
-
-                if (error) throw new Error(error.message);
-
-                const tbody = document.getElementById('leaderboardTableBody');
-
-                if (!users || users.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="4">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-trophy"></i>
-                                    <h3>No data yet</h3>
-                                    <p>Leaderboard will populate as users earn XP.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = users.map((user, index) => {
-                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                    return `
-                        <tr>
-                            <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                        ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
-                                    </div>
-                                    <div>
-                                        <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
-                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
-                            <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
-                        </tr>
-                    `;
-                }).join('');
-
-            } catch (error) {
-                console.error('[AniVerse] Load leaderboard error:', error);
             }
         }
 
@@ -2781,6 +3350,63 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
         });
 
         // ============================================================
+        // LOAD LEADERBOARD
+        // ============================================================
+        async function loadLeaderboard() {
+            try {
+                const { data: users, error } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('id, username, display_name, level, experience_points, avatar_url')
+                    .order('experience_points', { ascending: false })
+                    .limit(20);
+
+                if (error) throw new Error(error.message);
+
+                const tbody = document.getElementById('leaderboardTableBody');
+
+                if (!users || users.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-trophy"></i>
+                                    <h3>No data yet</h3>
+                                    <p>Leaderboard will populate as users earn XP.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = users.map((user, index) => {
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                    return `
+                        <tr>
+                            <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                        ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
+                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
+                            <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('[AniVerse] Load leaderboard error:', error);
+            }
+        }
+
+        // ============================================================
         // GLOBAL SEARCH
         // ============================================================
         const searchInput = document.getElementById('globalSearchInput');
@@ -2851,7 +3477,6 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
                     }
                 }
                 
-                // Not logged in as admin - show login
                 loginSection.style.display = 'flex';
                 adminLayout.classList.remove('active');
 
@@ -2885,7 +3510,7 @@ JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
 
         init();
 
-        console.log('[AniVerse] Admin panel ready (Built-in Login + Missions & XP System)');
+        console.log('[AniVerse] Admin panel ready (Built-in Login + Popular Anime Manager)');
 
     })();
 </script>
