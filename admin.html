@@ -23,7 +23,6 @@
                    CSS VARIABLES — Shared Design System
                    ============================================================ */
         :root {
-            /* Colors */
             --bg-primary: #0a0a0c;
             --bg-secondary: #121217;
             --bg-card: rgba(255, 255, 255, 0.04);
@@ -39,7 +38,6 @@
             --color-error: #ff6b6b;
             --color-warning: #ffd93d;
 
-            /* Spacing */
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
@@ -47,17 +45,14 @@
             --spacing-xl: 32px;
             --spacing-2xl: 48px;
 
-            /* Border Radius */
             --radius-sm: 10px;
             --radius-md: 14px;
             --radius-lg: 20px;
             --radius-xl: 28px;
 
-            /* Shadows */
             --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
             --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
 
-            /* Typography */
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-size-xs: 0.75rem;
             --font-size-sm: 0.85rem;
@@ -66,13 +61,10 @@
             --font-size-xl: 1.3rem;
             --font-size-2xl: 1.8rem;
 
-            /* Transitions */
             --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-            /* Animations */
             --animation-pulse: pulse 1.5s ease-in-out infinite;
 
-            /* Layout */
             --sidebar-width: 240px;
             --header-height: 68px;
         }
@@ -261,7 +253,6 @@
             display: none;
         }
 
-        /* Sidebar Toggle (mobile) */
         .sidebar-toggle {
             display: none;
             position: fixed;
@@ -455,9 +446,6 @@
             flex: 1;
         }
 
-        /* ============================================================
-                   UTILITY
-                   ============================================================ */
         .container {
             max-width: 1360px;
             margin: 0 auto;
@@ -1467,7 +1455,7 @@
                 </div>
 
                 <!-- ============================================================
-                ADMIN LOGIN SECTION (visible when not logged in as admin)
+                ADMIN LOGIN SECTION
                 ============================================================ -->
                 <div id="adminLoginSection" class="admin-login-section">
                     <div class="admin-login-box">
@@ -1478,19 +1466,12 @@
                             <div class="admin-badge"><i class="fas fa-lock"></i> Restricted Access</div>
                         </div>
 
-                        <!-- Login Form -->
                         <form id="adminLoginForm" novalidate>
                             <div class="form-group">
                                 <label for="adminEmail">Email <span class="required">*</span></label>
                                 <div class="input-wrapper" id="loginEmailWrapper">
                                     <span class="icon"><i class="fas fa-envelope"></i></span>
-                                    <input
-                                    type="email"
-                                    id="adminEmail"
-                                    placeholder="Enter your admin email"
-                                    autocomplete="email"
-                                    required
-                                    />
+                                    <input type="email" id="adminEmail" placeholder="Enter your admin email" autocomplete="email" required />
                                 </div>
                                 <div class="form-error" id="loginEmailError">
                                     <i class="fas fa-exclamation-circle"></i>
@@ -1502,1888 +1483,977 @@
                                 <label for="adminPassword">Password <span class="required">*</span></label>
                                 <div class="input-wrapper" id="loginPasswordWrapper">
                                     <span class="icon"><i class="fas fa-lock"></i></span>
-                                    <input
-                                    type="password"
-                                    id="adminPassword"
-                                    placeholder="Enter your password"
-                                    autocomplete="current-password"
-                                    required
-                                    />
-                                    <button
-                                    type="button"
-                                    class="toggle-pwd"
-                                    id="togglePassword"
-                                    aria-label="Toggle password visibility"
-                                    tabindex="-1"
-                                    >
-                                    <i class="fas fa-eye" id="pwdIcon"></i>
-                                </button>
+                                    <input type="password" id="adminPassword" placeholder="Enter your password" autocomplete="current-password" required />
+                                    <button type="button" class="toggle-pwd" id="togglePassword" aria-label="Toggle password visibility" tabindex="-1">
+                                        <i class="fas fa-eye" id="pwdIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="form-error" id="loginPasswordError">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please enter your password</span>
+                                </div>
                             </div>
-                            <div class="form-error" id="loginPasswordError">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span>Please enter your password</span>
+
+                            <button type="submit" class="btn btn-primary" id="adminLoginBtn">
+                                <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Login to Admin</span>
+                                <span class="spinner"></span>
+                            </button>
+
+                            <div class="login-footer">
+                                <p>Only authorized administrators can access this panel.</p>
+                                <p style="margin-top:4px;">
+                                    <a href="index.html"><i class="fas fa-home"></i> Home</a> &middot;
+                                    <a href="login.html">User Login</a>
+                                </p>
                             </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" id="adminLoginBtn">
-                            <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Login to Admin</span>
-                            <span class="spinner"></span>
-                        </button>
-
-                        <div class="login-footer">
-                            <p>Only authorized administrators can access this panel.</p>
-                            <p style="margin-top:4px;">
-                                <a href="index.html"><i class="fas fa-home"></i> Home</a> &middot;
-                                <a href="login.html">User Login</a>
-                            </p>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
-
-            <!-- ============================================================
-            ADMIN LAYOUT (visible after successful admin login)
-            ============================================================ -->
-            <div class="admin-layout" id="adminLayout">
-
-                <!-- Admin Nav -->
-                <nav class="admin-nav" aria-label="Admin navigation">
-                    <a href="#" class="nav-link active" data-panel="dashboard">
-                        <i class="fas fa-chart-pie"></i> Dashboard
-                    </a>
-                    <a href="#" class="nav-link" data-panel="users">
-                        <i class="fas fa-users"></i> Users
-                    </a>
-                    <a href="#" class="nav-link" data-panel="guilds">
-                        <i class="fas fa-users-cog"></i> Guilds
-                    </a>
-                    <a href="#" class="nav-link" data-panel="official-guilds">
-                        <i class="fas fa-crown"></i> Official Guilds
-                    </a>
-                    <a href="#" class="nav-link" data-panel="anime">
-                        <i class="fas fa-film"></i> Popular Anime
-                        <span class="badge" id="animeBadge">0</span>
-                    </a>
-                    <a href="#" class="nav-link" data-panel="posts">
-                        <i class="fas fa-file-alt"></i> Posts
-                    </a>
-                    <a href="#" class="nav-link" data-panel="missions">
-                        <i class="fas fa-tasks"></i> Missions
-                        <span class="badge" id="missionsBadge">0</span>
-                    </a>
-                    <a href="#" class="nav-link" data-panel="leaderboard">
-                        <i class="fas fa-trophy"></i> Leaderboard
-                    </a>
-                    <a href="#" class="nav-link" data-panel="settings">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                </nav>
 
                 <!-- ============================================================
-                PANEL: DASHBOARD
+                ADMIN LAYOUT
                 ============================================================ -->
-                <div class="admin-panel active" id="panel-dashboard">
+                <div class="admin-layout" id="adminLayout">
 
-                    <!-- Stats -->
-                    <div class="stats-grid" id="dashboardStats">
-                        <div class="stat-card">
-                            <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-tasks"></i> Missions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-trophy"></i> Total XP Awarded</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number skeleton"></div>
-                            <div class="stat-label"><i class="fas fa-film"></i> Anime</div>
-                        </div>
-                    </div>
+                    <!-- Admin Nav -->
+                    <nav class="admin-nav" aria-label="Admin navigation">
+                        <a href="#" class="nav-link active" data-panel="dashboard">
+                            <i class="fas fa-chart-pie"></i> Dashboard
+                        </a>
+                        <a href="#" class="nav-link" data-panel="users">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="#" class="nav-link" data-panel="guilds">
+                            <i class="fas fa-users-cog"></i> Guilds
+                        </a>
+                        <a href="#" class="nav-link" data-panel="official-guilds">
+                            <i class="fas fa-crown"></i> Official Guilds
+                        </a>
+                        <a href="#" class="nav-link" data-panel="anime">
+                            <i class="fas fa-film"></i> Popular Anime
+                            <span class="badge" id="animeBadge">0</span>
+                        </a>
+                        <a href="#" class="nav-link" data-panel="posts">
+                            <i class="fas fa-file-alt"></i> Posts
+                        </a>
+                        <a href="#" class="nav-link" data-panel="missions">
+                            <i class="fas fa-tasks"></i> Missions
+                            <span class="badge" id="missionsBadge">0</span>
+                        </a>
+                        <a href="#" class="nav-link" data-panel="leaderboard">
+                            <i class="fas fa-trophy"></i> Leaderboard
+                        </a>
+                        <a href="#" class="nav-link" data-panel="settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </nav>
 
-                    <!-- Recent Activity -->
-                    <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
-                        <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
-                            <i class="fas fa-clock" style="color:var(--accent-1);"></i> Recent Activity
-                        </h3>
-                        <div id="recentActivity">
-                            <div class="empty-state" style="padding:30px 20px;">
-                                <i class="fas fa-clock"></i>
-                                <h3>No recent activity</h3>
-                                <p>Community activity will appear here.</p>
+                    <!-- ============================================================
+                    PANEL: DASHBOARD
+                    ============================================================ -->
+                    <div class="admin-panel active" id="panel-dashboard">
+                        <div class="stats-grid" id="dashboardStats">
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: USERS
-                ============================================================ -->
-                <div class="admin-panel" id="panel-users">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-users"></i> Management</span>
-                            <h2 class="section-title">Users</h2>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Level</th>
-                                    <th>XP</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: GUILDS
-                ============================================================ -->
-                <div class="admin-panel" id="panel-guilds">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
-                            <h2 class="section-title">Guilds</h2>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Guild</th>
-                                    <th>Category</th>
-                                    <th>Members</th>
-                                    <th>Level</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="guildsTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: OFFICIAL GUILDS
-                ============================================================ -->
-                <div class="admin-panel" id="panel-official-guilds">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-crown"></i> Featured</span>
-                            <h2 class="section-title">Official Guilds</h2>
-                            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage which guilds are marked as official.</p>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Guild</th>
-                                    <th>Category</th>
-                                    <th>Members</th>
-                                    <th>Official Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="officialGuildsTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: POPULAR ANIME
-                ============================================================ -->
-                <div class="admin-panel" id="panel-anime">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-film"></i> Content</span>
-                            <h2 class="section-title">Popular Anime Manager</h2>
-                            <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Add, edit, and manage popular anime in the library.</p>
-                        </div>
-                        <button class="btn btn-primary" id="addAnimeBtn">
-                            <i class="fas fa-plus"></i> Add Anime
-                        </button>
-                    </div>
-
-                    <!-- Anime Stats -->
-                    <div class="stats-grid" id="animeStats">
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalAnime">0</div>
-                            <div class="stat-label">Total Anime</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="popularAnime">0</div>
-                            <div class="stat-label">Popular</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="animeGenres">0</div>
-                            <div class="stat-label">Genres</div>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Rating</th>
-                                    <th>Episodes</th>
-                                    <th>Status</th>
-                                    <th>Popularity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="animeTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: POSTS
-                ============================================================ -->
-                <div class="admin-panel" id="panel-posts">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
-                            <h2 class="section-title">Posts</h2>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Author</th>
-                                    <th>Guild</th>
-                                    <th>Likes</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="postsTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: MISSIONS
-                ============================================================ -->
-                <div class="admin-panel" id="panel-missions">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-tasks"></i> Gamification</span>
-                            <h2 class="section-title">Missions & XP Management</h2>
-                        </div>
-                        <button class="btn btn-primary" id="createMissionBtn">
-                            <i class="fas fa-plus"></i> Create Mission
-                        </button>
-                    </div>
-
-                    <div class="stats-grid" id="missionStats">
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalMissions">0</div>
-                            <div class="stat-label">Total Missions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="activeMissions">0</div>
-                            <div class="stat-label">Active Missions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalXPAwarded">0</div>
-                            <div class="stat-label">Total XP Awarded</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="completedMissions">0</div>
-                            <div class="stat-label">Completed by Users</div>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Category</th>
-                                    <th>XP Reward</th>
-                                    <th>Auto Complete</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="missionsTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: LEADERBOARD
-                ============================================================ -->
-                <div class="admin-panel" id="panel-leaderboard">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-trophy"></i> Rankings</span>
-                            <h2 class="section-title">XP Leaderboard</h2>
-                        </div>
-                        <button class="btn btn-secondary" id="refreshLeaderboard">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>User</th>
-                                    <th>Level</th>
-                                    <th>XP</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboardTableBody">
-                                <!-- Loaded by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ============================================================
-                PANEL: SETTINGS
-                ============================================================ -->
-                <div class="admin-panel" id="panel-settings">
-                    <div class="section-header">
-                        <div>
-                            <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
-                            <h2 class="section-title">Website Settings</h2>
-                        </div>
-                    </div>
-
-                    <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
-                        <div class="form-group">
-                            <label for="siteName">Site Name</label>
-                            <div class="input-wrapper">
-                                <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-tasks"></i> Missions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-trophy"></i> Total XP Awarded</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number skeleton"></div>
+                                <div class="stat-label"><i class="fas fa-film"></i> Anime</div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="siteTagline">Tagline</label>
-                            <div class="input-wrapper">
-                                <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
+                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                            <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
+                                <i class="fas fa-clock" style="color:var(--accent-1);"></i> Recent Activity
+                            </h3>
+                            <div id="recentActivity">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-clock"></i>
+                                    <h3>No recent activity</h3>
+                                    <p>Community activity will appear here.</p>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="maintenanceMode">Maintenance Mode</label>
-                            <div class="input-wrapper">
-                                <select id="maintenanceMode">
-                                    <option value="off" selected>Off</option>
-                                    <option value="on">On</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label for="registrationMode">Registration</label>
-                            <div class="input-wrapper">
-                                <select id="registrationMode">
-                                    <option value="open" selected>Open</option>
-                                    <option value="closed">Closed</option>
-                                    <option value="invite">Invite Only</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn">
-                            <i class="fas fa-save"></i> Save Settings
-                        </button>
                     </div>
+
+                    <!-- ============================================================
+                    PANEL: USERS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-users">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users"></i> Management</span>
+                                <h2 class="section-title">Users</h2>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Level</th>
+                                        <th>XP</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: GUILDS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-guilds">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
+                                <h2 class="section-title">Guilds</h2>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Guild</th>
+                                        <th>Category</th>
+                                        <th>Members</th>
+                                        <th>Level</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guildsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: OFFICIAL GUILDS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-official-guilds">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-crown"></i> Featured</span>
+                                <h2 class="section-title">Official Guilds</h2>
+                                <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage which guilds are marked as official.</p>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Guild</th>
+                                        <th>Category</th>
+                                        <th>Members</th>
+                                        <th>Official Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="officialGuildsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: POPULAR ANIME
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-anime">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-film"></i> Content</span>
+                                <h2 class="section-title">Popular Anime Manager</h2>
+                                <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Add, edit, and manage popular anime in the library.</p>
+                            </div>
+                            <button class="btn btn-primary" id="addAnimeBtn">
+                                <i class="fas fa-plus"></i> Add Anime
+                            </button>
+                        </div>
+
+                        <div class="stats-grid" id="animeStats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalAnime">0</div>
+                                <div class="stat-label">Total Anime</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="popularAnime">0</div>
+                                <div class="stat-label">Popular</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="animeGenres">0</div>
+                                <div class="stat-label">Genres</div>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Rating</th>
+                                        <th>Episodes</th>
+                                        <th>Status</th>
+                                        <th>Popularity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="animeTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: POSTS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-posts">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
+                                <h2 class="section-title">Posts</h2>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Guild</th>
+                                        <th>Likes</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="postsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: MISSIONS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-missions">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-tasks"></i> Gamification</span>
+                                <h2 class="section-title">Missions & XP Management</h2>
+                            </div>
+                            <button class="btn btn-primary" id="createMissionBtn">
+                                <i class="fas fa-plus"></i> Create Mission
+                            </button>
+                        </div>
+
+                        <div class="stats-grid" id="missionStats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalMissions">0</div>
+                                <div class="stat-label">Total Missions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="activeMissions">0</div>
+                                <div class="stat-label">Active Missions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalXPAwarded">0</div>
+                                <div class="stat-label">Total XP Awarded</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="completedMissions">0</div>
+                                <div class="stat-label">Completed by Users</div>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>XP Reward</th>
+                                        <th>Auto Complete</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="missionsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: LEADERBOARD
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-leaderboard">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-trophy"></i> Rankings</span>
+                                <h2 class="section-title">XP Leaderboard</h2>
+                            </div>
+                            <button class="btn btn-secondary" id="refreshLeaderboard">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>User</th>
+                                        <th>Level</th>
+                                        <th>XP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    PANEL: SETTINGS
+                    ============================================================ -->
+                    <div class="admin-panel" id="panel-settings">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
+                                <h2 class="section-title">Website Settings</h2>
+                            </div>
+                        </div>
+
+                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
+                            <div class="form-group">
+                                <label for="siteName">Site Name</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="siteTagline">Tagline</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="maintenanceMode">Maintenance Mode</label>
+                                <div class="input-wrapper">
+                                    <select id="maintenanceMode">
+                                        <option value="off" selected>Off</option>
+                                        <option value="on">On</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="registrationMode">Registration</label>
+                                <div class="input-wrapper">
+                                    <select id="registrationMode">
+                                        <option value="open" selected>Open</option>
+                                        <option value="closed">Closed</option>
+                                        <option value="invite">Invite Only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
-
     </div>
-</div>
 
-<!-- ============================================================
-MODAL: CREATE/EDIT MISSION
-============================================================ -->
-<div class="modal-overlay" id="missionModal">
-    <div class="modal-box">
-        <h3 class="modal-title" id="missionModalTitle"><i class="fas fa-plus"></i> Create Mission</h3>
-        <form id="missionForm">
-            <div class="form-group">
-                <label for="missionTitle">Title <span class="required">*</span></label>
-                <div class="input-wrapper">
-                    <input type="text" id="missionTitle" placeholder="Enter mission title" required />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="missionDescription">Description <span class="required">*</span></label>
-                <div class="input-wrapper">
-                    <textarea id="missionDescription" placeholder="Describe the mission" required></textarea>
-                </div>
-            </div>
-
-            <div class="form-row">
+    <!-- ============================================================
+    MODAL: CREATE/EDIT MISSION
+    ============================================================ -->
+    <div class="modal-overlay" id="missionModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="missionModalTitle"><i class="fas fa-plus"></i> Create Mission</h3>
+            <form id="missionForm">
                 <div class="form-group">
-                    <label for="missionCategory">Category <span class="required">*</span></label>
+                    <label for="missionTitle">Title <span class="required">*</span></label>
                     <div class="input-wrapper">
-                        <select id="missionCategory" required>
-                            <option value="account">Account</option>
-                            <option value="guild">Guild</option>
-                            <option value="friends">Friends</option>
-                            <option value="social">Social</option>
-                            <option value="daily">Daily</option>
-                            <option value="special">Special</option>
-                        </select>
+                        <input type="text" id="missionTitle" placeholder="Enter mission title" required />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="missionXPReward">XP Reward <span class="required">*</span></label>
+                    <label for="missionDescription">Description <span class="required">*</span></label>
                     <div class="input-wrapper">
-                        <input type="number" id="missionXPReward" placeholder="10" min="1" required />
+                        <textarea id="missionDescription" placeholder="Describe the mission" required></textarea>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="missionAutoComplete" checked />
-                    Auto Complete (detects completion automatically)
-                </label>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="missionCategory">Category <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <select id="missionCategory" required>
+                                <option value="account">Account</option>
+                                <option value="guild">Guild</option>
+                                <option value="friends">Friends</option>
+                                <option value="social">Social</option>
+                                <option value="daily">Daily</option>
+                                <option value="special">Special</option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div class="form-group" id="criteriaGroup" style="display:none;">
-                <label for="missionCriteria">Completion Criteria (JSON)</label>
-                <div class="input-wrapper">
-                    <input type="text" id="missionCriteria" placeholder='{"action": "action_name", "count": 10}' />
+                    <div class="form-group">
+                        <label for="missionXPReward">XP Reward <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <input type="number" id="missionXPReward" placeholder="10" min="1" required />
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">
-                    Example: {"action": "friend_count", "count": 10}
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="missionAutoComplete" checked />
+                        Auto Complete (detects completion automatically)
+                    </label>
                 </div>
-            </div>
 
-            <input type="hidden" id="missionEditId" />
+                <div class="form-group" id="criteriaGroup" style="display:none;">
+                    <label for="missionCriteria">Completion Criteria (JSON)</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="missionCriteria" placeholder='{"action": "action_name", "count": 10}' />
+                    </div>
+                    <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">
+                        Example: {"action": "friend_count", "count": 10}
+                    </div>
+                </div>
 
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-primary" id="missionSubmitBtn">
-                    <i class="fas fa-save"></i> <span id="missionSubmitText">Create Mission</span>
-                </button>
-                <button type="button" class="btn btn-secondary" id="missionCancelBtn">Cancel</button>
-            </div>
-        </form>
+                <input type="hidden" id="missionEditId" />
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary" id="missionSubmitBtn">
+                        <i class="fas fa-save"></i> <span id="missionSubmitText">Create Mission</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="missionCancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- ============================================================
-MODAL: CREATE/EDIT ANIME
-============================================================ -->
-<div class="modal-overlay" id="animeModal">
-    <div class="modal-box">
-        <h3 class="modal-title" id="animeModalTitle"><i class="fas fa-plus"></i> Add Anime</h3>
-        <form id="animeForm">
-            <div class="form-group">
-                <label for="animeTitle">Title <span class="required">*</span></label>
-                <div class="input-wrapper">
-                    <input type="text" id="animeTitle" placeholder="Enter anime title" required />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="animeEnglishTitle">English Title</label>
-                <div class="input-wrapper">
-                    <input type="text" id="animeEnglishTitle" placeholder="Enter English title" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="animeNativeTitle">Native Title</label>
-                <div class="input-wrapper">
-                    <input type="text" id="animeNativeTitle" placeholder="Enter native title (Japanese)" />
-                </div>
-            </div>
-
-            <div class="form-row">
+    <!-- ============================================================
+    MODAL: CREATE/EDIT ANIME
+    ============================================================ -->
+    <div class="modal-overlay" id="animeModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="animeModalTitle"><i class="fas fa-plus"></i> Add Anime</h3>
+            <form id="animeForm">
                 <div class="form-group">
-                    <label for="animeStatus">Status <span class="required">*</span></label>
+                    <label for="animeTitle">Title <span class="required">*</span></label>
                     <div class="input-wrapper">
-                        <select id="animeStatus" required>
-                            <option value="airing">Airing</option>
-                            <option value="completed">Completed</option>
-                            <option value="upcoming">Upcoming</option>
-                            <option value="hiatus">Hiatus</option>
-                        </select>
+                        <input type="text" id="animeTitle" placeholder="Enter anime title" required />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="animeEpisodes">Episodes</label>
+                    <label for="animeEnglishTitle">English Title</label>
                     <div class="input-wrapper">
-                        <input type="number" id="animeEpisodes" placeholder="12" min="1" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="animeScore">Score (1-10)</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="animeScore" placeholder="7.5" min="0" max="10" step="0.1" />
+                        <input type="text" id="animeEnglishTitle" placeholder="Enter English title" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="animePopularity">Popularity</label>
+                    <label for="animeNativeTitle">Native Title</label>
                     <div class="input-wrapper">
-                        <input type="number" id="animePopularity" placeholder="1000" min="0" />
+                        <input type="text" id="animeNativeTitle" placeholder="Enter native title (Japanese)" />
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="animeGenres">Genres (comma separated)</label>
-                <div class="input-wrapper">
-                    <input type="text" id="animeGenres" placeholder="Action, Adventure, Fantasy" />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="animeStatus">Status <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <select id="animeStatus" required>
+                                <option value="airing">Airing</option>
+                                <option value="completed">Completed</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="hiatus">Hiatus</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="animeEpisodes">Episodes</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="animeEpisodes" placeholder="12" min="1" />
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="animeSynopsis">Synopsis</label>
-                <div class="input-wrapper">
-                    <textarea id="animeSynopsis" placeholder="Enter anime description"></textarea>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="animeScore">Score (1-10)</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="animeScore" placeholder="7.5" min="0" max="10" step="0.1" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="animePopularity">Popularity</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="animePopularity" placeholder="1000" min="0" />
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
-                    <label for="animeCover">Cover Image URL</label>
+                    <label for="animeGenres">Genres (comma separated)</label>
                     <div class="input-wrapper">
-                        <input type="url" id="animeCover" placeholder="https://example.com/image.jpg" />
+                        <input type="text" id="animeGenres" placeholder="Action, Adventure, Fantasy" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="animeBanner">Banner Image URL</label>
+                    <label for="animeSynopsis">Synopsis</label>
                     <div class="input-wrapper">
-                        <input type="url" id="animeBanner" placeholder="https://example.com/banner.jpg" />
+                        <textarea id="animeSynopsis" placeholder="Enter anime description"></textarea>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="animeSeason">Season</label>
-                <div class="input-wrapper">
-                    <input type="text" id="animeSeason" placeholder="Winter 2024" />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="animeCover">Cover Image URL</label>
+                        <div class="input-wrapper">
+                            <input type="url" id="animeCover" placeholder="https://example.com/image.jpg" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="animeBanner">Banner Image URL</label>
+                        <div class="input-wrapper">
+                            <input type="url" id="animeBanner" placeholder="https://example.com/banner.jpg" />
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <input type="hidden" id="animeEditId" />
+                <div class="form-group">
+                    <label for="animeSeason">Season</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="animeSeason" placeholder="Winter 2024" />
+                    </div>
+                </div>
 
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-primary" id="animeSubmitBtn">
-                    <i class="fas fa-save"></i> <span id="animeSubmitText">Add Anime</span>
-                </button>
-                <button type="button" class="btn btn-secondary" id="animeCancelBtn">Cancel</button>
-            </div>
-        </form>
+                <input type="hidden" id="animeEditId" />
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary" id="animeSubmitBtn">
+                        <i class="fas fa-save"></i> <span id="animeSubmitText">Add Anime</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="animeCancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- ============================================================
-JAVASCRIPT - COMPLETE ADMIN PANEL
-============================================================ -->
-<script>
-    (function() {
-        'use strict';
+    <!-- ============================================================
+    JAVASCRIPT - COMPLETE ADMIN PANEL
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
 
-        // ============================================================
-        // DOM REFS
-        // ============================================================
-        const loginSection = document.getElementById('adminLoginSection');
-        const adminLayout = document.getElementById('adminLayout');
-        const loginForm = document.getElementById('adminLoginForm');
-        const loginBtn = document.getElementById('adminLoginBtn');
-        const emailInput = document.getElementById('adminEmail');
-        const passwordInput = document.getElementById('adminPassword');
-        const toast = document.getElementById('adminToast');
-        const toastMsg = document.getElementById('toastMessage');
+            // ============================================================
+            // DOM REFS
+            // ============================================================
+            const loginSection = document.getElementById('adminLoginSection');
+            const adminLayout = document.getElementById('adminLayout');
+            const loginForm = document.getElementById('adminLoginForm');
+            const loginBtn = document.getElementById('adminLoginBtn');
+            const emailInput = document.getElementById('adminEmail');
+            const passwordInput = document.getElementById('adminPassword');
+            const toast = document.getElementById('adminToast');
+            const toastMsg = document.getElementById('toastMessage');
 
-        // ============================================================
-        // TOAST HELPER
-        // ============================================================
-        function showToast(message, type) {
-            toast.className = 'toast show ' + (type || 'success');
-            toastMsg.textContent = message;
-            clearTimeout(toast._hideTimer);
-            toast._hideTimer = setTimeout(function() {
+            // ============================================================
+            // TOAST HELPER
+            // ============================================================
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            function hideToast() {
                 toast.classList.remove('show');
-            }, 4000);
-        }
-
-        function hideToast() {
-            toast.classList.remove('show');
-            clearTimeout(toast._hideTimer);
-        }
-
-        // ============================================================
-        // TOGGLE PASSWORD VISIBILITY
-        // ============================================================
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-            document.getElementById('pwdIcon').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
-        });
-
-        // ============================================================
-        // VALIDATION
-        // ============================================================
-        function validateEmail() {
-            const val = emailInput.value.trim();
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const wrapper = document.getElementById('loginEmailWrapper');
-            const error = document.getElementById('loginEmailError');
-            if (!re.test(val)) {
-                wrapper.classList.add('error');
-                error.classList.add('show');
-                return false;
-            }
-            wrapper.classList.remove('error');
-            error.classList.remove('show');
-            return true;
-        }
-
-        function validatePassword() {
-            const val = passwordInput.value;
-            const wrapper = document.getElementById('loginPasswordWrapper');
-            const error = document.getElementById('loginPasswordError');
-            if (val.length < 6) {
-                wrapper.classList.add('error');
-                error.classList.add('show');
-                return false;
-            }
-            wrapper.classList.remove('error');
-            error.classList.remove('show');
-            return true;
-        }
-
-        emailInput.addEventListener('blur', validateEmail);
-        emailInput.addEventListener('input', function() {
-            if (document.getElementById('loginEmailWrapper').classList.contains('error')) validateEmail();
-        });
-
-        passwordInput.addEventListener('blur', validatePassword);
-        passwordInput.addEventListener('input', function() {
-            if (document.getElementById('loginPasswordWrapper').classList.contains('error')) validatePassword();
-        });
-
-        // ============================================================
-        // ADMIN LOGIN
-        // ============================================================
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            hideToast();
-
-            const isEmailValid = validateEmail();
-            const isPwdValid = validatePassword();
-
-            if (!isEmailValid || !isPwdValid) {
-                showToast('Please fix the errors above.', 'error');
-                return;
+                clearTimeout(toast._hideTimer);
             }
 
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            loginBtn.classList.add('loading');
-            loginBtn.disabled = true;
-
-            try {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                    throw new Error('Supabase client not initialized.');
-                }
-
-                console.log('[Admin] Attempting login for:', email);
-
-                const result = await window.AniVerse.auth.signIn({ email, password });
-
-                if (result.error) {
-                    showToast(result.error, 'error');
-                    loginBtn.classList.remove('loading');
-                    loginBtn.disabled = false;
-                    return;
-                }
-
-                if (!result.user) {
-                    showToast('Login failed. Please try again.', 'error');
-                    loginBtn.classList.remove('loading');
-                    loginBtn.disabled = false;
-                    return;
-                }
-
-                const { user } = result;
-                
-                const { data: profile, error: profileError } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                const role = profile?.role || user.user_metadata?.role || 'user';
-
-                if (role !== 'admin' && role !== 'moderator') {
-                    showToast('Access denied. You do not have admin privileges.', 'error');
-                    await window.AniVerse.auth.signOut();
-                    loginBtn.classList.remove('loading');
-                    loginBtn.disabled = false;
-                    return;
-                }
-
-                console.log('[Admin] Login successful, role:', role);
-                showToast('Welcome Admin! Loading panel...', 'success');
-
-                loginSection.style.display = 'none';
-                adminLayout.classList.add('active');
-
-                await loadAllData();
-
-                loginBtn.classList.remove('loading');
-                loginBtn.disabled = false;
-
-            } catch (error) {
-                console.error('[Admin] Login error:', error);
-                showToast('An unexpected error occurred: ' + error.message, 'error');
-                loginBtn.classList.remove('loading');
-                loginBtn.disabled = false;
-            }
-        });
-
-        // ============================================================
-        // SIDEBAR TOGGLE
-        // ============================================================
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('open');
-            sidebarOverlay.classList.toggle('active');
-            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-        }
-
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', toggleSidebar);
-        }
-
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
-                if (sidebar.classList.contains('open')) {
-                    toggleSidebar();
-                }
+            // ============================================================
+            // TOGGLE PASSWORD
+            // ============================================================
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                document.getElementById('pwdIcon').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
             });
-        }
 
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
-                toggleSidebar();
-            }
-        });
-
-        document.querySelectorAll('.nav-item').forEach(function(item) {
-            item.addEventListener('click', function() {
-                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                    toggleSidebar();
+            // ============================================================
+            // VALIDATION
+            // ============================================================
+            function validateEmail() {
+                const val = emailInput.value.trim();
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const wrapper = document.getElementById('loginEmailWrapper');
+                const error = document.getElementById('loginEmailError');
+                if (!re.test(val)) {
+                    wrapper.classList.add('error');
+                    error.classList.add('show');
+                    return false;
                 }
+                wrapper.classList.remove('error');
+                error.classList.remove('show');
+                return true;
+            }
+
+            function validatePassword() {
+                const val = passwordInput.value;
+                const wrapper = document.getElementById('loginPasswordWrapper');
+                const error = document.getElementById('loginPasswordError');
+                if (val.length < 6) {
+                    wrapper.classList.add('error');
+                    error.classList.add('show');
+                    return false;
+                }
+                wrapper.classList.remove('error');
+                error.classList.remove('show');
+                return true;
+            }
+
+            emailInput.addEventListener('blur', validateEmail);
+            emailInput.addEventListener('input', function() {
+                if (document.getElementById('loginEmailWrapper').classList.contains('error')) validateEmail();
             });
-        });
 
-        // ============================================================
-        // LOGOUT
-        // ============================================================
-        document.getElementById('logoutLink').addEventListener('click', async function(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to logout?')) {
-                const { error } = await window.AniVerse.auth.signOut();
-                if (!error) {
-                    window.clearSupabaseStorage();
-                    window.location.replace('index.html');
-                } else {
-                    alert('Logout failed. Please try again.');
-                }
-            }
-        });
+            passwordInput.addEventListener('blur', validatePassword);
+            passwordInput.addEventListener('input', function() {
+                if (document.getElementById('loginPasswordWrapper').classList.contains('error')) validatePassword();
+            });
 
-        // ============================================================
-        // ADMIN NAVIGATION
-        // ============================================================
-        const navLinks = document.querySelectorAll('.admin-nav .nav-link');
-        const panels = {};
-
-        document.querySelectorAll('.admin-panel').forEach(function(panel) {
-            const id = panel.id.replace('panel-', '');
-            panels[id] = panel;
-        });
-
-        navLinks.forEach(function(link) {
-            link.addEventListener('click', function(e) {
+            // ============================================================
+            // ADMIN LOGIN
+            // ============================================================
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const panelId = this.getAttribute('data-panel');
+                hideToast();
 
-                navLinks.forEach(function(l) {
-                    l.classList.remove('active');
-                });
-                this.classList.add('active');
+                const isEmailValid = validateEmail();
+                const isPwdValid = validatePassword();
 
-                Object.keys(panels).forEach(function(key) {
-                    if (panels[key]) {
-                        panels[key].classList.remove('active');
+                if (!isEmailValid || !isPwdValid) {
+                    showToast('Please fix the errors above.', 'error');
+                    return;
+                }
+
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+
+                try {
+                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                        throw new Error('Supabase client not initialized.');
                     }
-                });
 
-                if (panels[panelId]) {
-                    panels[panelId].classList.add('active');
-                }
+                    const result = await window.AniVerse.auth.signIn({ email, password });
 
-                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                    toggleSidebar();
-                }
+                    if (result.error) {
+                        showToast(result.error, 'error');
+                        loginBtn.classList.remove('loading');
+                        loginBtn.disabled = false;
+                        return;
+                    }
 
-                if (panelId === 'missions') {
-                    loadMissions();
-                }
-                if (panelId === 'leaderboard') {
-                    loadLeaderboard();
-                }
-                if (panelId === 'anime') {
-                    loadAnime();
-                }
-                if (panelId === 'official-guilds') {
-                    loadOfficialGuilds();
+                    if (!result.user) {
+                        showToast('Login failed. Please try again.', 'error');
+                        loginBtn.classList.remove('loading');
+                        loginBtn.disabled = false;
+                        return;
+                    }
+
+                    const { user } = result;
+                    
+                    const { data: profile, error: profileError } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', user.id)
+                        .single();
+
+                    const role = profile?.role || user.user_metadata?.role || 'user';
+
+                    if (role !== 'admin' && role !== 'moderator') {
+                        showToast('Access denied. You do not have admin privileges.', 'error');
+                        await window.AniVerse.auth.signOut();
+                        loginBtn.classList.remove('loading');
+                        loginBtn.disabled = false;
+                        return;
+                    }
+
+                    showToast('Welcome Admin! Loading panel...', 'success');
+
+                    loginSection.style.display = 'none';
+                    adminLayout.classList.add('active');
+
+                    await loadAllData();
+
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+
+                } catch (error) {
+                    showToast('An unexpected error occurred: ' + error.message, 'error');
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
                 }
             });
-        });
 
-        // ============================================================
-        // LOAD ALL DATA
-        // ============================================================
-        async function loadAllData() {
-            await loadDashboardStats();
-            await loadUsers();
-            await loadGuilds();
-            await loadOfficialGuilds();
-            await loadAnime();
-            await loadPosts();
-            await loadMissions();
-            await loadLeaderboard();
-        }
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-        // ============================================================
-        // LOAD DASHBOARD STATS
-        // ============================================================
-        async function loadDashboardStats() {
-            try {
-                const { count: userCount } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('*', { count: 'exact', head: true });
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
 
-                const { count: guildCount } = await window.AniVerse.client
-                    .from('guilds')
-                    .select('*', { count: 'exact', head: true })
-                    .is('deleted_at', null);
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
 
-                const { count: postCount } = await window.AniVerse.client
-                    .from('guild_posts')
-                    .select('*', { count: 'exact', head: true })
-                    .is('deleted_at', null);
-
-                const { count: missionCount } = await window.AniVerse.client
-                    .from('missions')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('is_active', true);
-
-                const { data: xpData } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('experience_points');
-
-                let totalXP = 0;
-                if (xpData) {
-                    xpData.forEach(p => {
-                        totalXP += p.experience_points || 0;
-                    });
-                }
-
-                const { count: animeCount } = await window.AniVerse.client
-                    .from('anime_library')
-                    .select('*', { count: 'exact', head: true });
-
-                const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
-                const values = [
-                    userCount || 0,
-                    guildCount || 0,
-                    postCount || 0,
-                    missionCount || 0,
-                    totalXP || 0,
-                    animeCount || 0
-                ];
-                statNumbers.forEach(function(el, index) {
-                    el.textContent = typeof values[index] === 'number' ? 
-                        values[index].toLocaleString() : 
-                        values[index] || '0';
-                    el.classList.remove('skeleton');
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
                 });
-
-            } catch (error) {
-                console.error('[AniVerse] Load dashboard stats error:', error);
             }
-        }
 
-        // ============================================================
-        // LOAD USERS
-        // ============================================================
-        async function loadUsers() {
-            try {
-                const { data: users, error } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-
-                if (error) throw new Error(error.message);
-
-                const tbody = document.getElementById('usersTableBody');
-
-                if (!users || users.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="7">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-users-slash"></i>
-                                    <h3>No users yet</h3>
-                                    <p>Users will appear here as they join.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
                 }
+            });
 
-                tbody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                    ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
-                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="status-badge active">${user.level || 0}</span></td>
-                        <td>${user.experience_points || 0}</td>
-                        <td><span class="status-badge ${user.role === 'admin' ? 'approved' : 'active'}">${user.role || 'user'}</span></td>
-                        <td><span class="status-badge ${user.is_online ? 'active' : 'inactive'}">${user.is_online ? 'Online' : 'Offline'}</span></td>
-                        <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn btn-secondary view-user" data-id="${user.id}"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-danger delete-user" data-id="${user.id}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-
-            } catch (error) {
-                console.error('[AniVerse] Load users error:', error);
-            }
-        }
-
-        // ============================================================
-        // LOAD GUILDS
-        // ============================================================
-        async function loadGuilds() {
-            try {
-                const { data: guilds, error } = await window.AniVerse.client
-                    .from('guilds')
-                    .select('*')
-                    .is('deleted_at', null)
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-
-                if (error) throw new Error(error.message);
-
-                const tbody = document.getElementById('guildsTableBody');
-
-                if (!guilds || guilds.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-users-slash"></i>
-                                    <h3>No guilds yet</h3>
-                                    <p>Guilds will appear here as they are created.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = guilds.map(guild => `
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                    ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
-                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="status-badge">${guild.category || 'General'}</span></td>
-                        <td>${guild.member_count || 0}</td>
-                        <td>${guild.level || 0}</td>
-                        <td><span class="status-badge ${guild.visibility === 'public' ? 'active' : 'inactive'}">${guild.visibility || 'public'}</span></td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn btn-secondary view-guild" data-id="${guild.id}"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-danger delete-guild" data-id="${guild.id}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-
-            } catch (error) {
-                console.error('[AniVerse] Load guilds error:', error);
-            }
-        }
-
-        // ============================================================
-        // LOAD OFFICIAL GUILDS
-        // ============================================================
-        async function loadOfficialGuilds() {
-            try {
-                const { data: guilds, error } = await window.AniVerse.client
-                    .from('guilds')
-                    .select('*')
-                    .is('deleted_at', null)
-                    .order('is_official', { ascending: false })
-                    .order('created_at', { ascending: false });
-
-                if (error) throw new Error(error.message);
-
-                const tbody = document.getElementById('officialGuildsTableBody');
-
-                if (!guilds || guilds.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="5">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-crown"></i>
-                                    <h3>No guilds yet</h3>
-                                    <p>Guilds will appear here as they are created.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = guilds.map(guild => `
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                    ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
-                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="status-badge">${guild.category || 'General'}</span></td>
-                        <td>${guild.member_count || 0}</td>
-                        <td>
-                            <span class="status-badge ${guild.is_official ? 'approved' : 'inactive'}">
-                                ${guild.is_official ? '✅ Official' : '❌ Not Official'}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn ${guild.is_official ? 'btn-danger' : 'btn-success'} toggle-official" data-id="${guild.id}" data-current="${guild.is_official}">
-                                    ${guild.is_official ? '<i class="fas fa-times"></i> Remove Official' : '<i class="fas fa-crown"></i> Make Official'}
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-
-                document.querySelectorAll('.toggle-official').forEach(btn => {
-                    btn.addEventListener('click', async function() {
-                        const guildId = this.getAttribute('data-id');
-                        const current = this.getAttribute('data-current') === 'true';
-                        await toggleOfficialGuild(guildId, !current);
-                    });
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
                 });
+            });
 
-            } catch (error) {
-                console.error('[AniVerse] Load official guilds error:', error);
-            }
-        }
-
-        // ============================================================
-        // TOGGLE OFFICIAL GUILD
-        // ============================================================
-        async function toggleOfficialGuild(guildId, newStatus) {
-            try {
-                const { error } = await window.AniVerse.client
-                    .from('guilds')
-                    .update({ 
-                        is_official: newStatus,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', guildId);
-
-                if (error) throw new Error(error.message);
-
-                showToast(`Guild ${newStatus ? 'marked as official' : 'removed from official'}!`, 'success');
-                await loadOfficialGuilds();
-                await loadGuilds();
-
-            } catch (error) {
-                console.error('[AniVerse] Toggle official guild error:', error);
-                showToast('Failed to update guild: ' + error.message, 'error');
-            }
-        }
-
-        // ============================================================
-        // LOAD ANIME
-        // ============================================================
-        async function loadAnime() {
-            try {
-                const { data: anime, error } = await window.AniVerse.client
-                    .from('anime_library')
-                    .select('*')
-                    .order('popularity', { ascending: false })
-                    .order('created_at', { ascending: false });
-
-                if (error) throw new Error(error.message);
-
-                const totalAnime = anime ? anime.length : 0;
-                const popularAnime = anime ? anime.filter(a => a.popularity > 0).length : 0;
-                
-                document.getElementById('totalAnime').textContent = totalAnime;
-                document.getElementById('popularAnime').textContent = popularAnime;
-                document.getElementById('animeBadge').textContent = totalAnime;
-
-                // Get genres count
-                const { data: genres } = await window.AniVerse.client
-                    .from('anime_genres')
-                    .select('*');
-                document.getElementById('animeGenres').textContent = genres ? genres.length : 0;
-
-                const tbody = document.getElementById('animeTableBody');
-
-                if (!anime || anime.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-film"></i>
-                                    <h3>No anime in library</h3>
-                                    <p>Add anime to start building your library.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = anime.map(item => `
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                <div style="width:32px;height:32px;border-radius:4px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
-                                    ${item.cover_image ? `<img src="${item.cover_image}" style="width:100%;height:100%;object-fit:cover;" />` : '<i class="fas fa-film" style="color:var(--text-muted);"></i>'}
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">${item.title_romaji || item.title_english || 'Untitled'}</div>
-                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${item.title_english || ''}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${item.score || 'N/A'}</td>
-                        <td>${item.episodes || '?'}</td>
-                        <td><span class="status-badge ${item.status === 'completed' ? 'approved' : 'active'}">${item.status || 'Unknown'}</span></td>
-                        <td>#${item.popularity || 'N/A'}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn btn-secondary edit-anime" data-id="${item.id}"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger delete-anime" data-id="${item.id}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-
-            } catch (error) {
-                console.error('[AniVerse] Load anime error:', error);
-            }
-        }
-
-        // ============================================================
-        // ANIME CRUD OPERATIONS
-        // ============================================================
-
-        document.getElementById('addAnimeBtn').addEventListener('click', function() {
-            document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-plus"></i> Add Anime';
-            document.getElementById('animeSubmitText').textContent = 'Add Anime';
-            document.getElementById('animeForm').reset();
-            document.getElementById('animeEditId').value = '';
-            document.getElementById('animeModal').classList.add('open');
-        });
-
-        document.getElementById('animeCancelBtn').addEventListener('click', function() {
-            document.getElementById('animeModal').classList.remove('open');
-        });
-
-        document.getElementById('animeModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('open');
-            }
-        });
-
-        // Edit Anime
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('.edit-anime');
-            if (target) {
-                const animeId = target.getAttribute('data-id');
-                editAnime(animeId);
-            }
-        });
-
-        async function editAnime(animeId) {
-            try {
-                const { data: anime, error } = await window.AniVerse.client
-                    .from('anime_library')
-                    .select('*')
-                    .eq('id', animeId)
-                    .single();
-
-                if (error) throw new Error(error.message);
-
-                document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Anime';
-                document.getElementById('animeSubmitText').textContent = 'Update Anime';
-                document.getElementById('animeEditId').value = anime.id;
-                document.getElementById('animeTitle').value = anime.title_romaji || '';
-                document.getElementById('animeEnglishTitle').value = anime.title_english || '';
-                document.getElementById('animeNativeTitle').value = anime.title_native || '';
-                document.getElementById('animeStatus').value = anime.status || 'airing';
-                document.getElementById('animeEpisodes').value = anime.episodes || '';
-                document.getElementById('animeScore').value = anime.score || '';
-                document.getElementById('animePopularity').value = anime.popularity || '';
-                document.getElementById('animeSynopsis').value = anime.synopsis || '';
-                document.getElementById('animeCover').value = anime.cover_image || '';
-                document.getElementById('animeBanner').value = anime.banner_image || '';
-                document.getElementById('animeSeason').value = anime.season || '';
-
-                // Handle genres
-                if (anime.genres) {
-                    const genreNames = await getGenreNames(anime.genres);
-                    document.getElementById('animeGenres').value = genreNames.join(', ');
-                }
-
-                document.getElementById('animeModal').classList.add('open');
-
-            } catch (error) {
-                console.error('[AniVerse] Edit anime error:', error);
-                showToast('Failed to load anime: ' + error.message, 'error');
-            }
-        }
-
-        async function getGenreNames(genreIds) {
-            try {
-                const { data, error } = await window.AniVerse.client
-                    .from('anime_genres')
-                    .select('name')
-                    .in('id', genreIds);
-
-                if (error) throw new Error(error.message);
-                return data.map(g => g.name);
-            } catch (error) {
-                return [];
-            }
-        }
-
-        // Delete Anime
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('.delete-anime');
-            if (target) {
-                const animeId = target.getAttribute('data-id');
-                if (confirm('Are you sure you want to delete this anime?')) {
-                    deleteAnime(animeId);
-                }
-            }
-        });
-
-        async function deleteAnime(animeId) {
-            try {
-                const { error } = await window.AniVerse.client
-                    .from('anime_library')
-                    .delete()
-                    .eq('id', animeId);
-
-                if (error) throw new Error(error.message);
-
-                showToast('Anime deleted successfully!', 'success');
-                await loadAnime();
-
-            } catch (error) {
-                console.error('[AniVerse] Delete anime error:', error);
-                showToast('Failed to delete anime: ' + error.message, 'error');
-            }
-        }
-
-        // Submit Anime Form
-        document.getElementById('animeForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            hideToast();
-
-            const editId = document.getElementById('animeEditId').value;
-            const title = document.getElementById('animeTitle').value.trim();
-            const englishTitle = document.getElementById('animeEnglishTitle').value.trim();
-            const nativeTitle = document.getElementById('animeNativeTitle').value.trim();
-            const status = document.getElementById('animeStatus').value;
-            const episodes = parseInt(document.getElementById('animeEpisodes').value) || null;
-            const score = parseFloat(document.getElementById('animeScore').value) || null;
-            const popularity = parseInt(document.getElementById('animePopularity').value) || null;
-            const synopsis = document.getElementById('animeSynopsis').value.trim();
-            const coverImage = document.getElementById('animeCover').value.trim();
-            const bannerImage = document.getElementById('animeBanner').value.trim();
-            const season = document.getElementById('animeSeason').value.trim();
-            const genresInput = document.getElementById('animeGenres').value.trim();
-
-            if (!title) {
-                showToast('Please enter an anime title.', 'error');
-                return;
-            }
-
-            const submitBtn = document.getElementById('animeSubmitBtn');
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-
-            try {
-                const animeData = {
-                    title_romaji: title,
-                    title_english: englishTitle || null,
-                    title_native: nativeTitle || null,
-                    status: status,
-                    episodes: episodes,
-                    score: score,
-                    popularity: popularity,
-                    synopsis: synopsis || null,
-                    cover_image: coverImage || null,
-                    banner_image: bannerImage || null,
-                    season: season || null
-                };
-
-                let result;
-
-                if (editId) {
-                    result = await window.AniVerse.client
-                        .from('anime_library')
-                        .update(animeData)
-                        .eq('id', editId);
-                } else {
-                    result = await window.AniVerse.client
-                        .from('anime_library')
-                        .insert(animeData);
-                }
-
-                if (result.error) throw new Error(result.error.message);
-
-                // Handle genres
-                if (genresInput) {
-                    const genreNames = genresInput.split(',').map(g => g.trim());
-                    const animeId = editId || result.data[0]?.id;
-                    
-                    if (animeId) {
-                        // Get or create genres
-                        for (const name of genreNames) {
-                            const { data: genre, error: gError } = await window.AniVerse.client
-                                .from('anime_genres')
-                                .select('id')
-                                .eq('name', name)
-                                .maybeSingle();
-
-                            let genreId;
-                            if (genre) {
-                                genreId = genre.id;
-                            } else {
-                                const { data: newGenre, error: cError } = await window.AniVerse.client
-                                    .from('anime_genres')
-                                    .insert({ name })
-                                    .select()
-                                    .single();
-                                if (cError) throw new Error(cError.message);
-                                genreId = newGenre.id;
-                            }
-
-                            // Link genre to anime
-                            await window.AniVerse.client
-                                .from('anime_library_genres')
-                                .insert({
-                                    anime_id: animeId,
-                                    genre_id: genreId
-                                })
-                                .select();
-                        }
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await window.AniVerse.auth.signOut();
+                    if (!error) {
+                        window.clearSupabaseStorage();
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
                     }
                 }
+            });
 
-                showToast(`Anime ${editId ? 'updated' : 'added'} successfully!`, 'success');
-                document.getElementById('animeModal').classList.remove('open');
-                await loadAnime();
+            // ============================================================
+            // ADMIN NAVIGATION
+            // ============================================================
+            const navLinks = document.querySelectorAll('.admin-nav .nav-link');
+            const panels = {};
 
-            } catch (error) {
-                console.error('[AniVerse] Anime submit error:', error);
-                showToast('Failed to save anime: ' + error.message, 'error');
-            }
+            document.querySelectorAll('.admin-panel').forEach(function(panel) {
+                const id = panel.id.replace('panel-', '');
+                panels[id] = panel;
+            });
 
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-        });
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const panelId = this.getAttribute('data-panel');
 
-        // ============================================================
-        // LOAD POSTS
-        // ============================================================
-        async function loadPosts() {
-            try {
-                const { data: posts, error } = await window.AniVerse.client
-                    .from('guild_posts')
-                    .select(`
-                        *,
-                        author:profiles!author_id (id, username, display_name),
-                        guild:guilds (id, name)
-                    `)
-                    .is('deleted_at', null)
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-
-                if (error) throw new Error(error.message);
-
-                const tbody = document.getElementById('postsTableBody');
-
-                if (!posts || posts.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-file-alt"></i>
-                                    <h3>No posts yet</h3>
-                                    <p>Posts will appear here as they are created.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = posts.map(post => `
-                    <tr>
-                        <td>
-                            <div style="font-weight:500;">${post.title || 'Untitled'}</div>
-                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${post.content ? post.content.substring(0, 60) + '...' : ''}</div>
-                        </td>
-                        <td>${post.author?.display_name || 'Unknown'}</td>
-                        <td>${post.guild?.name || 'N/A'}</td>
-                        <td>${post.upvotes || 0}</td>
-                        <td><span class="status-badge active">Published</span></td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn btn-danger delete-post" data-id="${post.id}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-
-            } catch (error) {
-                console.error('[AniVerse] Load posts error:', error);
-            }
-        }
-
-        // Delete Post
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('.delete-post');
-            if (target) {
-                const postId = target.getAttribute('data-id');
-                if (confirm('Are you sure you want to delete this post?')) {
-                    deletePost(postId);
-                }
-            }
-        });
-
-        async function deletePost(postId) {
-            try {
-                const { error } = await window.AniVerse.client
-                    .from('guild_posts')
-                    .update({ deleted_at: new Date().toISOString() })
-                    .eq('id', postId);
-
-                if (error) throw new Error(error.message);
-
-                showToast('Post deleted successfully!', 'success');
-                await loadPosts();
-
-            } catch (error) {
-                console.error('[AniVerse] Delete post error:', error);
-                showToast('Failed to delete post: ' + error.message, 'error');
-            }
-        }
-
-        // ============================================================
-        // LOAD MISSIONS
-        // ============================================================
-        async function loadMissions() {
-            try {
-                const { data: missions, error } = await window.AniVerse.client
-                    .from('missions')
-                    .select('*')
-                    .order('category', { ascending: true })
-                    .order('xp_reward', { ascending: false });
-
-                if (error) throw new Error(error.message);
-
-                const totalMissions = missions ? missions.length : 0;
-                const activeMissions = missions ? missions.filter(m => m.is_active).length : 0;
-                
-                document.getElementById('totalMissions').textContent = totalMissions;
-                document.getElementById('activeMissions').textContent = activeMissions;
-                
-                const { data: completedData } = await window.AniVerse.client
-                    .from('user_mission_progress')
-                    .select('*', { count: 'exact' })
-                    .eq('is_completed', true);
-                
-                document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
-                
-                const { data: xpLogs } = await window.AniVerse.client
-                    .from('user_xp_log')
-                    .select('xp_gained');
-                
-                let totalXP = 0;
-                if (xpLogs) {
-                    xpLogs.forEach(log => {
-                        totalXP += log.xp_gained || 0;
+                    navLinks.forEach(function(l) {
+                        l.classList.remove('active');
                     });
-                }
-                document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
+                    this.classList.add('active');
 
-                document.getElementById('missionsBadge').textContent = activeMissions;
+                    Object.keys(panels).forEach(function(key) {
+                        if (panels[key]) {
+                            panels[key].classList.remove('active');
+                        }
+                    });
 
-                const tbody = document.getElementById('missionsTableBody');
+                    if (panels[panelId]) {
+                        panels[panelId].classList.add('active');
+                    }
 
-                if (!missions || missions.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-tasks"></i>
-                                    <h3>No missions yet</h3>
-                                    <p>Create your first mission to start the gamification system.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
 
-                const categoryColors = {
-                    'account': 'active',
-                    'guild': 'approved',
-                    'friends': 'pending',
-                    'social': 'active',
-                    'daily': 'pending',
-                    'special': 'approved'
-                };
+                    if (panelId === 'missions') {
+                        loadMissions();
+                    }
+                    if (panelId === 'leaderboard') {
+                        loadLeaderboard();
+                    }
+                    if (panelId === 'anime') {
+                        loadAnime();
+                    }
+                    if (panelId === 'official-guilds') {
+                        loadOfficialGuilds();
+                    }
+                });
+            });
 
-                tbody.innerHTML = missions.map(mission => `
-                    <tr>
-                        <td>
-                            <div style="font-weight:500;">${mission.title}</div>
-                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${mission.description || ''}</div>
-                        </td>
-                        <td><span class="status-badge ${categoryColors[mission.category] || 'active'}">${mission.category}</span></td>
-                        <td><span class="status-badge" style="background:rgba(81,207,102,0.15);color:#51cf66;">${mission.xp_reward} XP</span></td>
-                        <td>${mission.is_auto_complete ? '✅ Yes' : '❌ No'}</td>
-                        <td><span class="status-badge ${mission.is_active ? 'active' : 'inactive'}">${mission.is_active ? 'Active' : 'Inactive'}</span></td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="btn btn-secondary edit-mission" data-id="${mission.id}"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger delete-mission" data-id="${mission.id}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-
-            } catch (error) {
-                console.error('[AniVerse] Load missions error:', error);
-            }
-        }
-
-        // ============================================================
-        // MISSION CRUD OPERATIONS
-        // ============================================================
-
-        document.getElementById('createMissionBtn').addEventListener('click', function() {
-            document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Create Mission';
-            document.getElementById('missionSubmitText').textContent = 'Create Mission';
-            document.getElementById('missionForm').reset();
-            document.getElementById('missionEditId').value = '';
-            document.getElementById('missionModal').classList.add('open');
-            document.getElementById('criteriaGroup').style.display = 'none';
-            document.getElementById('missionAutoComplete').checked = true;
-        });
-
-        document.getElementById('missionCancelBtn').addEventListener('click', function() {
-            document.getElementById('missionModal').classList.remove('open');
-        });
-
-        document.getElementById('missionModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('open');
-            }
-        });
-
-        document.getElementById('missionAutoComplete').addEventListener('change', function() {
-            document.getElementById('criteriaGroup').style.display = this.checked ? 'none' : 'block';
-        });
-
-        // Edit Mission
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('.edit-mission');
-            if (target) {
-                const missionId = target.getAttribute('data-id');
-                editMission(missionId);
-            }
-        });
-
-        async function editMission(missionId) {
-            try {
-                const { data: mission, error } = await window.AniVerse.client
-                    .from('missions')
-                    .select('*')
-                    .eq('id', missionId)
-                    .single();
-
-                if (error) throw new Error(error.message);
-
-                document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Mission';
-                document.getElementById('missionSubmitText').textContent = 'Update Mission';
-                document.getElementById('missionEditId').value = mission.id;
-                document.getElementById('missionTitle').value = mission.title;
-                document.getElementById('missionDescription').value = mission.description || '';
-                document.getElementById('missionCategory').value = mission.category;
-                document.getElementById('missionXPReward').value = mission.xp_reward;
-                document.getElementById('missionAutoComplete').checked = mission.is_auto_complete;
-                
-                if (mission.completion_criteria && Object.keys(mission.completion_criteria).length > 0) {
-                    document.getElementById('missionCriteria').value = JSON.stringify(mission.completion_criteria);
-                    document.getElementById('criteriaGroup').style.display = 'block';
-                } else {
-                    document.getElementById('criteriaGroup').style.display = 'none';
-                }
-
-                document.getElementById('missionModal').classList.add('open');
-
-            } catch (error) {
-                console.error('[AniVerse] Edit mission error:', error);
-                showToast('Failed to load mission: ' + error.message, 'error');
-            }
-        }
-
-        // Delete Mission
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('.delete-mission');
-            if (target) {
-                const missionId = target.getAttribute('data-id');
-                if (confirm('Are you sure you want to delete this mission?')) {
-                    deleteMission(missionId);
-                }
-            }
-        });
-
-        async function deleteMission(missionId) {
-            try {
-                const { error } = await window.AniVerse.client
-                    .from('missions')
-                    .delete()
-                    .eq('id', missionId);
-
-                if (error) throw new Error(error.message);
-
-                showToast('Mission deleted successfully!', 'success');
+            // ============================================================
+            // LOAD ALL DATA
+            // ============================================================
+            async function loadAllData() {
+                await loadDashboardStats();
+                await loadUsers();
+                await loadGuilds();
+                await loadOfficialGuilds();
+                await loadAnime();
+                await loadPosts();
                 await loadMissions();
-
-            } catch (error) {
-                console.error('[AniVerse] Delete mission error:', error);
-                showToast('Failed to delete mission: ' + error.message, 'error');
+                await loadLeaderboard();
             }
-        }
 
-        // Submit Mission Form
-        document.getElementById('missionForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            hideToast();
-
-            const editId = document.getElementById('missionEditId').value;
-            const title = document.getElementById('missionTitle').value.trim();
-            const description = document.getElementById('missionDescription').value.trim();
-            const category = document.getElementById('missionCategory').value;
-            const xpReward = parseInt(document.getElementById('missionXPReward').value);
-            const isAutoComplete = document.getElementById('missionAutoComplete').checked;
-            let criteria = {};
-
-            if (!isAutoComplete) {
+            // ============================================================
+            // LOAD DASHBOARD STATS
+            // ============================================================
+            async function loadDashboardStats() {
                 try {
-                    criteria = JSON.parse(document.getElementById('missionCriteria').value || '{}');
-                } catch (e) {
-                    showToast('Invalid JSON format for criteria.', 'error');
-                    return;
-                }
-            }
+                    const { count: userCount } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true });
 
-            if (!title || !description || !category || !xpReward) {
-                showToast('Please fill in all required fields.', 'error');
-                return;
-            }
+                    const { count: guildCount } = await window.AniVerse.client
+                        .from('guilds')
+                        .select('*', { count: 'exact', head: true })
+                        .is('deleted_at', null);
 
-            const submitBtn = document.getElementById('missionSubmitBtn');
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
+                    const { count: postCount } = await window.AniVerse.client
+                        .from('guild_posts')
+                        .select('*', { count: 'exact', head: true })
+                        .is('deleted_at', null);
 
-            try {
-                if (editId) {
-                    const { error } = await window.AniVerse.client
+                    const { count: missionCount } = await window.AniVerse.client
                         .from('missions')
-                        .update({
-                            title,
-                            description,
-                            category,
-                            xp_reward: xpReward,
-                            is_auto_complete: isAutoComplete,
-                            completion_criteria: criteria,
-                            updated_at: new Date().toISOString()
-                        })
-                        .eq('id', editId);
+                        .select('*', { count: 'exact', head: true })
+                        .eq('is_active', true);
 
-                    if (error) throw new Error(error.message);
-                    showToast('Mission updated successfully!', 'success');
+                    const { data: xpData } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('experience_points');
 
-                } else {
-                    const { error } = await window.AniVerse.client
-                        .from('missions')
-                        .insert({
-                            title,
-                            description,
-                            category,
-                            xp_reward: xpReward,
-                            is_auto_complete: isAutoComplete,
-                            completion_criteria: criteria
+                    let totalXP = 0;
+                    if (xpData) {
+                        xpData.forEach(p => {
+                            totalXP += p.experience_points || 0;
                         });
+                    }
 
-                    if (error) throw new Error(error.message);
-                    showToast('Mission created successfully!', 'success');
+                    const { count: animeCount } = await window.AniVerse.client
+                        .from('anime_library')
+                        .select('*', { count: 'exact', head: true });
+
+                    const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
+                    const values = [
+                        userCount || 0,
+                        guildCount || 0,
+                        postCount || 0,
+                        missionCount || 0,
+                        totalXP || 0,
+                        animeCount || 0
+                    ];
+                    statNumbers.forEach(function(el, index) {
+                        el.textContent = typeof values[index] === 'number' ? 
+                            values[index].toLocaleString() : 
+                            values[index] || '0';
+                        el.classList.remove('skeleton');
+                    });
+
+                } catch (error) {
+                    console.error('[AniVerse] Load dashboard stats error:', error);
                 }
-
-                document.getElementById('missionModal').classList.remove('open');
-                await loadMissions();
-
-            } catch (error) {
-                console.error('[AniVerse] Mission submit error:', error);
-                showToast('Failed to save mission: ' + error.message, 'error');
             }
 
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-        });
+            // ============================================================
+            // LOAD USERS
+            // ============================================================
+            async function loadUsers() {
+                try {
+                    const { data: users, error } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
 
-        // ============================================================
-        // LOAD LEADERBOARD
-        // ============================================================
-        async function loadLeaderboard() {
-            try {
-                const { data: users, error } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('id, username, display_name, level, experience_points, avatar_url')
-                    .order('experience_points', { ascending: false })
-                    .limit(20);
+                    if (error) throw new Error(error.message);
 
-                if (error) throw new Error(error.message);
+                    const tbody = document.getElementById('usersTableBody');
 
-                const tbody = document.getElementById('leaderboardTableBody');
+                    if (!users || users.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-users-slash"></i>
+                                        <h3>No users yet</h3>
+                                        <p>Users will appear here as they join.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
 
-                if (!users || users.length === 0) {
-                    tbody.innerHTML = `
+                    tbody.innerHTML = users.map(user => `
                         <tr>
-                            <td colspan="4">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-trophy"></i>
-                                    <h3>No data yet</h3>
-                                    <p>Leaderboard will populate as users earn XP.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                tbody.innerHTML = users.map((user, index) => {
-                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                    return `
-                        <tr>
-                            <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
                             <td>
                                 <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
                                     <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
@@ -3395,125 +2465,978 @@ JAVASCRIPT - COMPLETE ADMIN PANEL
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
-                            <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
+                            <td><span class="status-badge active">${user.level || 0}</span></td>
+                            <td>${user.experience_points || 0}</td>
+                            <td><span class="status-badge ${user.role === 'admin' ? 'approved' : 'active'}">${user.role || 'user'}</span></td>
+                            <td><span class="status-badge ${user.is_online ? 'active' : 'inactive'}">${user.is_online ? 'Online' : 'Offline'}</span></td>
+                            <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary view-user" data-id="${user.id}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-danger delete-user" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
                         </tr>
-                    `;
-                }).join('');
+                    `).join('');
 
-            } catch (error) {
-                console.error('[AniVerse] Load leaderboard error:', error);
+                } catch (error) {
+                    console.error('[AniVerse] Load users error:', error);
+                }
             }
-        }
 
-        // ============================================================
-        // GLOBAL SEARCH
-        // ============================================================
-        const searchInput = document.getElementById('globalSearchInput');
-        const searchBtn = document.getElementById('globalSearchBtn');
+            // ============================================================
+            // LOAD GUILDS
+            // ============================================================
+            async function loadGuilds() {
+                try {
+                    const { data: guilds, error } = await window.AniVerse.client
+                        .from('guilds')
+                        .select('*')
+                        .is('deleted_at', null)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
 
-        function performGlobalSearch() {
-            const query = searchInput.value.trim();
-            if (query.length > 0) {
-                window.location.href = 'search.html?q=' + encodeURIComponent(query);
-            } else {
-                searchInput.focus();
-                searchInput.style.borderColor = 'var(--color-error)';
-                setTimeout(() => {
-                    searchInput.style.borderColor = '';
-                }, 1000);
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('guildsTableBody');
+
+                    if (!guilds || guilds.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-users-slash"></i>
+                                        <h3>No guilds yet</h3>
+                                        <p>Guilds will appear here as they are created.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = guilds.map(guild => `
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                        ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
+                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge">${guild.category || 'General'}</span></td>
+                            <td>${guild.member_count || 0}</td>
+                            <td>${guild.level || 0}</td>
+                            <td><span class="status-badge ${guild.visibility === 'public' ? 'active' : 'inactive'}">${guild.visibility || 'public'}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary view-guild" data-id="${guild.id}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-danger delete-guild" data-id="${guild.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load guilds error:', error);
+                }
             }
-        }
 
-        if (searchBtn) {
-            searchBtn.addEventListener('click', performGlobalSearch);
-        }
+            // ============================================================
+            // LOAD OFFICIAL GUILDS
+            // ============================================================
+            async function loadOfficialGuilds() {
+                try {
+                    const { data: guilds, error } = await window.AniVerse.client
+                        .from('guilds')
+                        .select('*')
+                        .is('deleted_at', null)
+                        .order('is_official', { ascending: false })
+                        .order('created_at', { ascending: false });
 
-        if (searchInput) {
-            searchInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    performGlobalSearch();
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('officialGuildsTableBody');
+
+                    if (!guilds || guilds.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-crown"></i>
+                                        <h3>No guilds yet</h3>
+                                        <p>Guilds will appear here as they are created.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = guilds.map(guild => `
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                        ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
+                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="status-badge">${guild.category || 'General'}</span></td>
+                            <td>${guild.member_count || 0}</td>
+                            <td>
+                                <span class="status-badge ${guild.is_official ? 'approved' : 'inactive'}">
+                                    ${guild.is_official ? '✅ Official' : '❌ Not Official'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn ${guild.is_official ? 'btn-danger' : 'btn-success'} toggle-official" data-id="${guild.id}" data-current="${guild.is_official}">
+                                        ${guild.is_official ? '<i class="fas fa-times"></i> Remove Official' : '<i class="fas fa-crown"></i> Make Official'}
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    document.querySelectorAll('.toggle-official').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const guildId = this.getAttribute('data-id');
+                            const current = this.getAttribute('data-current') === 'true';
+                            await toggleOfficialGuild(guildId, !current);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('[AniVerse] Load official guilds error:', error);
+                }
+            }
+
+            // ============================================================
+            // TOGGLE OFFICIAL GUILD
+            // ============================================================
+            async function toggleOfficialGuild(guildId, newStatus) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('guilds')
+                        .update({ 
+                            is_official: newStatus,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', guildId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast(`Guild ${newStatus ? 'marked as official' : 'removed from official'}!`, 'success');
+                    await loadOfficialGuilds();
+                    await loadGuilds();
+
+                } catch (error) {
+                    console.error('[AniVerse] Toggle official guild error:', error);
+                    showToast('Failed to update guild: ' + error.message, 'error');
+                }
+            }
+
+            // ============================================================
+            // LOAD ANIME - COMPLETE
+            // ============================================================
+            async function loadAnime() {
+                try {
+                    const { data: anime, error } = await window.AniVerse.client
+                        .from('anime_library')
+                        .select('*')
+                        .order('popularity', { ascending: false });
+
+                    if (error) throw new Error(error.message);
+
+                    const totalAnime = anime ? anime.length : 0;
+                    const popularAnime = anime ? anime.filter(a => a.popularity > 0).length : 0;
+                    
+                    document.getElementById('totalAnime').textContent = totalAnime;
+                    document.getElementById('popularAnime').textContent = popularAnime;
+                    document.getElementById('animeBadge').textContent = totalAnime;
+
+                    const { data: genres } = await window.AniVerse.client
+                        .from('anime_genres')
+                        .select('*');
+                    document.getElementById('animeGenres').textContent = genres ? genres.length : 0;
+
+                    const tbody = document.getElementById('animeTableBody');
+
+                    if (!anime || anime.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-film"></i>
+                                        <h3>No anime in library</h3>
+                                        <p>Add anime to start building your library.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = anime.map(item => `
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                    <div style="width:32px;height:32px;border-radius:4px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                                        ${item.cover_image ? `<img src="${item.cover_image}" style="width:100%;height:100%;object-fit:cover;" />` : '<i class="fas fa-film" style="color:var(--text-muted);"></i>'}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;">${item.title_romaji || item.title_english || 'Untitled'}</div>
+                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${item.title_english || ''}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${item.score || 'N/A'}</td>
+                            <td>${item.episodes || '?'}</td>
+                            <td><span class="status-badge ${item.status === 'completed' ? 'approved' : 'active'}">${item.status || 'Unknown'}</span></td>
+                            <td>#${item.popularity || 'N/A'}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary edit-anime" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger delete-anime" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load anime error:', error);
+                }
+            }
+
+            // ============================================================
+            // ANIME CRUD OPERATIONS
+            // ============================================================
+
+            document.getElementById('addAnimeBtn').addEventListener('click', function() {
+                document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-plus"></i> Add Anime';
+                document.getElementById('animeSubmitText').textContent = 'Add Anime';
+                document.getElementById('animeForm').reset();
+                document.getElementById('animeEditId').value = '';
+                document.getElementById('animeModal').classList.add('open');
+            });
+
+            document.getElementById('animeCancelBtn').addEventListener('click', function() {
+                document.getElementById('animeModal').classList.remove('open');
+            });
+
+            document.getElementById('animeModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
                 }
             });
-        }
 
-        // ============================================================
-        // SETTINGS SAVE
-        // ============================================================
-        document.getElementById('saveSettingsBtn').addEventListener('click', function() {
-            showToast('Settings saved successfully!', 'success');
-        });
+            // Edit Anime
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.edit-anime');
+                if (target) {
+                    const animeId = target.getAttribute('data-id');
+                    editAnime(animeId);
+                }
+            });
 
-        // ============================================================
-        // REFRESH LEADERBOARD
-        // ============================================================
-        document.getElementById('refreshLeaderboard').addEventListener('click', function() {
-            loadLeaderboard();
-            showToast('Leaderboard refreshed!', 'success');
-        });
+            async function editAnime(animeId) {
+                try {
+                    const { data: anime, error } = await window.AniVerse.client
+                        .from('anime_library')
+                        .select('*')
+                        .eq('id', animeId)
+                        .single();
 
-        // ============================================================
-        // CHECK IF ALREADY LOGGED IN AS ADMIN
-        // ============================================================
-        async function checkExistingSession() {
-            try {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                    setTimeout(checkExistingSession, 300);
+                    if (error) throw new Error(error.message);
+
+                    document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Anime';
+                    document.getElementById('animeSubmitText').textContent = 'Update Anime';
+                    document.getElementById('animeEditId').value = anime.id;
+                    document.getElementById('animeTitle').value = anime.title_romaji || '';
+                    document.getElementById('animeEnglishTitle').value = anime.title_english || '';
+                    document.getElementById('animeNativeTitle').value = anime.title_native || '';
+                    document.getElementById('animeStatus').value = anime.status || 'airing';
+                    document.getElementById('animeEpisodes').value = anime.episodes || '';
+                    document.getElementById('animeScore').value = anime.score || '';
+                    document.getElementById('animePopularity').value = anime.popularity || '';
+                    document.getElementById('animeSynopsis').value = anime.synopsis || '';
+                    document.getElementById('animeCover').value = anime.cover_image || '';
+                    document.getElementById('animeBanner').value = anime.banner_image || '';
+                    document.getElementById('animeSeason').value = anime.season || '';
+
+                    document.getElementById('animeModal').classList.add('open');
+
+                } catch (error) {
+                    console.error('[AniVerse] Edit anime error:', error);
+                    showToast('Failed to load anime: ' + error.message, 'error');
+                }
+            }
+
+            // Delete Anime
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.delete-anime');
+                if (target) {
+                    const animeId = target.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this anime?')) {
+                        deleteAnime(animeId);
+                    }
+                }
+            });
+
+            async function deleteAnime(animeId) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('anime_library')
+                        .delete()
+                        .eq('id', animeId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Anime deleted successfully!', 'success');
+                    await loadAnime();
+
+                } catch (error) {
+                    console.error('[AniVerse] Delete anime error:', error);
+                    showToast('Failed to delete anime: ' + error.message, 'error');
+                }
+            }
+
+            // Submit Anime Form
+            document.getElementById('animeForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                hideToast();
+
+                const editId = document.getElementById('animeEditId').value;
+                const title = document.getElementById('animeTitle').value.trim();
+                const englishTitle = document.getElementById('animeEnglishTitle').value.trim();
+                const nativeTitle = document.getElementById('animeNativeTitle').value.trim();
+                const status = document.getElementById('animeStatus').value;
+                const episodes = parseInt(document.getElementById('animeEpisodes').value) || null;
+                const score = parseFloat(document.getElementById('animeScore').value) || null;
+                const popularity = parseInt(document.getElementById('animePopularity').value) || null;
+                const synopsis = document.getElementById('animeSynopsis').value.trim();
+                const coverImage = document.getElementById('animeCover').value.trim();
+                const bannerImage = document.getElementById('animeBanner').value.trim();
+                const season = document.getElementById('animeSeason').value.trim();
+                const genresInput = document.getElementById('animeGenres').value.trim();
+
+                if (!title) {
+                    showToast('Please enter an anime title.', 'error');
                     return;
                 }
 
-                const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                const submitBtn = document.getElementById('animeSubmitBtn');
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
 
-                if (user && profile) {
-                    const role = profile.role || user.user_metadata?.role || 'user';
+                try {
+                    const animeData = {
+                        title_romaji: title,
+                        title_english: englishTitle || null,
+                        title_native: nativeTitle || null,
+                        status: status,
+                        episodes: episodes,
+                        score: score,
+                        popularity: popularity,
+                        synopsis: synopsis || null,
+                        cover_image: coverImage || null,
+                        banner_image: bannerImage || null,
+                        season: season || null
+                    };
+
+                    let result;
+
+                    if (editId) {
+                        result = await window.AniVerse.client
+                            .from('anime_library')
+                            .update(animeData)
+                            .eq('id', editId);
+                    } else {
+                        result = await window.AniVerse.client
+                            .from('anime_library')
+                            .insert(animeData);
+                    }
+
+                    if (result.error) throw new Error(result.error.message);
+
+                    // Handle genres
+                    if (genresInput) {
+                        const genreNames = genresInput.split(',').map(g => g.trim());
+                        const animeId = editId || result.data[0]?.id;
+                        
+                        if (animeId) {
+                            for (const name of genreNames) {
+                                const { data: genre, error: gError } = await window.AniVerse.client
+                                    .from('anime_genres')
+                                    .select('id')
+                                    .eq('name', name)
+                                    .maybeSingle();
+
+                                let genreId;
+                                if (genre) {
+                                    genreId = genre.id;
+                                } else {
+                                    const { data: newGenre, error: cError } = await window.AniVerse.client
+                                        .from('anime_genres')
+                                        .insert({ name })
+                                        .select()
+                                        .single();
+                                    if (cError) throw new Error(cError.message);
+                                    genreId = newGenre.id;
+                                }
+
+                                await window.AniVerse.client
+                                    .from('anime_library_genres')
+                                    .insert({
+                                        anime_id: animeId,
+                                        genre_id: genreId
+                                    })
+                                    .select();
+                            }
+                        }
+                    }
+
+                    showToast(`Anime ${editId ? 'updated' : 'added'} successfully!`, 'success');
+                    document.getElementById('animeModal').classList.remove('open');
+                    await loadAnime();
+
+                } catch (error) {
+                    console.error('[AniVerse] Anime submit error:', error);
+                    showToast('Failed to save anime: ' + error.message, 'error');
+                }
+
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            });
+
+            // ============================================================
+            // LOAD POSTS
+            // ============================================================
+            async function loadPosts() {
+                try {
+                    const { data: posts, error } = await window.AniVerse.client
+                        .from('guild_posts')
+                        .select(`
+                            *,
+                            author:profiles!author_id (id, username, display_name),
+                            guild:guilds (id, name)
+                        `)
+                        .is('deleted_at', null)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('postsTableBody');
+
+                    if (!posts || posts.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-file-alt"></i>
+                                        <h3>No posts yet</h3>
+                                        <p>Posts will appear here as they are created.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = posts.map(post => `
+                        <tr>
+                            <td>
+                                <div style="font-weight:500;">${post.title || 'Untitled'}</div>
+                                <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${post.content ? post.content.substring(0, 60) + '...' : ''}</div>
+                            </td>
+                            <td>${post.author?.display_name || 'Unknown'}</td>
+                            <td>${post.guild?.name || 'N/A'}</td>
+                            <td>${post.upvotes || 0}</td>
+                            <td><span class="status-badge active">Published</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-danger delete-post" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load posts error:', error);
+                }
+            }
+
+            // Delete Post
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.delete-post');
+                if (target) {
+                    const postId = target.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this post?')) {
+                        deletePost(postId);
+                    }
+                }
+            });
+
+            async function deletePost(postId) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('guild_posts')
+                        .update({ deleted_at: new Date().toISOString() })
+                        .eq('id', postId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Post deleted successfully!', 'success');
+                    await loadPosts();
+
+                } catch (error) {
+                    console.error('[AniVerse] Delete post error:', error);
+                    showToast('Failed to delete post: ' + error.message, 'error');
+                }
+            }
+
+            // ============================================================
+            // LOAD MISSIONS
+            // ============================================================
+            async function loadMissions() {
+                try {
+                    const { data: missions, error } = await window.AniVerse.client
+                        .from('missions')
+                        .select('*')
+                        .order('category', { ascending: true })
+                        .order('xp_reward', { ascending: false });
+
+                    if (error) throw new Error(error.message);
+
+                    const totalMissions = missions ? missions.length : 0;
+                    const activeMissions = missions ? missions.filter(m => m.is_active).length : 0;
                     
-                    if (role === 'admin' || role === 'moderator') {
-                        console.log('[Admin] Already logged in as admin, showing panel...');
-                        loginSection.style.display = 'none';
-                        adminLayout.classList.add('active');
-                        await loadAllData();
+                    document.getElementById('totalMissions').textContent = totalMissions;
+                    document.getElementById('activeMissions').textContent = activeMissions;
+                    
+                    const { data: completedData } = await window.AniVerse.client
+                        .from('user_mission_progress')
+                        .select('*', { count: 'exact' })
+                        .eq('is_completed', true);
+                    
+                    document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
+                    
+                    const { data: xpLogs } = await window.AniVerse.client
+                        .from('user_xp_log')
+                        .select('xp_gained');
+                    
+                    let totalXP = 0;
+                    if (xpLogs) {
+                        xpLogs.forEach(log => {
+                            totalXP += log.xp_gained || 0;
+                        });
+                    }
+                    document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
+
+                    document.getElementById('missionsBadge').textContent = activeMissions;
+
+                    const tbody = document.getElementById('missionsTableBody');
+
+                    if (!missions || missions.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-tasks"></i>
+                                        <h3>No missions yet</h3>
+                                        <p>Create your first mission to start the gamification system.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    const categoryColors = {
+                        'account': 'active',
+                        'guild': 'approved',
+                        'friends': 'pending',
+                        'social': 'active',
+                        'daily': 'pending',
+                        'special': 'approved'
+                    };
+
+                    tbody.innerHTML = missions.map(mission => `
+                        <tr>
+                            <td>
+                                <div style="font-weight:500;">${mission.title}</div>
+                                <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${mission.description || ''}</div>
+                            </td>
+                            <td><span class="status-badge ${categoryColors[mission.category] || 'active'}">${mission.category}</span></td>
+                            <td><span class="status-badge" style="background:rgba(81,207,102,0.15);color:#51cf66;">${mission.xp_reward} XP</span></td>
+                            <td>${mission.is_auto_complete ? '✅ Yes' : '❌ No'}</td>
+                            <td><span class="status-badge ${mission.is_active ? 'active' : 'inactive'}">${mission.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary edit-mission" data-id="${mission.id}"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger delete-mission" data-id="${mission.id}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load missions error:', error);
+                }
+            }
+
+            // ============================================================
+            // MISSION CRUD OPERATIONS
+            // ============================================================
+
+            document.getElementById('createMissionBtn').addEventListener('click', function() {
+                document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Create Mission';
+                document.getElementById('missionSubmitText').textContent = 'Create Mission';
+                document.getElementById('missionForm').reset();
+                document.getElementById('missionEditId').value = '';
+                document.getElementById('missionModal').classList.add('open');
+                document.getElementById('criteriaGroup').style.display = 'none';
+                document.getElementById('missionAutoComplete').checked = true;
+            });
+
+            document.getElementById('missionCancelBtn').addEventListener('click', function() {
+                document.getElementById('missionModal').classList.remove('open');
+            });
+
+            document.getElementById('missionModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
+                }
+            });
+
+            document.getElementById('missionAutoComplete').addEventListener('change', function() {
+                document.getElementById('criteriaGroup').style.display = this.checked ? 'none' : 'block';
+            });
+
+            // Edit Mission
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.edit-mission');
+                if (target) {
+                    const missionId = target.getAttribute('data-id');
+                    editMission(missionId);
+                }
+            });
+
+            async function editMission(missionId) {
+                try {
+                    const { data: mission, error } = await window.AniVerse.client
+                        .from('missions')
+                        .select('*')
+                        .eq('id', missionId)
+                        .single();
+
+                    if (error) throw new Error(error.message);
+
+                    document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Mission';
+                    document.getElementById('missionSubmitText').textContent = 'Update Mission';
+                    document.getElementById('missionEditId').value = mission.id;
+                    document.getElementById('missionTitle').value = mission.title;
+                    document.getElementById('missionDescription').value = mission.description || '';
+                    document.getElementById('missionCategory').value = mission.category;
+                    document.getElementById('missionXPReward').value = mission.xp_reward;
+                    document.getElementById('missionAutoComplete').checked = mission.is_auto_complete;
+                    
+                    if (mission.completion_criteria && Object.keys(mission.completion_criteria).length > 0) {
+                        document.getElementById('missionCriteria').value = JSON.stringify(mission.completion_criteria);
+                        document.getElementById('criteriaGroup').style.display = 'block';
+                    } else {
+                        document.getElementById('criteriaGroup').style.display = 'none';
+                    }
+
+                    document.getElementById('missionModal').classList.add('open');
+
+                } catch (error) {
+                    console.error('[AniVerse] Edit mission error:', error);
+                    showToast('Failed to load mission: ' + error.message, 'error');
+                }
+            }
+
+            // Delete Mission
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.delete-mission');
+                if (target) {
+                    const missionId = target.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this mission?')) {
+                        deleteMission(missionId);
+                    }
+                }
+            });
+
+            async function deleteMission(missionId) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('missions')
+                        .delete()
+                        .eq('id', missionId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Mission deleted successfully!', 'success');
+                    await loadMissions();
+
+                } catch (error) {
+                    console.error('[AniVerse] Delete mission error:', error);
+                    showToast('Failed to delete mission: ' + error.message, 'error');
+                }
+            }
+
+            // Submit Mission Form
+            document.getElementById('missionForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                hideToast();
+
+                const editId = document.getElementById('missionEditId').value;
+                const title = document.getElementById('missionTitle').value.trim();
+                const description = document.getElementById('missionDescription').value.trim();
+                const category = document.getElementById('missionCategory').value;
+                const xpReward = parseInt(document.getElementById('missionXPReward').value);
+                const isAutoComplete = document.getElementById('missionAutoComplete').checked;
+                let criteria = {};
+
+                if (!isAutoComplete) {
+                    try {
+                        criteria = JSON.parse(document.getElementById('missionCriteria').value || '{}');
+                    } catch (e) {
+                        showToast('Invalid JSON format for criteria.', 'error');
                         return;
                     }
                 }
-                
-                loginSection.style.display = 'flex';
-                adminLayout.classList.remove('active');
 
-            } catch (e) {
-                console.error('[Admin] Session check error:', e);
-                loginSection.style.display = 'flex';
-                adminLayout.classList.remove('active');
+                if (!title || !description || !category || !xpReward) {
+                    showToast('Please fill in all required fields.', 'error');
+                    return;
+                }
+
+                const submitBtn = document.getElementById('missionSubmitBtn');
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    if (editId) {
+                        const { error } = await window.AniVerse.client
+                            .from('missions')
+                            .update({
+                                title,
+                                description,
+                                category,
+                                xp_reward: xpReward,
+                                is_auto_complete: isAutoComplete,
+                                completion_criteria: criteria,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', editId);
+
+                        if (error) throw new Error(error.message);
+                        showToast('Mission updated successfully!', 'success');
+
+                    } else {
+                        const { error } = await window.AniVerse.client
+                            .from('missions')
+                            .insert({
+                                title,
+                                description,
+                                category,
+                                xp_reward: xpReward,
+                                is_auto_complete: isAutoComplete,
+                                completion_criteria: criteria
+                            });
+
+                        if (error) throw new Error(error.message);
+                        showToast('Mission created successfully!', 'success');
+                    }
+
+                    document.getElementById('missionModal').classList.remove('open');
+                    await loadMissions();
+
+                } catch (error) {
+                    console.error('[AniVerse] Mission submit error:', error);
+                    showToast('Failed to save mission: ' + error.message, 'error');
+                }
+
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            });
+
+            // ============================================================
+            // LOAD LEADERBOARD
+            // ============================================================
+            async function loadLeaderboard() {
+                try {
+                    const { data: users, error } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('id, username, display_name, level, experience_points, avatar_url')
+                        .order('experience_points', { ascending: false })
+                        .limit(20);
+
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('leaderboardTableBody');
+
+                    if (!users || users.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-trophy"></i>
+                                        <h3>No data yet</h3>
+                                        <p>Leaderboard will populate as users earn XP.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = users.map((user, index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                        return `
+                            <tr>
+                                <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                            ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
+                                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
+                                <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load leaderboard error:', error);
+                }
             }
-        }
 
-        // ============================================================
-        // INITIALIZE
-        // ============================================================
-        async function init() {
-            if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                setTimeout(init, 300);
-                return;
+            // ============================================================
+            // REFRESH LEADERBOARD
+            // ============================================================
+            document.getElementById('refreshLeaderboard').addEventListener('click', function() {
+                loadLeaderboard();
+                showToast('Leaderboard refreshed!', 'success');
+            });
+
+            // ============================================================
+            // SETTINGS SAVE
+            // ============================================================
+            document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+                showToast('Settings saved successfully!', 'success');
+            });
+
+            // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
             }
 
-            await checkExistingSession();
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
 
-            window.AniVerse.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN') {
-                    checkExistingSession();
-                } else if (event === 'SIGNED_OUT') {
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
+
+            // ============================================================
+            // CHECK EXISTING SESSION
+            // ============================================================
+            async function checkExistingSession() {
+                try {
+                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                        setTimeout(checkExistingSession, 300);
+                        return;
+                    }
+
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+
+                    if (user && profile) {
+                        const role = profile.role || user.user_metadata?.role || 'user';
+                        
+                        if (role === 'admin' || role === 'moderator') {
+                            console.log('[Admin] Already logged in as admin, showing panel...');
+                            loginSection.style.display = 'none';
+                            adminLayout.classList.add('active');
+                            await loadAllData();
+                            return;
+                        }
+                    }
+                    
+                    loginSection.style.display = 'flex';
+                    adminLayout.classList.remove('active');
+
+                } catch (e) {
+                    console.error('[Admin] Session check error:', e);
                     loginSection.style.display = 'flex';
                     adminLayout.classList.remove('active');
                 }
-            });
-        }
+            }
 
-        init();
+            // ============================================================
+            // INITIALIZE
+            // ============================================================
+            async function init() {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    setTimeout(init, 300);
+                    return;
+                }
 
-        console.log('[AniVerse] Admin panel ready (Built-in Login + Popular Anime Manager)');
+                await checkExistingSession();
 
-    })();
-</script>
+                window.AniVerse.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN') {
+                        checkExistingSession();
+                    } else if (event === 'SIGNED_OUT') {
+                        loginSection.style.display = 'flex';
+                        adminLayout.classList.remove('active');
+                    }
+                });
+            }
+
+            init();
+
+            console.log('[AniVerse] Admin panel ready (Built-in Login + Popular Anime Manager)');
+
+        })();
+    </script>
 
 </body>
 </html>
