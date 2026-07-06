@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="google-site-verification" content="4zGD_idMkRTh6-kf6KHytdwhp_4HickgSorEaVgBPwA" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AniVerse — Anime Community</title>
@@ -1271,7 +1270,7 @@
             </section>
 
             <!-- ============================================================
-            GUILDS - REMOVED OFFICIAL HEADQUARTERS, NOW SHOWS ALL GUILDS
+            GUILDS - SHOWS OFFICIAL GUILD FIRST
             ============================================================ -->
             <section class="guilds-section" aria-label="Guilds">
                 <div class="container">
@@ -1287,7 +1286,7 @@
                     </div>
 
                     <div class="guilds-grid" id="guildsGrid">
-                        <!-- Guilds will be loaded from Supabase -->
+                        <!-- Guilds will be loaded from Supabase with official guild first -->
                     </div>
                 </div>
             </section>
@@ -1334,7 +1333,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - COMPLETE WITH AUTH STATE MANAGEMENT
+    JAVASCRIPT
     ============================================================ -->
     <script>
         (function() {
@@ -1351,7 +1350,6 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    // Wait for AniVerse to be available
                     if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
                         console.warn('[AniVerse] Auth not ready, waiting...');
                         setTimeout(updateAuthUI, 300);
@@ -1399,20 +1397,15 @@
                         logoutLink.classList.add('visible');
                         logoutLink.style.display = 'flex';
 
-                        // Show Admin Panel if admin/moderator
                         if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
                             adminPanelLink.classList.add('visible');
                         } else {
                             adminPanelLink.classList.remove('visible');
                         }
 
-                        console.log('[AniVerse] User logged in:', user.email);
-                        
-                        // Load real data
                         await loadRealData(user.id);
 
                     } else {
-                        // Show logged-out UI
                         headerAvatar.classList.remove('visible');
                         headerLevel.classList.remove('visible');
                         headerLoginBtn.classList.add('visible');
@@ -1430,12 +1423,9 @@
                         logoutLink.style.display = 'none';
                         adminPanelLink.classList.remove('visible');
 
-                        // Show empty stats
                         document.getElementById('statMembers').textContent = '0';
                         document.getElementById('statDiscussions').textContent = '0';
                         document.getElementById('statGuilds').textContent = '0';
-
-                        console.log('[AniVerse] User logged out');
                     }
                 } catch (error) {
                     console.error('[AniVerse] Auth UI update error:', error);
@@ -1447,7 +1437,6 @@
             // ============================================================
             async function loadRealData(userId) {
                 try {
-                    // Load user's notifications count
                     const { count: notifCount } = await window.AniVerse.client
                         .from('notifications')
                         .select('*', { count: 'exact', head: true })
@@ -1465,7 +1454,6 @@
                         headerNotifDot.classList.remove('has-data');
                     }
 
-                    // Load real stats from database
                     const { count: memberCount } = await window.AniVerse.client
                         .from('profiles')
                         .select('*', { count: 'exact', head: true });
@@ -1490,7 +1478,7 @@
             }
 
             // ============================================================
-            // LOAD GUILDS (SHOWS ALL GUILDS, INCLUDING OFFICIAL)
+            // LOAD GUILDS - SHOWS OFFICIAL GUILD FIRST
             // ============================================================
             async function loadGuilds() {
                 try {
@@ -1532,7 +1520,7 @@
 
                     guildsGrid.innerHTML = guilds.map(guild => {
                         const initial = guild.name ? guild.name.charAt(0).toUpperCase() : 'G';
-                        const isOfficial = guild.is_official;
+                        const isOfficial = guild.is_official || false;
 
                         return `
                             <div class="guild-card">
@@ -1556,13 +1544,12 @@
             }
 
             // ============================================================
-            // LOAD TRENDING ANIME FROM SUPABASE
+            // LOAD TRENDING ANIME
             // ============================================================
             async function loadTrendingAnime() {
                 try {
                     const grid = document.getElementById('trendingGrid');
 
-                    // Try to load from anime_library table
                     const { data: anime, error } = await window.AniVerse.client
                         .from('anime_library')
                         .select('*')
@@ -1684,7 +1671,6 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                // Wait for AniVerse to be available
                 if (typeof window.AniVerse === 'undefined') {
                     console.warn('[AniVerse] Waiting for client to initialize...');
                     setTimeout(init, 300);
@@ -1695,7 +1681,6 @@
                 await loadGuilds();
                 await loadTrendingAnime();
 
-                // Listen to auth changes
                 window.AniVerse.auth.onAuthStateChange(async (event, session) => {
                     console.log('[AniVerse] Auth state changed:', event);
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
@@ -1705,7 +1690,6 @@
                     }
                 });
 
-                // Handle case where page loads with session from URL (email confirmation)
                 if (window.location.hash && window.location.hash.includes('access_token')) {
                     console.log('[AniVerse] Detected access token in URL, waiting for session...');
                     setTimeout(async () => {
@@ -1718,7 +1702,7 @@
 
             init();
 
-            console.log('[AniVerse] Index page loaded (Official Headquarters removed from hero)');
+            console.log('[AniVerse] Index page loaded with Official Guild');
 
         })();
     </script>
