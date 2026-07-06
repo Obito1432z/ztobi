@@ -1528,6 +1528,7 @@
                         </a>
                         <a href="#" class="nav-link" data-panel="official-guilds">
                             <i class="fas fa-crown"></i> Official Guilds
+                            <span class="badge" id="officialBadgeCount">0</span>
                         </a>
                         <a href="#" class="nav-link" data-panel="anime">
                             <i class="fas fa-film"></i> Popular Anime
@@ -1651,14 +1652,35 @@
                     </div>
 
                     <!-- ============================================================
-                    PANEL: OFFICIAL GUILDS
+                    PANEL: OFFICIAL GUILDS (FULL MANAGEMENT)
                     ============================================================ -->
                     <div class="admin-panel" id="panel-official-guilds">
                         <div class="section-header">
                             <div>
                                 <span class="section-tag"><i class="fas fa-crown"></i> Featured</span>
-                                <h2 class="section-title">Official Guilds</h2>
-                                <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage which guilds are marked as official.</p>
+                                <h2 class="section-title">Official Guilds Management</h2>
+                                <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Mark any guild as "Official" to feature it on the homepage and guild pages.</p>
+                            </div>
+                            <div style="display:flex; gap:var(--spacing-sm); flex-wrap:wrap;">
+                                <button class="btn btn-secondary" id="refreshOfficialBtn">
+                                    <i class="fas fa-sync"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Official Guild Stats -->
+                        <div class="stats-grid" id="officialStats">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalOfficialGuilds">0</div>
+                                <div class="stat-label"><i class="fas fa-crown"></i> Official Guilds</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalGuildsCount">0</div>
+                                <div class="stat-label"><i class="fas fa-users"></i> Total Guilds</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="officialMembersCount">0</div>
+                                <div class="stat-label"><i class="fas fa-user-friends"></i> Official Members</div>
                             </div>
                         </div>
 
@@ -1669,12 +1691,34 @@
                                         <th>Guild</th>
                                         <th>Category</th>
                                         <th>Members</th>
+                                        <th>Created</th>
                                         <th>Official Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="officialGuildsTableBody"></tbody>
                             </table>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div style="margin-top:var(--spacing-lg); background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                            <div style="display:flex; align-items:flex-start; gap:var(--spacing-md);">
+                                <i class="fas fa-info-circle" style="color:var(--accent-1); font-size:1.5rem; margin-top:2px;"></i>
+                                <div>
+                                    <h4 style="font-weight:600; margin-bottom:var(--spacing-xs);">About Official Guilds</h4>
+                                    <p style="color:var(--text-secondary); font-size:var(--font-size-sm);">
+                                        <strong>Official Guilds</strong> are featured prominently on the homepage and guild pages.
+                                        They receive a special <span style="color:var(--accent-1); font-weight:600;">👑 Official</span> badge.
+                                        Only administrators can mark or unmark guilds as official.
+                                    </p>
+                                    <ul style="color:var(--text-muted); font-size:var(--font-size-sm); padding-left:var(--spacing-lg); margin-top:var(--spacing-sm);">
+                                        <li>Official guilds appear first in guild listings</li>
+                                        <li>They get priority visibility on the homepage</li>
+                                        <li>The "Official" badge is shown on guild cards</li>
+                                        <li>You can have multiple official guilds</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2547,7 +2591,7 @@
             }
 
             // ============================================================
-            // LOAD OFFICIAL GUILDS
+            // LOAD OFFICIAL GUILDS (COMPLETE MANAGEMENT)
             // ============================================================
             async function loadOfficialGuilds() {
                 try {
@@ -2560,12 +2604,38 @@
 
                     if (error) throw new Error(error.message);
 
+                    const totalGuilds = guilds ? guilds.length : 0;
+                    const officialGuilds = guilds ? guilds.filter(g => g.is_official === true) : [];
+                    const officialCount = officialGuilds.length;
+
+                    document.getElementById('totalOfficialGuilds').textContent = officialCount;
+                    document.getElementById('totalGuildsCount').textContent = totalGuilds;
+                    document.getElementById('officialBadgeCount').textContent = officialCount;
+
+                    // Get total members in official guilds
+                    let officialMembers = 0;
+                    if (officialGuilds.length > 0) {
+                        const guildIds = officialGuilds.map(g => g.id);
+                        const { data: members, error: mError } = await window.AniVerse.client
+                            .from('guild_members')
+                            .select('guild_id', { count: 'exact' })
+                            .in('guild_id', guildIds);
+
+                        if (!mError && members) {
+                            // Count distinct members across official guilds
+                            const uniqueMembers = new Set();
+                            members.forEach(m => uniqueMembers.add(m.user_id));
+                            officialMembers = uniqueMembers.size;
+                        }
+                    }
+                    document.getElementById('officialMembersCount').textContent = officialMembers;
+
                     const tbody = document.getElementById('officialGuildsTableBody');
 
                     if (!guilds || guilds.length === 0) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="5">
+                                <td colspan="6">
                                     <div class="empty-state" style="padding:30px 20px;">
                                         <i class="fas fa-crown"></i>
                                         <h3>No guilds yet</h3>
@@ -2577,41 +2647,58 @@
                         return;
                     }
 
-                    tbody.innerHTML = guilds.map(guild => `
-                        <tr>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                        ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
-                                    </div>
-                                    <div>
-                                        <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
-                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="status-badge">${guild.category || 'General'}</span></td>
-                            <td>${guild.member_count || 0}</td>
-                            <td>
-                                <span class="status-badge ${guild.is_official ? 'approved' : 'inactive'}">
-                                    ${guild.is_official ? '✅ Official' : '❌ Not Official'}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn ${guild.is_official ? 'btn-danger' : 'btn-success'} toggle-official" data-id="${guild.id}" data-current="${guild.is_official}">
-                                        ${guild.is_official ? '<i class="fas fa-times"></i> Remove Official' : '<i class="fas fa-crown"></i> Make Official'}
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join('');
+                    tbody.innerHTML = guilds.map(guild => {
+                        const createdDate = guild.created_at ? new Date(guild.created_at).toLocaleDateString() : 'N/A';
+                        const isOfficial = guild.is_official || false;
 
+                        return `
+                            <tr>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                            ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
+                                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge">${guild.category || 'General'}</span></td>
+                                <td>${guild.member_count || 0}</td>
+                                <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${createdDate}</td>
+                                <td>
+                                    <span class="status-badge ${isOfficial ? 'approved' : 'inactive'}">
+                                        ${isOfficial ? '✅ Official' : '❌ Not Official'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button class="btn ${isOfficial ? 'btn-danger' : 'btn-success'} toggle-official" 
+                                                data-id="${guild.id}" 
+                                                data-current="${isOfficial}"
+                                                data-name="${guild.name}">
+                                            ${isOfficial ? '<i class="fas fa-times"></i> Remove Official' : '<i class="fas fa-crown"></i> Make Official'}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    // Add event listeners to all toggle buttons
                     document.querySelectorAll('.toggle-official').forEach(btn => {
                         btn.addEventListener('click', async function() {
                             const guildId = this.getAttribute('data-id');
                             const current = this.getAttribute('data-current') === 'true';
-                            await toggleOfficialGuild(guildId, !current);
+                            const guildName = this.getAttribute('data-name') || 'Guild';
+                            
+                            const action = current ? 'remove official status from' : 'make';
+                            if (!confirm(`Are you sure you want to ${action} "${guildName}" official?`)) {
+                                return;
+                            }
+                            
+                            await toggleOfficialGuild(guildId, !current, guildName);
                         });
                     });
 
@@ -2623,7 +2710,7 @@
             // ============================================================
             // TOGGLE OFFICIAL GUILD
             // ============================================================
-            async function toggleOfficialGuild(guildId, newStatus) {
+            async function toggleOfficialGuild(guildId, newStatus, guildName) {
                 try {
                     const { error } = await window.AniVerse.client
                         .from('guilds')
@@ -2635,9 +2722,16 @@
 
                     if (error) throw new Error(error.message);
 
-                    showToast(`Guild ${newStatus ? 'marked as official' : 'removed from official'}!`, 'success');
+                    const message = newStatus ? 
+                        `✅ "${guildName}" is now an Official Guild!` : 
+                        `❌ "${guildName}" is no longer an Official Guild.`;
+                    
+                    showToast(message, 'success');
+                    
+                    // Refresh all relevant panels
                     await loadOfficialGuilds();
                     await loadGuilds();
+                    await loadDashboardStats();
 
                 } catch (error) {
                     console.error('[AniVerse] Toggle official guild error:', error);
@@ -2646,7 +2740,15 @@
             }
 
             // ============================================================
-            // LOAD ANIME - COMPLETE
+            // REFRESH OFFICIAL GUILDS
+            // ============================================================
+            document.getElementById('refreshOfficialBtn').addEventListener('click', function() {
+                loadOfficialGuilds();
+                showToast('Official guilds refreshed!', 'success');
+            });
+
+            // ============================================================
+            // LOAD ANIME
             // ============================================================
             async function loadAnime() {
                 try {
@@ -2718,207 +2820,6 @@
             }
 
             // ============================================================
-            // ANIME CRUD OPERATIONS
-            // ============================================================
-
-            document.getElementById('addAnimeBtn').addEventListener('click', function() {
-                document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-plus"></i> Add Anime';
-                document.getElementById('animeSubmitText').textContent = 'Add Anime';
-                document.getElementById('animeForm').reset();
-                document.getElementById('animeEditId').value = '';
-                document.getElementById('animeModal').classList.add('open');
-            });
-
-            document.getElementById('animeCancelBtn').addEventListener('click', function() {
-                document.getElementById('animeModal').classList.remove('open');
-            });
-
-            document.getElementById('animeModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('open');
-                }
-            });
-
-            // Edit Anime
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('.edit-anime');
-                if (target) {
-                    const animeId = target.getAttribute('data-id');
-                    editAnime(animeId);
-                }
-            });
-
-            async function editAnime(animeId) {
-                try {
-                    const { data: anime, error } = await window.AniVerse.client
-                        .from('anime_library')
-                        .select('*')
-                        .eq('id', animeId)
-                        .single();
-
-                    if (error) throw new Error(error.message);
-
-                    document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Anime';
-                    document.getElementById('animeSubmitText').textContent = 'Update Anime';
-                    document.getElementById('animeEditId').value = anime.id;
-                    document.getElementById('animeTitle').value = anime.title_romaji || '';
-                    document.getElementById('animeEnglishTitle').value = anime.title_english || '';
-                    document.getElementById('animeNativeTitle').value = anime.title_native || '';
-                    document.getElementById('animeStatus').value = anime.status || 'airing';
-                    document.getElementById('animeEpisodes').value = anime.episodes || '';
-                    document.getElementById('animeScore').value = anime.score || '';
-                    document.getElementById('animePopularity').value = anime.popularity || '';
-                    document.getElementById('animeSynopsis').value = anime.synopsis || '';
-                    document.getElementById('animeCover').value = anime.cover_image || '';
-                    document.getElementById('animeBanner').value = anime.banner_image || '';
-                    document.getElementById('animeSeason').value = anime.season || '';
-
-                    document.getElementById('animeModal').classList.add('open');
-
-                } catch (error) {
-                    console.error('[AniVerse] Edit anime error:', error);
-                    showToast('Failed to load anime: ' + error.message, 'error');
-                }
-            }
-
-            // Delete Anime
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('.delete-anime');
-                if (target) {
-                    const animeId = target.getAttribute('data-id');
-                    if (confirm('Are you sure you want to delete this anime?')) {
-                        deleteAnime(animeId);
-                    }
-                }
-            });
-
-            async function deleteAnime(animeId) {
-                try {
-                    const { error } = await window.AniVerse.client
-                        .from('anime_library')
-                        .delete()
-                        .eq('id', animeId);
-
-                    if (error) throw new Error(error.message);
-
-                    showToast('Anime deleted successfully!', 'success');
-                    await loadAnime();
-
-                } catch (error) {
-                    console.error('[AniVerse] Delete anime error:', error);
-                    showToast('Failed to delete anime: ' + error.message, 'error');
-                }
-            }
-
-            // Submit Anime Form
-            document.getElementById('animeForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                hideToast();
-
-                const editId = document.getElementById('animeEditId').value;
-                const title = document.getElementById('animeTitle').value.trim();
-                const englishTitle = document.getElementById('animeEnglishTitle').value.trim();
-                const nativeTitle = document.getElementById('animeNativeTitle').value.trim();
-                const status = document.getElementById('animeStatus').value;
-                const episodes = parseInt(document.getElementById('animeEpisodes').value) || null;
-                const score = parseFloat(document.getElementById('animeScore').value) || null;
-                const popularity = parseInt(document.getElementById('animePopularity').value) || null;
-                const synopsis = document.getElementById('animeSynopsis').value.trim();
-                const coverImage = document.getElementById('animeCover').value.trim();
-                const bannerImage = document.getElementById('animeBanner').value.trim();
-                const season = document.getElementById('animeSeason').value.trim();
-                const genresInput = document.getElementById('animeGenres').value.trim();
-
-                if (!title) {
-                    showToast('Please enter an anime title.', 'error');
-                    return;
-                }
-
-                const submitBtn = document.getElementById('animeSubmitBtn');
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-
-                try {
-                    const animeData = {
-                        title_romaji: title,
-                        title_english: englishTitle || null,
-                        title_native: nativeTitle || null,
-                        status: status,
-                        episodes: episodes,
-                        score: score,
-                        popularity: popularity,
-                        synopsis: synopsis || null,
-                        cover_image: coverImage || null,
-                        banner_image: bannerImage || null,
-                        season: season || null
-                    };
-
-                    let result;
-
-                    if (editId) {
-                        result = await window.AniVerse.client
-                            .from('anime_library')
-                            .update(animeData)
-                            .eq('id', editId);
-                    } else {
-                        result = await window.AniVerse.client
-                            .from('anime_library')
-                            .insert(animeData);
-                    }
-
-                    if (result.error) throw new Error(result.error.message);
-
-                    // Handle genres
-                    if (genresInput) {
-                        const genreNames = genresInput.split(',').map(g => g.trim());
-                        const animeId = editId || result.data[0]?.id;
-                        
-                        if (animeId) {
-                            for (const name of genreNames) {
-                                const { data: genre, error: gError } = await window.AniVerse.client
-                                    .from('anime_genres')
-                                    .select('id')
-                                    .eq('name', name)
-                                    .maybeSingle();
-
-                                let genreId;
-                                if (genre) {
-                                    genreId = genre.id;
-                                } else {
-                                    const { data: newGenre, error: cError } = await window.AniVerse.client
-                                        .from('anime_genres')
-                                        .insert({ name })
-                                        .select()
-                                        .single();
-                                    if (cError) throw new Error(cError.message);
-                                    genreId = newGenre.id;
-                                }
-
-                                await window.AniVerse.client
-                                    .from('anime_library_genres')
-                                    .insert({
-                                        anime_id: animeId,
-                                        genre_id: genreId
-                                    })
-                                    .select();
-                            }
-                        }
-                    }
-
-                    showToast(`Anime ${editId ? 'updated' : 'added'} successfully!`, 'success');
-                    document.getElementById('animeModal').classList.remove('open');
-                    await loadAnime();
-
-                } catch (error) {
-                    console.error('[AniVerse] Anime submit error:', error);
-                    showToast('Failed to save anime: ' + error.message, 'error');
-                }
-
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
-            });
-
-            // ============================================================
             // LOAD POSTS
             // ============================================================
             async function loadPosts() {
@@ -2976,35 +2877,6 @@
                 }
             }
 
-            // Delete Post
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('.delete-post');
-                if (target) {
-                    const postId = target.getAttribute('data-id');
-                    if (confirm('Are you sure you want to delete this post?')) {
-                        deletePost(postId);
-                    }
-                }
-            });
-
-            async function deletePost(postId) {
-                try {
-                    const { error } = await window.AniVerse.client
-                        .from('guild_posts')
-                        .update({ deleted_at: new Date().toISOString() })
-                        .eq('id', postId);
-
-                    if (error) throw new Error(error.message);
-
-                    showToast('Post deleted successfully!', 'success');
-                    await loadPosts();
-
-                } catch (error) {
-                    console.error('[AniVerse] Delete post error:', error);
-                    showToast('Failed to delete post: ' + error.message, 'error');
-                }
-            }
-
             // ============================================================
             // LOAD MISSIONS
             // ============================================================
@@ -3023,26 +2895,6 @@
                     
                     document.getElementById('totalMissions').textContent = totalMissions;
                     document.getElementById('activeMissions').textContent = activeMissions;
-                    
-                    const { data: completedData } = await window.AniVerse.client
-                        .from('user_mission_progress')
-                        .select('*', { count: 'exact' })
-                        .eq('is_completed', true);
-                    
-                    document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
-                    
-                    const { data: xpLogs } = await window.AniVerse.client
-                        .from('user_xp_log')
-                        .select('xp_gained');
-                    
-                    let totalXP = 0;
-                    if (xpLogs) {
-                        xpLogs.forEach(log => {
-                            totalXP += log.xp_gained || 0;
-                        });
-                    }
-                    document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
-
                     document.getElementById('missionsBadge').textContent = activeMissions;
 
                     const tbody = document.getElementById('missionsTableBody');
@@ -3096,9 +2948,268 @@
             }
 
             // ============================================================
-            // MISSION CRUD OPERATIONS
+            // LOAD LEADERBOARD
             // ============================================================
+            async function loadLeaderboard() {
+                try {
+                    const { data: users, error } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('id, username, display_name, level, experience_points, avatar_url')
+                        .order('experience_points', { ascending: false })
+                        .limit(20);
 
+                    if (error) throw new Error(error.message);
+
+                    const tbody = document.getElementById('leaderboardTableBody');
+
+                    if (!users || users.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state" style="padding:30px 20px;">
+                                        <i class="fas fa-trophy"></i>
+                                        <h3>No data yet</h3>
+                                        <p>Leaderboard will populate as users earn XP.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+
+                    tbody.innerHTML = users.map((user, index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                        return `
+                            <tr>
+                                <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
+                                <td>
+                                    <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                            ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
+                                        </div>
+                                        <div>
+                                            <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
+                                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
+                                <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Load leaderboard error:', error);
+                }
+            }
+
+            // ============================================================
+            // REFRESH LEADERBOARD
+            // ============================================================
+            document.getElementById('refreshLeaderboard').addEventListener('click', function() {
+                loadLeaderboard();
+                showToast('Leaderboard refreshed!', 'success');
+            });
+
+            // ============================================================
+            // SETTINGS SAVE
+            // ============================================================
+            document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+                showToast('Settings saved successfully!', 'success');
+            });
+
+            // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
+
+            // ============================================================
+            // ANIME CRUD OPERATIONS (Quick Implementation)
+            // ============================================================
+            document.getElementById('addAnimeBtn').addEventListener('click', function() {
+                document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-plus"></i> Add Anime';
+                document.getElementById('animeSubmitText').textContent = 'Add Anime';
+                document.getElementById('animeForm').reset();
+                document.getElementById('animeEditId').value = '';
+                document.getElementById('animeModal').classList.add('open');
+            });
+
+            document.getElementById('animeCancelBtn').addEventListener('click', function() {
+                document.getElementById('animeModal').classList.remove('open');
+            });
+
+            document.getElementById('animeModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
+                }
+            });
+
+            // Delete Anime
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.delete-anime');
+                if (target) {
+                    const animeId = target.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this anime?')) {
+                        deleteAnime(animeId);
+                    }
+                }
+            });
+
+            async function deleteAnime(animeId) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('anime_library')
+                        .delete()
+                        .eq('id', animeId);
+
+                    if (error) throw new Error(error.message);
+
+                    showToast('Anime deleted successfully!', 'success');
+                    await loadAnime();
+
+                } catch (error) {
+                    console.error('[AniVerse] Delete anime error:', error);
+                    showToast('Failed to delete anime: ' + error.message, 'error');
+                }
+            }
+
+            // Edit Anime
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.edit-anime');
+                if (target) {
+                    const animeId = target.getAttribute('data-id');
+                    editAnime(animeId);
+                }
+            });
+
+            async function editAnime(animeId) {
+                try {
+                    const { data: anime, error } = await window.AniVerse.client
+                        .from('anime_library')
+                        .select('*')
+                        .eq('id', animeId)
+                        .single();
+
+                    if (error) throw new Error(error.message);
+
+                    document.getElementById('animeModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Anime';
+                    document.getElementById('animeSubmitText').textContent = 'Update Anime';
+                    document.getElementById('animeEditId').value = anime.id;
+                    document.getElementById('animeTitle').value = anime.title_romaji || '';
+                    document.getElementById('animeEnglishTitle').value = anime.title_english || '';
+                    document.getElementById('animeNativeTitle').value = anime.title_native || '';
+                    document.getElementById('animeStatus').value = anime.status || 'airing';
+                    document.getElementById('animeEpisodes').value = anime.episodes || '';
+                    document.getElementById('animeScore').value = anime.score || '';
+                    document.getElementById('animePopularity').value = anime.popularity || '';
+                    document.getElementById('animeSynopsis').value = anime.synopsis || '';
+                    document.getElementById('animeCover').value = anime.cover_image || '';
+                    document.getElementById('animeBanner').value = anime.banner_image || '';
+                    document.getElementById('animeSeason').value = anime.season || '';
+
+                    document.getElementById('animeModal').classList.add('open');
+
+                } catch (error) {
+                    console.error('[AniVerse] Edit anime error:', error);
+                    showToast('Failed to load anime: ' + error.message, 'error');
+                }
+            }
+
+            // Submit Anime Form
+            document.getElementById('animeForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                hideToast();
+
+                const editId = document.getElementById('animeEditId').value;
+                const title = document.getElementById('animeTitle').value.trim();
+                const status = document.getElementById('animeStatus').value;
+                const episodes = parseInt(document.getElementById('animeEpisodes').value) || null;
+                const score = parseFloat(document.getElementById('animeScore').value) || null;
+                const popularity = parseInt(document.getElementById('animePopularity').value) || null;
+
+                if (!title) {
+                    showToast('Please enter an anime title.', 'error');
+                    return;
+                }
+
+                const submitBtn = document.getElementById('animeSubmitBtn');
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    const animeData = {
+                        title_romaji: title,
+                        title_english: document.getElementById('animeEnglishTitle').value.trim() || null,
+                        title_native: document.getElementById('animeNativeTitle').value.trim() || null,
+                        status: status,
+                        episodes: episodes,
+                        score: score,
+                        popularity: popularity,
+                        synopsis: document.getElementById('animeSynopsis').value.trim() || null,
+                        cover_image: document.getElementById('animeCover').value.trim() || null,
+                        banner_image: document.getElementById('animeBanner').value.trim() || null,
+                        season: document.getElementById('animeSeason').value.trim() || null
+                    };
+
+                    let result;
+
+                    if (editId) {
+                        result = await window.AniVerse.client
+                            .from('anime_library')
+                            .update(animeData)
+                            .eq('id', editId);
+                    } else {
+                        result = await window.AniVerse.client
+                            .from('anime_library')
+                            .insert(animeData);
+                    }
+
+                    if (result.error) throw new Error(result.error.message);
+
+                    showToast(`Anime ${editId ? 'updated' : 'added'} successfully!`, 'success');
+                    document.getElementById('animeModal').classList.remove('open');
+                    await loadAnime();
+
+                } catch (error) {
+                    console.error('[AniVerse] Anime submit error:', error);
+                    showToast('Failed to save anime: ' + error.message, 'error');
+                }
+
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            });
+
+            // ============================================================
+            // MISSION CRUD OPERATIONS (Quick Implementation)
+            // ============================================================
             document.getElementById('createMissionBtn').addEventListener('click', function() {
                 document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Create Mission';
                 document.getElementById('missionSubmitText').textContent = 'Create Mission';
@@ -3273,110 +3384,6 @@
             });
 
             // ============================================================
-            // LOAD LEADERBOARD
-            // ============================================================
-            async function loadLeaderboard() {
-                try {
-                    const { data: users, error } = await window.AniVerse.client
-                        .from('profiles')
-                        .select('id, username, display_name, level, experience_points, avatar_url')
-                        .order('experience_points', { ascending: false })
-                        .limit(20);
-
-                    if (error) throw new Error(error.message);
-
-                    const tbody = document.getElementById('leaderboardTableBody');
-
-                    if (!users || users.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="4">
-                                    <div class="empty-state" style="padding:30px 20px;">
-                                        <i class="fas fa-trophy"></i>
-                                        <h3>No data yet</h3>
-                                        <p>Leaderboard will populate as users earn XP.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    tbody.innerHTML = users.map((user, index) => {
-                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                        return `
-                            <tr>
-                                <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                            ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
-                                        </div>
-                                        <div>
-                                            <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
-                                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
-                                <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
-                            </tr>
-                        `;
-                    }).join('');
-
-                } catch (error) {
-                    console.error('[AniVerse] Load leaderboard error:', error);
-                }
-            }
-
-            // ============================================================
-            // REFRESH LEADERBOARD
-            // ============================================================
-            document.getElementById('refreshLeaderboard').addEventListener('click', function() {
-                loadLeaderboard();
-                showToast('Leaderboard refreshed!', 'success');
-            });
-
-            // ============================================================
-            // SETTINGS SAVE
-            // ============================================================
-            document.getElementById('saveSettingsBtn').addEventListener('click', function() {
-                showToast('Settings saved successfully!', 'success');
-            });
-
-            // ============================================================
-            // GLOBAL SEARCH
-            // ============================================================
-            const searchInput = document.getElementById('globalSearchInput');
-            const searchBtn = document.getElementById('globalSearchBtn');
-
-            function performGlobalSearch() {
-                const query = searchInput.value.trim();
-                if (query.length > 0) {
-                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
-                } else {
-                    searchInput.focus();
-                    searchInput.style.borderColor = 'var(--color-error)';
-                    setTimeout(() => {
-                        searchInput.style.borderColor = '';
-                    }, 1000);
-                }
-            }
-
-            if (searchBtn) {
-                searchBtn.addEventListener('click', performGlobalSearch);
-            }
-
-            if (searchInput) {
-                searchInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        performGlobalSearch();
-                    }
-                });
-            }
-
-            // ============================================================
             // CHECK EXISTING SESSION
             // ============================================================
             async function checkExistingSession() {
@@ -3433,7 +3440,7 @@
 
             init();
 
-            console.log('[AniVerse] Admin panel ready (Built-in Login + Popular Anime Manager)');
+            console.log('[AniVerse] Admin panel ready with Official Guild Management');
 
         })();
     </script>
