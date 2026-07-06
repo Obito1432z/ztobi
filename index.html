@@ -798,11 +798,33 @@
             color: #fff;
             margin: 0 auto var(--spacing-sm);
             box-shadow: 0 4px 24px rgba(124, 92, 252, 0.25);
+            overflow: hidden;
+        }
+
+        .guild-card .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .guild-card .official-badge {
+            display: inline-block;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            color: #fff;
+            background: var(--gradient-accent);
+            padding: 2px 14px;
+            border-radius: 100px;
+            margin-top: var(--spacing-xs);
+            border: 1px solid rgba(124, 92, 252, 0.08);
+            letter-spacing: 0.06em;
+            box-shadow: 0 2px 12px rgba(124, 92, 252, 0.2);
         }
 
         .guild-card h4 {
             font-size: var(--font-size-lg);
             font-weight: 700;
+            margin-top: var(--spacing-sm);
         }
 
         .guild-card .guild-tag {
@@ -1185,8 +1207,8 @@
                                 share, and celebrate your favorite shows with fellow enthusiasts.
                             </p>
                             <div class="hero-actions">
-                                <a href="signup.html" class="btn btn-primary" id="heroSignupBtn">
-                                    <i class="fas fa-rocket"></i> Get Started
+                                <a href="profile.html" class="btn btn-primary" id="heroProfileBtn">
+                                    <i class="fas fa-user"></i> Go to Profile
                                 </a>
                                 <a href="anime.html" class="btn btn-secondary">
                                     <i class="fas fa-play"></i> Explore Anime
@@ -1210,14 +1232,14 @@
 
                         <div class="hero-visual">
                             <div class="glass-card">
-                                <div class="badge"><i class="fas fa-star"></i> Featured</div>
+                                <div class="badge"><i class="fas fa-star"></i> Welcome</div>
                                 <div class="icon-wrap">
                                     <i class="fas fa-otter"></i>
                                 </div>
-                                <h3>Official Headquarters</h3>
-                                <p>The heart of AniVerse — join the founding guild.</p>
-                                <a href="guild.html" class="btn btn-primary" style="font-size:var(--font-size-sm); padding:8px 20px;">
-                                    <i class="fas fa-flag"></i> Visit Guild
+                                <h3>Join the Community</h3>
+                                <p>Connect with fellow anime fans, create guilds, and share your passion.</p>
+                                <a href="signup.html" class="btn btn-primary" style="font-size:var(--font-size-sm); padding:8px 20px;">
+                                    <i class="fas fa-rocket"></i> Get Started
                                 </a>
                             </div>
                         </div>
@@ -1248,7 +1270,7 @@
             </section>
 
             <!-- ============================================================
-            GUILDS
+            GUILDS - REMOVED OFFICIAL HEADQUARTERS, NOW SHOWS ALL GUILDS
             ============================================================ -->
             <section class="guilds-section" aria-label="Guilds">
                 <div class="container">
@@ -1258,6 +1280,9 @@
                             <h2 class="section-title">Community Guilds</h2>
                             <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Find your people and join the conversation.</p>
                         </div>
+                        <a href="guilds.html" class="btn btn-secondary" style="padding:8px 20px;">
+                            View All <i class="fas fa-arrow-right" style="margin-left:6px;"></i>
+                        </a>
                     </div>
 
                     <div class="guilds-grid" id="guildsGrid">
@@ -1343,7 +1368,7 @@
                     const headerLevel = document.getElementById('headerLevel');
                     const headerLoginBtn = document.getElementById('headerLoginBtn');
                     const headerSignupBtn = document.getElementById('headerSignupBtn');
-                    const heroSignupBtn = document.getElementById('heroSignupBtn');
+                    const heroProfileBtn = document.getElementById('heroProfileBtn');
 
                     // Sidebar elements
                     const loginLink = document.getElementById('loginLink');
@@ -1361,8 +1386,8 @@
                         headerLevel.classList.add('visible');
                         headerLoginBtn.classList.remove('visible');
                         headerSignupBtn.classList.remove('visible');
-                        heroSignupBtn.textContent = 'Go to Profile';
-                        heroSignupBtn.href = 'profile.html';
+                        heroProfileBtn.textContent = 'Go to Profile';
+                        heroProfileBtn.href = 'profile.html';
 
                         loginLink.classList.add('hidden');
                         signupLink.classList.add('hidden');
@@ -1391,8 +1416,8 @@
                         headerLevel.classList.remove('visible');
                         headerLoginBtn.classList.add('visible');
                         headerSignupBtn.classList.add('visible');
-                        heroSignupBtn.textContent = 'Get Started';
-                        heroSignupBtn.href = 'signup.html';
+                        heroProfileBtn.textContent = 'Get Started';
+                        heroProfileBtn.href = 'signup.html';
 
                         loginLink.classList.remove('hidden');
                         signupLink.classList.remove('hidden');
@@ -1464,20 +1489,22 @@
             }
 
             // ============================================================
-            // LOAD OFFICIAL HEADQUARTERS GUILD
+            // LOAD GUILDS (SHOWS ALL GUILDS, INCLUDING OFFICIAL)
             // ============================================================
-            async function loadOfficialGuild() {
+            async function loadGuilds() {
                 try {
-                    const { data: guild, error } = await window.AniVerse.client
+                    const { data: guilds, error } = await window.AniVerse.client
                         .from('guilds')
                         .select('*')
-                        .eq('is_official', true)
-                        .maybeSingle();
+                        .is('deleted_at', null)
+                        .order('is_official', { ascending: false })
+                        .order('created_at', { ascending: false })
+                        .limit(4);
 
                     const guildsGrid = document.getElementById('guildsGrid');
 
                     if (error) {
-                        console.error('[AniVerse] Load official guild error:', error);
+                        console.error('[AniVerse] Load guilds error:', error);
                         guildsGrid.innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-users-slash"></i>
@@ -1488,27 +1515,7 @@
                         return;
                     }
 
-                    if (guild) {
-                        guildsGrid.innerHTML = `
-                            <div class="guild-card">
-                                <div class="avatar">${guild.name ? guild.name.charAt(0).toUpperCase() : 'H'}</div>
-                                <h4>${guild.name || 'Official Headquarters'}</h4>
-                                <span class="guild-tag"><i class="fas fa-crown"></i> Founding</span>
-                                <p>${guild.description || 'The original guild of AniVerse. Join the leaders.'}</p>
-                                <a href="guild.html?id=${guild.id}" class="btn btn-primary" style="font-size:var(--font-size-sm); padding:8px 20px;">
-                                    <i class="fas fa-flag"></i> View
-                                </a>
-                            </div>
-                            <div class="empty-state">
-                                <i class="fas fa-users-slash"></i>
-                                <h3>No other guilds yet</h3>
-                                <p>Be the first to create a new guild!</p>
-                                <a href="create-guild.html" class="btn btn-secondary" style="margin-top:var(--spacing-md); padding:8px 24px;">
-                                    <i class="fas fa-plus"></i> Create Guild
-                                </a>
-                            </div>
-                        `;
-                    } else {
+                    if (!guilds || guilds.length === 0) {
                         guildsGrid.innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-users-slash"></i>
@@ -1519,10 +1526,31 @@
                                 </a>
                             </div>
                         `;
+                        return;
                     }
 
+                    guildsGrid.innerHTML = guilds.map(guild => {
+                        const initial = guild.name ? guild.name.charAt(0).toUpperCase() : 'G';
+                        const isOfficial = guild.is_official;
+
+                        return `
+                            <div class="guild-card">
+                                <div class="avatar">
+                                    ${guild.logo_url ? `<img src="${guild.logo_url}" alt="${guild.name}" />` : initial}
+                                </div>
+                                ${isOfficial ? `<span class="official-badge"><i class="fas fa-crown"></i> Official</span>` : ''}
+                                <h4>${guild.name || 'Unnamed Guild'}</h4>
+                                <span class="guild-tag">${guild.category || 'General'}</span>
+                                <p>${guild.description ? guild.description.substring(0, 80) + '...' : 'Join this amazing guild!'}</p>
+                                <a href="guild.html?id=${guild.id}" class="btn btn-primary" style="font-size:var(--font-size-sm); padding:8px 20px;">
+                                    <i class="fas fa-flag"></i> View
+                                </a>
+                            </div>
+                        `;
+                    }).join('');
+
                 } catch (error) {
-                    console.error('[AniVerse] Load official guild error:', error);
+                    console.error('[AniVerse] Load guilds error:', error);
                 }
             }
 
@@ -1546,9 +1574,6 @@
                                 <i class="fas fa-film"></i>
                                 <h3>No anime in library yet</h3>
                                 <p>Anime data will appear here once the library is populated.</p>
-                                <button class="btn btn-secondary" style="margin-top:var(--spacing-md);" onclick="alert('Admin can add anime through the admin panel.')">
-                                    <i class="fas fa-plus"></i> Add Anime
-                                </button>
                             </div>
                         `;
                         return;
@@ -1665,10 +1690,8 @@
                     return;
                 }
 
-                // Check for hash fragment from email confirmation
-                // Supabase automatically handles this, but we need to ensure UI updates
                 await updateAuthUI();
-                await loadOfficialGuild();
+                await loadGuilds();
                 await loadTrendingAnime();
 
                 // Listen to auth changes
@@ -1676,19 +1699,17 @@
                     console.log('[AniVerse] Auth state changed:', event);
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
                         await updateAuthUI();
-                        await loadOfficialGuild();
+                        await loadGuilds();
                         await loadTrendingAnime();
                     }
                 });
 
                 // Handle case where page loads with session from URL (email confirmation)
-                // Check if there's a session in the URL hash
                 if (window.location.hash && window.location.hash.includes('access_token')) {
                     console.log('[AniVerse] Detected access token in URL, waiting for session...');
-                    // Wait a bit for Supabase to process the session
                     setTimeout(async () => {
                         await updateAuthUI();
-                        await loadOfficialGuild();
+                        await loadGuilds();
                         await loadTrendingAnime();
                     }, 1000);
                 }
@@ -1696,7 +1717,7 @@
 
             init();
 
-            console.log('[AniVerse] Index page loaded (Supabase integrated)');
+            console.log('[AniVerse] Index page loaded (Official Headquarters removed from hero)');
 
         })();
     </script>
