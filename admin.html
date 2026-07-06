@@ -603,13 +603,201 @@
         }
 
         /* ============================================================
-                   ADMIN LAYOUT
+                   ADMIN LOGIN SECTION
+                   ============================================================ */
+        .admin-login-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            padding: 40px 20px;
+        }
+
+        .admin-login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: var(--shadow-glow);
+            backdrop-filter: blur(12px);
+            transition: var(--transition-smooth);
+        }
+
+        .admin-login-box:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+        }
+
+        .admin-login-box .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .admin-login-box .login-header .shield-icon {
+            font-size: 3rem;
+            color: var(--accent-1);
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .admin-login-box .login-header h2 {
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-login-box .login-header p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin-top: 4px;
+        }
+
+        .admin-login-box .login-header .admin-badge {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.12);
+            color: var(--accent-1);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 14px;
+            border-radius: 100px;
+            letter-spacing: 0.06em;
+            border: 1px solid rgba(124, 92, 252, 0.15);
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        .admin-login-box .form-group {
+            margin-bottom: 20px;
+        }
+
+        .admin-login-box .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .admin-login-box .form-group label .required {
+            color: var(--color-error);
+            margin-left: 2px;
+        }
+
+        .admin-login-box .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .admin-login-box .input-wrapper:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .admin-login-box .input-wrapper .icon {
+            padding: 0 0 0 16px;
+            color: var(--text-muted);
+            font-size: var(--font-size-md);
+            flex-shrink: 0;
+        }
+
+        .admin-login-box .input-wrapper:focus-within .icon {
+            color: var(--accent-1);
+        }
+
+        .admin-login-box .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .admin-login-box .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .admin-login-box .input-wrapper .toggle-pwd {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0 16px 0 0;
+            cursor: pointer;
+            font-size: var(--font-size-md);
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .admin-login-box .input-wrapper .toggle-pwd:hover {
+            color: var(--text-secondary);
+        }
+
+        .admin-login-box .input-wrapper.error {
+            border-color: var(--color-error);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .admin-login-box .form-error {
+            display: none;
+            font-size: var(--font-size-xs);
+            color: var(--color-error);
+            margin-top: 4px;
+            font-weight: 500;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .admin-login-box .form-error.show {
+            display: flex;
+        }
+
+        .admin-login-box .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: var(--font-size-md);
+        }
+
+        .admin-login-box .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .admin-login-box .login-footer a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .admin-login-box .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+                   ADMIN LAYOUT (visible after login)
                    ============================================================ */
         .admin-layout {
-            display: grid;
+            display: none;
             grid-template-columns: 220px 1fr;
             gap: var(--spacing-xl);
             align-items: start;
+        }
+
+        .admin-layout.active {
+            display: grid;
         }
 
         /* ============================================================
@@ -1095,6 +1283,10 @@
                 padding: var(--spacing-md);
             }
 
+            .admin-login-box {
+                padding: 32px 24px;
+            }
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: var(--spacing-sm);
@@ -1145,6 +1337,10 @@
 
             .modal-box .modal-actions .btn {
                 min-width: 80px;
+            }
+
+            .admin-login-box {
+                padding: 24px 16px;
             }
         }
     </style>
@@ -1263,11 +1459,6 @@
                         <h1 class="section-title">Admin Panel</h1>
                         <p style="color:var(--text-secondary); font-size:var(--font-size-sm); margin-top:4px;">Manage users, guilds, missions, and community settings.</p>
                     </div>
-                    <div>
-                        <a href="admin-login.html" class="btn btn-secondary" style="padding:8px 16px; font-size:var(--font-size-sm);">
-                            <i class="fas fa-sign-in-alt"></i> Admin Login
-                        </a>
-                    </div>
                 </div>
 
                 <!-- Toast -->
@@ -1277,746 +1468,1119 @@
                 </div>
 
                 <!-- ============================================================
-                ADMIN LAYOUT
+                ADMIN LOGIN SECTION (visible when not logged in as admin)
                 ============================================================ -->
-                <div class="admin-layout">
-
-                    <!-- Admin Nav -->
-                    <nav class="admin-nav" aria-label="Admin navigation">
-                        <a href="#" class="nav-link active" data-panel="dashboard">
-                            <i class="fas fa-chart-pie"></i> Dashboard
-                        </a>
-                        <a href="#" class="nav-link" data-panel="users">
-                            <i class="fas fa-users"></i> Users
-                        </a>
-                        <a href="#" class="nav-link" data-panel="guilds">
-                            <i class="fas fa-users-cog"></i> Guilds
-                        </a>
-                        <a href="#" class="nav-link" data-panel="posts">
-                            <i class="fas fa-file-alt"></i> Posts
-                        </a>
-                        <a href="#" class="nav-link" data-panel="missions">
-                            <i class="fas fa-tasks"></i> Missions
-                            <span class="badge" id="missionsBadge">0</span>
-                        </a>
-                        <a href="#" class="nav-link" data-panel="leaderboard">
-                            <i class="fas fa-trophy"></i> Leaderboard
-                        </a>
-                        <a href="#" class="nav-link" data-panel="settings">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                    </nav>
-
-                    <!-- ============================================================
-                    PANEL: DASHBOARD
-                    ============================================================ -->
-                    <div class="admin-panel active" id="panel-dashboard">
-
-                        <!-- Stats -->
-                        <div class="stats-grid" id="dashboardStats">
-                            <div class="stat-card">
-                                <div class="stat-number skeleton"></div>
-                                <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number skeleton"></div>
-                                <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number skeleton"></div>
-                                <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number skeleton"></div>
-                                <div class="stat-label"><i class="fas fa-tasks"></i> Missions</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number skeleton"></div>
-                                <div class="stat-label"><i class="fas fa-trophy"></i> Total XP Awarded</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number skeleton"></div>
-                                <div class="stat-label"><i class="fas fa-rocket"></i> Active Users</div>
-                            </div>
+                <div id="adminLoginSection" class="admin-login-section">
+                    <div class="admin-login-box">
+                        <div class="login-header">
+                            <div class="shield-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h2>Admin Login</h2>
+                            <p>Secure access for administrators only</p>
+                            <div class="admin-badge"><i class="fas fa-lock"></i> Restricted Access</div>
                         </div>
 
-                        <!-- Recent Activity -->
-                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
-                            <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
-                                <i class="fas fa-clock" style="color:var(--accent-1);"></i> Recent Activity
-                            </h3>
-                            <div id="recentActivity">
-                                <div class="empty-state" style="padding:30px 20px;">
-                                    <i class="fas fa-clock"></i>
-                                    <h3>No recent activity</h3>
-                                    <p>Community activity will appear here.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ============================================================
-                    PANEL: USERS
-                    ============================================================ -->
-                    <div class="admin-panel" id="panel-users">
-                        <div class="section-header">
-                            <div>
-                                <span class="section-tag"><i class="fas fa-users"></i> Management</span>
-                                <h2 class="section-title">Users</h2>
-                            </div>
-                        </div>
-
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Level</th>
-                                        <th>XP</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                        <th>Joined</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody">
-                                    <!-- Loaded by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ============================================================
-                    PANEL: GUILDS
-                    ============================================================ -->
-                    <div class="admin-panel" id="panel-guilds">
-                        <div class="section-header">
-                            <div>
-                                <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
-                                <h2 class="section-title">Guilds</h2>
-                            </div>
-                        </div>
-
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Guild</th>
-                                        <th>Category</th>
-                                        <th>Members</th>
-                                        <th>Level</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="guildsTableBody">
-                                    <!-- Loaded by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ============================================================
-                    PANEL: POSTS
-                    ============================================================ -->
-                    <div class="admin-panel" id="panel-posts">
-                        <div class="section-header">
-                            <div>
-                                <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
-                                <h2 class="section-title">Posts</h2>
-                            </div>
-                        </div>
-
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th>Guild</th>
-                                        <th>Likes</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="postsTableBody">
-                                    <!-- Loaded by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ============================================================
-                    PANEL: MISSIONS (COMPLETE XP SYSTEM)
-                    ============================================================ -->
-                    <div class="admin-panel" id="panel-missions">
-                        <div class="section-header">
-                            <div>
-                                <span class="section-tag"><i class="fas fa-tasks"></i> Gamification</span>
-                                <h2 class="section-title">Missions & XP Management</h2>
-                            </div>
-                            <button class="btn btn-primary" id="createMissionBtn">
-                                <i class="fas fa-plus"></i> Create Mission
-                            </button>
-                        </div>
-
-                        <!-- Mission Stats -->
-                        <div class="stats-grid" id="missionStats">
-                            <div class="stat-card">
-                                <div class="stat-number" id="totalMissions">0</div>
-                                <div class="stat-label">Total Missions</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number" id="activeMissions">0</div>
-                                <div class="stat-label">Active Missions</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number" id="totalXPAwarded">0</div>
-                                <div class="stat-label">Total XP Awarded</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number" id="completedMissions">0</div>
-                                <div class="stat-label">Completed by Users</div>
-                            </div>
-                        </div>
-
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Category</th>
-                                        <th>XP Reward</th>
-                                        <th>Auto Complete</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="missionsTableBody">
-                                    <!-- Loaded by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ============================================================
-                    PANEL: LEADERBOARD
-                    ============================================================ -->
-                    <div class="admin-panel" id="panel-leaderboard">
-                        <div class="section-header">
-                            <div>
-                                <span class="section-tag"><i class="fas fa-trophy"></i> Rankings</span>
-                                <h2 class="section-title">XP Leaderboard</h2>
-                            </div>
-                            <button class="btn btn-secondary" id="refreshLeaderboard">
-                                <i class="fas fa-sync"></i> Refresh
-                            </button>
-                        </div>
-
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>User</th>
-                                        <th>Level</th>
-                                        <th>XP</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="leaderboardTableBody">
-                                    <!-- Loaded by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ============================================================
-                    PANEL: SETTINGS
-                    ============================================================ -->
-                    <div class="admin-panel" id="panel-settings">
-                        <div class="section-header">
-                            <div>
-                                <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
-                                <h2 class="section-title">Website Settings</h2>
-                            </div>
-                        </div>
-
-                        <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
+                        <!-- Login Form -->
+                        <form id="adminLoginForm" novalidate>
                             <div class="form-group">
-                                <label for="siteName">Site Name</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                                <label for="adminEmail">Email <span class="required">*</span></label>
+                                <div class="input-wrapper" id="loginEmailWrapper">
+                                    <span class="icon"><i class="fas fa-envelope"></i></span>
+                                    <input
+                                    type="email"
+                                    id="adminEmail"
+                                    placeholder="Enter your admin email"
+                                    autocomplete="email"
+                                    required
+                                    />
+                                </div>
+                                <div class="form-error" id="loginEmailError">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please enter a valid email</span>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="siteTagline">Tagline</label>
-                                <div class="input-wrapper">
-                                    <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
-                                </div>
+                                <label for="adminPassword">Password <span class="required">*</span></label>
+                                <div class="input-wrapper" id="loginPasswordWrapper">
+                                    <span class="icon"><i class="fas fa-lock"></i></span>
+                                    <input
+                                    type="password"
+                                    id="adminPassword"
+                                    placeholder="Enter your password"
+                                    autocomplete="current-password"
+                                    required
+                                    />
+                                    <button
+                                    type="button"
+                                    class="toggle-pwd"
+                                    id="togglePassword"
+                                    aria-label="Toggle password visibility"
+                                    tabindex="-1"
+                                    >
+                                    <i class="fas fa-eye" id="pwdIcon"></i>
+                                </button>
                             </div>
-
-                            <div class="form-group">
-                                <label for="maintenanceMode">Maintenance Mode</label>
-                                <div class="input-wrapper">
-                                    <select id="maintenanceMode">
-                                        <option value="off" selected>Off</option>
-                                        <option value="on">On</option>
-                                    </select>
-                                </div>
+                            <div class="form-error" id="loginPasswordError">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Please enter your password</span>
                             </div>
+                        </div>
 
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label for="registrationMode">Registration</label>
-                                <div class="input-wrapper">
-                                    <select id="registrationMode">
-                                        <option value="open" selected>Open</option>
-                                        <option value="closed">Closed</option>
-                                        <option value="invite">Invite Only</option>
-                                    </select>
-                                </div>
-                            </div>
+                        <button type="submit" class="btn btn-primary" id="adminLoginBtn">
+                            <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Login to Admin</span>
+                            <span class="spinner"></span>
+                        </button>
 
-                            <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn">
-                                <i class="fas fa-save"></i> Save Settings
-                            </button>
+                        <div class="login-footer">
+                            <p>Only authorized administrators can access this panel.</p>
+                            <p style="margin-top:4px;">
+                                <a href="index.html"><i class="fas fa-home"></i> Home</a> &middot;
+                                <a href="login.html">User Login</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ============================================================
+            ADMIN LAYOUT (visible after successful admin login)
+            ============================================================ -->
+            <div class="admin-layout" id="adminLayout">
+
+                <!-- Admin Nav -->
+                <nav class="admin-nav" aria-label="Admin navigation">
+                    <a href="#" class="nav-link active" data-panel="dashboard">
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </a>
+                    <a href="#" class="nav-link" data-panel="users">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="#" class="nav-link" data-panel="guilds">
+                        <i class="fas fa-users-cog"></i> Guilds
+                    </a>
+                    <a href="#" class="nav-link" data-panel="posts">
+                        <i class="fas fa-file-alt"></i> Posts
+                    </a>
+                    <a href="#" class="nav-link" data-panel="missions">
+                        <i class="fas fa-tasks"></i> Missions
+                        <span class="badge" id="missionsBadge">0</span>
+                    </a>
+                    <a href="#" class="nav-link" data-panel="leaderboard">
+                        <i class="fas fa-trophy"></i> Leaderboard
+                    </a>
+                    <a href="#" class="nav-link" data-panel="settings">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </nav>
+
+                <!-- ============================================================
+                PANEL: DASHBOARD
+                ============================================================ -->
+                <div class="admin-panel active" id="panel-dashboard">
+
+                    <!-- Stats -->
+                    <div class="stats-grid" id="dashboardStats">
+                        <div class="stat-card">
+                            <div class="stat-number skeleton"></div>
+                            <div class="stat-label"><i class="fas fa-users"></i> Total Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number skeleton"></div>
+                            <div class="stat-label"><i class="fas fa-users-cog"></i> Guilds</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number skeleton"></div>
+                            <div class="stat-label"><i class="fas fa-file-alt"></i> Posts</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number skeleton"></div>
+                            <div class="stat-label"><i class="fas fa-tasks"></i> Missions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number skeleton"></div>
+                            <div class="stat-label"><i class="fas fa-trophy"></i> Total XP Awarded</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number skeleton"></div>
+                            <div class="stat-label"><i class="fas fa-rocket"></i> Active Users</div>
                         </div>
                     </div>
 
+                    <!-- Recent Activity -->
+                    <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg);">
+                        <h3 style="font-weight:600; margin-bottom:var(--spacing-md);">
+                            <i class="fas fa-clock" style="color:var(--accent-1);"></i> Recent Activity
+                        </h3>
+                        <div id="recentActivity">
+                            <div class="empty-state" style="padding:30px 20px;">
+                                <i class="fas fa-clock"></i>
+                                <h3>No recent activity</h3>
+                                <p>Community activity will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: USERS
+                ============================================================ -->
+                <div class="admin-panel" id="panel-users">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-users"></i> Management</span>
+                            <h2 class="section-title">Users</h2>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Level</th>
+                                    <th>XP</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: GUILDS
+                ============================================================ -->
+                <div class="admin-panel" id="panel-guilds">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-users-cog"></i> Communities</span>
+                            <h2 class="section-title">Guilds</h2>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Guild</th>
+                                    <th>Category</th>
+                                    <th>Members</th>
+                                    <th>Level</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guildsTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: POSTS
+                ============================================================ -->
+                <div class="admin-panel" id="panel-posts">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-file-alt"></i> Content</span>
+                            <h2 class="section-title">Posts</h2>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Guild</th>
+                                    <th>Likes</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postsTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: MISSIONS (COMPLETE XP SYSTEM)
+                ============================================================ -->
+                <div class="admin-panel" id="panel-missions">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-tasks"></i> Gamification</span>
+                            <h2 class="section-title">Missions & XP Management</h2>
+                        </div>
+                        <button class="btn btn-primary" id="createMissionBtn">
+                            <i class="fas fa-plus"></i> Create Mission
+                        </button>
+                    </div>
+
+                    <!-- Mission Stats -->
+                    <div class="stats-grid" id="missionStats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalMissions">0</div>
+                            <div class="stat-label">Total Missions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="activeMissions">0</div>
+                            <div class="stat-label">Active Missions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalXPAwarded">0</div>
+                            <div class="stat-label">Total XP Awarded</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completedMissions">0</div>
+                            <div class="stat-label">Completed by Users</div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>XP Reward</th>
+                                    <th>Auto Complete</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="missionsTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: LEADERBOARD
+                ============================================================ -->
+                <div class="admin-panel" id="panel-leaderboard">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-trophy"></i> Rankings</span>
+                            <h2 class="section-title">XP Leaderboard</h2>
+                        </div>
+                        <button class="btn btn-secondary" id="refreshLeaderboard">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User</th>
+                                    <th>Level</th>
+                                    <th>XP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardTableBody">
+                                <!-- Loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                PANEL: SETTINGS
+                ============================================================ -->
+                <div class="admin-panel" id="panel-settings">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-cog"></i> Configuration</span>
+                            <h2 class="section-title">Website Settings</h2>
+                        </div>
+                    </div>
+
+                    <div style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-md); padding:var(--spacing-lg); max-width:600px;">
+                        <div class="form-group">
+                            <label for="siteName">Site Name</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="siteTagline">Tagline</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="siteTagline" placeholder="Anime Community" value="Anime Community" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maintenanceMode">Maintenance Mode</label>
+                            <div class="input-wrapper">
+                                <select id="maintenanceMode">
+                                    <option value="off" selected>Off</option>
+                                    <option value="on">On</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label for="registrationMode">Registration</label>
+                            <div class="input-wrapper">
+                                <select id="registrationMode">
+                                    <option value="open" selected>Open</option>
+                                    <option value="closed">Closed</option>
+                                    <option value="invite">Invite Only</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" style="margin-top:var(--spacing-lg);" id="saveSettingsBtn">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
                 </div>
 
             </div>
 
         </div>
+
     </div>
+</div>
 
-    <!-- ============================================================
-    MODAL: CREATE/EDIT MISSION
-    ============================================================ -->
-    <div class="modal-overlay" id="missionModal">
-        <div class="modal-box">
-            <h3 class="modal-title" id="missionModalTitle"><i class="fas fa-plus"></i> Create Mission</h3>
-            <form id="missionForm">
-                <div class="form-group">
-                    <label for="missionTitle">Title <span class="required">*</span></label>
-                    <div class="input-wrapper">
-                        <input type="text" id="missionTitle" placeholder="Enter mission title" required />
-                    </div>
+<!-- ============================================================
+MODAL: CREATE/EDIT MISSION
+============================================================ -->
+<div class="modal-overlay" id="missionModal">
+    <div class="modal-box">
+        <h3 class="modal-title" id="missionModalTitle"><i class="fas fa-plus"></i> Create Mission</h3>
+        <form id="missionForm">
+            <div class="form-group">
+                <label for="missionTitle">Title <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <input type="text" id="missionTitle" placeholder="Enter mission title" required />
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="missionDescription">Description <span class="required">*</span></label>
-                    <div class="input-wrapper">
-                        <textarea id="missionDescription" placeholder="Describe the mission" required></textarea>
-                    </div>
+            <div class="form-group">
+                <label for="missionDescription">Description <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <textarea id="missionDescription" placeholder="Describe the mission" required></textarea>
                 </div>
+            </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="missionCategory">Category <span class="required">*</span></label>
-                        <div class="input-wrapper">
-                            <select id="missionCategory" required>
-                                <option value="account">Account</option>
-                                <option value="guild">Guild</option>
-                                <option value="friends">Friends</option>
-                                <option value="social">Social</option>
-                                <option value="daily">Daily</option>
-                                <option value="special">Special</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="missionXPReward">XP Reward <span class="required">*</span></label>
-                        <div class="input-wrapper">
-                            <input type="number" id="missionXPReward" placeholder="10" min="1" required />
-                        </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="missionCategory">Category <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <select id="missionCategory" required>
+                            <option value="account">Account</option>
+                            <option value="guild">Guild</option>
+                            <option value="friends">Friends</option>
+                            <option value="social">Social</option>
+                            <option value="daily">Daily</option>
+                            <option value="special">Special</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="missionAutoComplete" checked />
-                        Auto Complete (detects completion automatically)
-                    </label>
-                </div>
-
-                <div class="form-group" id="criteriaGroup" style="display:none;">
-                    <label for="missionCriteria">Completion Criteria (JSON)</label>
+                    <label for="missionXPReward">XP Reward <span class="required">*</span></label>
                     <div class="input-wrapper">
-                        <input type="text" id="missionCriteria" placeholder='{"action": "action_name", "count": 10}' />
-                    </div>
-                    <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">
-                        Example: {"action": "friend_count", "count": 10}
+                        <input type="number" id="missionXPReward" placeholder="10" min="1" required />
                     </div>
                 </div>
+            </div>
 
-                <input type="hidden" id="missionEditId" />
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="missionAutoComplete" checked />
+                    Auto Complete (detects completion automatically)
+                </label>
+            </div>
 
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary" id="missionSubmitBtn">
-                        <i class="fas fa-save"></i> <span id="missionSubmitText">Create Mission</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="missionCancelBtn">Cancel</button>
+            <div class="form-group" id="criteriaGroup" style="display:none;">
+                <label for="missionCriteria">Completion Criteria (JSON)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="missionCriteria" placeholder='{"action": "action_name", "count": 10}' />
                 </div>
-            </form>
-        </div>
+                <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">
+                    Example: {"action": "friend_count", "count": 10}
+                </div>
+            </div>
+
+            <input type="hidden" id="missionEditId" />
+
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary" id="missionSubmitBtn">
+                    <i class="fas fa-save"></i> <span id="missionSubmitText">Create Mission</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="missionCancelBtn">Cancel</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- ============================================================
-    JAVASCRIPT - COMPLETE ADMIN PANEL
-    ============================================================ -->
-    <script>
-        (function() {
-            'use strict';
+<!-- ============================================================
+JAVASCRIPT - COMPLETE ADMIN PANEL WITH BUILT-IN LOGIN
+============================================================ -->
+<script>
+    (function() {
+        'use strict';
 
-            // ============================================================
-            // AUTH STATE
-            // ============================================================
-            let currentUser = null;
-            let currentProfile = null;
-            let isAdmin = false;
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const loginSection = document.getElementById('adminLoginSection');
+        const adminLayout = document.getElementById('adminLayout');
+        const loginForm = document.getElementById('adminLoginForm');
+        const loginBtn = document.getElementById('adminLoginBtn');
+        const emailInput = document.getElementById('adminEmail');
+        const passwordInput = document.getElementById('adminPassword');
+        const toast = document.getElementById('adminToast');
+        const toastMsg = document.getElementById('toastMessage');
 
-            // ============================================================
-            // UPDATE AUTH UI & CHECK ADMIN ACCESS
-            // ============================================================
-            async function checkAdminAccess() {
-                try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                        setTimeout(checkAdminAccess, 300);
-                        return;
-                    }
+        // ============================================================
+        // TOAST HELPER
+        // ============================================================
+        function showToast(message, type) {
+            toast.className = 'toast show ' + (type || 'success');
+            toastMsg.textContent = message;
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(function() {
+                toast.classList.remove('show');
+            }, 4000);
+        }
 
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
-                    currentUser = user;
-                    currentProfile = profile;
+        function hideToast() {
+            toast.classList.remove('show');
+            clearTimeout(toast._hideTimer);
+        }
 
-                    const isLoggedIn = !!(user && profile);
+        // ============================================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================================
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            document.getElementById('pwdIcon').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
 
-                    // Update sidebar
-                    const loginLink = document.getElementById('loginLink');
-                    const signupLink = document.getElementById('signupLink');
-                    const profileLink = document.getElementById('profileLink');
-                    const settingsLink = document.getElementById('settingsLink');
-                    const logoutLink = document.getElementById('logoutLink');
-                    const adminPanelLink = document.querySelector('.nav-item.admin-panel');
+        // ============================================================
+        // VALIDATION
+        // ============================================================
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const wrapper = document.getElementById('loginEmailWrapper');
+            const error = document.getElementById('loginEmailError');
+            if (!re.test(val)) {
+                wrapper.classList.add('error');
+                error.classList.add('show');
+                return false;
+            }
+            wrapper.classList.remove('error');
+            error.classList.remove('show');
+            return true;
+        }
 
-                    // Update header
-                    const headerAvatar = document.getElementById('headerAvatar');
-                    const headerLevel = document.getElementById('headerLevel');
-                    const headerLoginBtn = document.getElementById('headerLoginBtn');
-                    const headerSignupBtn = document.getElementById('headerSignupBtn');
+        function validatePassword() {
+            const val = passwordInput.value;
+            const wrapper = document.getElementById('loginPasswordWrapper');
+            const error = document.getElementById('loginPasswordError');
+            if (val.length < 6) {
+                wrapper.classList.add('error');
+                error.classList.add('show');
+                return false;
+            }
+            wrapper.classList.remove('error');
+            error.classList.remove('show');
+            return true;
+        }
 
-                    if (isLoggedIn && profile) {
-                        const displayName = profile.display_name || user.email || 'User';
+        emailInput.addEventListener('blur', validateEmail);
+        emailInput.addEventListener('input', function() {
+            if (document.getElementById('loginEmailWrapper').classList.contains('error')) validateEmail();
+        });
 
-                        loginLink.style.display = 'none';
-                        signupLink.style.display = 'none';
-                        profileLink.style.display = 'flex';
-                        settingsLink.style.display = 'flex';
-                        logoutLink.style.display = 'flex';
+        passwordInput.addEventListener('blur', validatePassword);
+        passwordInput.addEventListener('input', function() {
+            if (document.getElementById('loginPasswordWrapper').classList.contains('error')) validatePassword();
+        });
 
-                        if (headerAvatar) {
-                            headerAvatar.classList.add('visible');
-                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
-                            if (profile.avatar_url) {
-                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
-                                headerAvatar.style.backgroundSize = 'cover';
-                                headerAvatar.style.backgroundPosition = 'center';
-                                headerAvatar.textContent = '';
-                            }
-                        }
-                        if (headerLevel) {
-                            headerLevel.classList.add('visible');
-                            headerLevel.textContent = `Lv.${profile.level || 0}`;
-                        }
-                        headerLoginBtn.classList.remove('visible');
-                        headerSignupBtn.classList.remove('visible');
+        // ============================================================
+        // ADMIN LOGIN
+        // ============================================================
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideToast();
 
-                        // Check if user is admin
-                        const role = user.user_metadata?.role || profile.role || 'user';
-                        isAdmin = role === 'admin' || role === 'moderator';
+            const isEmailValid = validateEmail();
+            const isPwdValid = validatePassword();
 
-                        if (adminPanelLink) {
-                            if (isAdmin) {
-                                adminPanelLink.classList.add('visible');
-                            } else {
-                                adminPanelLink.classList.remove('visible');
-                            }
-                        }
+            if (!isEmailValid || !isPwdValid) {
+                showToast('Please fix the errors above.', 'error');
+                return;
+            }
 
-                        if (isAdmin) {
-                            await loadAllData();
-                            document.querySelector('.admin-layout').style.display = 'grid';
-                            document.getElementById('accessDenied')?.remove();
-                        } else {
-                            showAccessDenied();
-                        }
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
-                    } else {
-                        loginLink.style.display = 'flex';
-                        signupLink.style.display = 'flex';
-                        profileLink.style.display = 'none';
-                        settingsLink.style.display = 'none';
-                        logoutLink.style.display = 'none';
-                        headerAvatar.classList.remove('visible');
-                        headerLevel.classList.remove('visible');
-                        headerLoginBtn.classList.add('visible');
-                        headerSignupBtn.classList.add('visible');
-                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
-                        showAccessDenied();
-                    }
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
 
-                } catch (error) {
-                    console.error('[AniVerse] Admin access check error:', error);
-                    showAccessDenied();
+            try {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    throw new Error('Supabase client not initialized.');
                 }
+
+                console.log('[Admin] Attempting login for:', email);
+
+                // Step 1: Login
+                const result = await window.AniVerse.auth.signIn({ email, password });
+
+                if (result.error) {
+                    showToast(result.error, 'error');
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    return;
+                }
+
+                if (!result.user) {
+                    showToast('Login failed. Please try again.', 'error');
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    return;
+                }
+
+                // Step 2: Check if user is admin
+                const { user } = result;
+                
+                // Get profile to check role
+                const { data: profile, error: profileError } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                const role = profile?.role || user.user_metadata?.role || 'user';
+
+                if (role !== 'admin' && role !== 'moderator') {
+                    showToast('Access denied. You do not have admin privileges.', 'error');
+                    await window.AniVerse.auth.signOut();
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    return;
+                }
+
+                console.log('[Admin] Login successful, role:', role);
+                showToast('Welcome Admin! Loading panel...', 'success');
+
+                // Hide login, show admin layout
+                loginSection.style.display = 'none';
+                adminLayout.classList.add('active');
+
+                // Load admin data
+                await loadAllData();
+
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+
+            } catch (error) {
+                console.error('[Admin] Login error:', error);
+                showToast('An unexpected error occurred: ' + error.message, 'error');
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
             }
+        });
 
-            // ============================================================
-            // SHOW ACCESS DENIED
-            // ============================================================
-            function showAccessDenied() {
-                const layout = document.querySelector('.admin-layout');
-                layout.innerHTML = `
-                    <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
-                        <i class="fas fa-shield-alt" style="font-size:4rem; color:var(--color-error); opacity:0.3; display:block; margin-bottom:var(--spacing-lg);"></i>
-                        <h2 style="margin-bottom:var(--spacing-sm);">Access Denied</h2>
-                        <p style="color:var(--text-secondary); margin-bottom:var(--spacing-lg);">You do not have permission to access the Admin Panel.</p>
-                        <div style="display:flex; gap:var(--spacing-sm); justify-content:center; flex-wrap:wrap;">
-                            <a href="admin-login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Admin Login</a>
-                            <a href="index.html" class="btn btn-secondary"><i class="fas fa-home"></i> Return to Home</a>
-                        </div>
-                    </div>
-                `;
-                layout.style.display = 'grid';
-                document.querySelector('.admin-nav').style.display = 'none';
-            }
+        // ============================================================
+        // SIDEBAR TOGGLE
+        // ============================================================
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-            // ============================================================
-            // SIDEBAR TOGGLE
-            // ============================================================
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
 
-            function toggleSidebar() {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('active');
-                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-            }
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', toggleSidebar);
-            }
-
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', function() {
-                    if (sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-                });
-            }
-
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                if (sidebar.classList.contains('open')) {
                     toggleSidebar();
                 }
             });
+        }
 
-            document.querySelectorAll('.nav-item').forEach(function(item) {
-                item.addEventListener('click', function() {
-                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-                });
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                toggleSidebar();
+            }
+        });
+
+        document.querySelectorAll('.nav-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
             });
+        });
 
-            // ============================================================
-            // LOGOUT
-            // ============================================================
-            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+        // ============================================================
+        // LOGOUT
+        // ============================================================
+        document.getElementById('logoutLink').addEventListener('click', async function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                const { error } = await window.AniVerse.auth.signOut();
+                if (!error) {
+                    window.clearSupabaseStorage();
+                    window.location.replace('index.html');
+                } else {
+                    alert('Logout failed. Please try again.');
+                }
+            }
+        });
+
+        // ============================================================
+        // ADMIN NAVIGATION
+        // ============================================================
+        const navLinks = document.querySelectorAll('.admin-nav .nav-link');
+        const panels = {};
+
+        document.querySelectorAll('.admin-panel').forEach(function(panel) {
+            const id = panel.id.replace('panel-', '');
+            panels[id] = panel;
+        });
+
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-                if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
-                    if (!error) {
-                        window.clearSupabaseStorage();
-                        window.location.replace('index.html');
-                    } else {
-                        alert('Logout failed. Please try again.');
-                    }
-                }
-            });
+                const panelId = this.getAttribute('data-panel');
 
-            // ============================================================
-            // TOAST
-            // ============================================================
-            const toast = document.getElementById('adminToast');
-            const toastMsg = document.getElementById('toastMessage');
+                navLinks.forEach(function(l) {
+                    l.classList.remove('active');
+                });
+                this.classList.add('active');
 
-            function showToast(message, type) {
-                toast.className = 'toast show ' + (type || 'success');
-                toastMsg.textContent = message;
-                clearTimeout(toast._hideTimer);
-                toast._hideTimer = setTimeout(function() {
-                    toast.classList.remove('show');
-                }, 4000);
-            }
-
-            function hideToast() {
-                toast.classList.remove('show');
-                clearTimeout(toast._hideTimer);
-            }
-
-            // ============================================================
-            // ADMIN NAVIGATION
-            // ============================================================
-            const navLinks = document.querySelectorAll('.admin-nav .nav-link');
-            const panels = {};
-
-            document.querySelectorAll('.admin-panel').forEach(function(panel) {
-                const id = panel.id.replace('panel-', '');
-                panels[id] = panel;
-            });
-
-            navLinks.forEach(function(link) {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const panelId = this.getAttribute('data-panel');
-
-                    navLinks.forEach(function(l) {
-                        l.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    Object.keys(panels).forEach(function(key) {
-                        if (panels[key]) {
-                            panels[key].classList.remove('active');
-                        }
-                    });
-
-                    if (panels[panelId]) {
-                        panels[panelId].classList.add('active');
-                    }
-
-                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-
-                    if (panelId === 'missions') {
-                        loadMissions();
-                    }
-                    if (panelId === 'leaderboard') {
-                        loadLeaderboard();
+                Object.keys(panels).forEach(function(key) {
+                    if (panels[key]) {
+                        panels[key].classList.remove('active');
                     }
                 });
-            });
 
-            // ============================================================
-            // LOAD ALL DATA
-            // ============================================================
-            async function loadAllData() {
-                await loadDashboardStats();
-                await loadUsers();
-                await loadGuilds();
-                await loadPosts();
-                await loadMissions();
-                await loadLeaderboard();
-            }
-
-            // ============================================================
-            // LOAD DASHBOARD STATS
-            // ============================================================
-            async function loadDashboardStats() {
-                try {
-                    const { count: userCount } = await window.AniVerse.client
-                        .from('profiles')
-                        .select('*', { count: 'exact', head: true });
-
-                    const { count: guildCount } = await window.AniVerse.client
-                        .from('guilds')
-                        .select('*', { count: 'exact', head: true })
-                        .is('deleted_at', null);
-
-                    const { count: postCount } = await window.AniVerse.client
-                        .from('guild_posts')
-                        .select('*', { count: 'exact', head: true })
-                        .is('deleted_at', null);
-
-                    const { count: missionCount } = await window.AniVerse.client
-                        .from('missions')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('is_active', true);
-
-                    const { data: xpData } = await window.AniVerse.client
-                        .from('profiles')
-                        .select('experience_points');
-
-                    let totalXP = 0;
-                    if (xpData) {
-                        xpData.forEach(p => {
-                            totalXP += p.experience_points || 0;
-                        });
-                    }
-
-                    const { count: activeCount } = await window.AniVerse.client
-                        .from('profiles')
-                        .select('*', { count: 'exact', head: true })
-                        .gt('last_seen_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
-
-                    const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
-                    const values = [
-                        userCount || 0,
-                        guildCount || 0,
-                        postCount || 0,
-                        missionCount || 0,
-                        totalXP || 0,
-                        activeCount || 0
-                    ];
-                    statNumbers.forEach(function(el, index) {
-                        el.textContent = typeof values[index] === 'number' ? 
-                            values[index].toLocaleString() : 
-                            values[index] || '0';
-                        el.classList.remove('skeleton');
-                    });
-
-                } catch (error) {
-                    console.error('[AniVerse] Load dashboard stats error:', error);
+                if (panels[panelId]) {
+                    panels[panelId].classList.add('active');
                 }
+
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+
+                if (panelId === 'missions') {
+                    loadMissions();
+                }
+                if (panelId === 'leaderboard') {
+                    loadLeaderboard();
+                }
+            });
+        });
+
+        // ============================================================
+        // LOAD ALL DATA
+        // ============================================================
+        async function loadAllData() {
+            await loadDashboardStats();
+            await loadUsers();
+            await loadGuilds();
+            await loadPosts();
+            await loadMissions();
+            await loadLeaderboard();
+        }
+
+        // ============================================================
+        // LOAD DASHBOARD STATS
+        // ============================================================
+        async function loadDashboardStats() {
+            try {
+                const { count: userCount } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true });
+
+                const { count: guildCount } = await window.AniVerse.client
+                    .from('guilds')
+                    .select('*', { count: 'exact', head: true })
+                    .is('deleted_at', null);
+
+                const { count: postCount } = await window.AniVerse.client
+                    .from('guild_posts')
+                    .select('*', { count: 'exact', head: true })
+                    .is('deleted_at', null);
+
+                const { count: missionCount } = await window.AniVerse.client
+                    .from('missions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('is_active', true);
+
+                const { data: xpData } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('experience_points');
+
+                let totalXP = 0;
+                if (xpData) {
+                    xpData.forEach(p => {
+                        totalXP += p.experience_points || 0;
+                    });
+                }
+
+                const { count: activeCount } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('*', { count: 'exact', head: true })
+                    .gt('last_seen_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+
+                const statNumbers = document.querySelectorAll('#dashboardStats .stat-number');
+                const values = [
+                    userCount || 0,
+                    guildCount || 0,
+                    postCount || 0,
+                    missionCount || 0,
+                    totalXP || 0,
+                    activeCount || 0
+                ];
+                statNumbers.forEach(function(el, index) {
+                    el.textContent = typeof values[index] === 'number' ? 
+                        values[index].toLocaleString() : 
+                        values[index] || '0';
+                    el.classList.remove('skeleton');
+                });
+
+            } catch (error) {
+                console.error('[AniVerse] Load dashboard stats error:', error);
             }
+        }
 
-            // ============================================================
-            // LOAD USERS
-            // ============================================================
-            async function loadUsers() {
-                try {
-                    const { data: users, error } = await window.AniVerse.client
-                        .from('profiles')
-                        .select('*')
-                        .order('created_at', { ascending: false })
-                        .limit(50);
+        // ============================================================
+        // LOAD USERS
+        // ============================================================
+        async function loadUsers() {
+            try {
+                const { data: users, error } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(50);
 
-                    if (error) throw new Error(error.message);
+                if (error) throw new Error(error.message);
 
-                    const tbody = document.getElementById('usersTableBody');
+                const tbody = document.getElementById('usersTableBody');
 
-                    if (!users || users.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="7">
-                                    <div class="empty-state" style="padding:30px 20px;">
-                                        <i class="fas fa-users-slash"></i>
-                                        <h3>No users yet</h3>
-                                        <p>Users will appear here as they join.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    tbody.innerHTML = users.map(user => `
+                if (!users || users.length === 0) {
+                    tbody.innerHTML = `
                         <tr>
+                            <td colspan="7">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-users-slash"></i>
+                                    <h3>No users yet</h3>
+                                    <p>Users will appear here as they join.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                    ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
+                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge active">${user.level || 0}</span></td>
+                        <td>${user.experience_points || 0}</td>
+                        <td><span class="status-badge ${user.role === 'admin' ? 'approved' : 'active'}">${user.role || 'user'}</span></td>
+                        <td><span class="status-badge ${user.is_online ? 'active' : 'inactive'}">${user.is_online ? 'Online' : 'Offline'}</span></td>
+                        <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary view-user" data-id="${user.id}"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-danger delete-user" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('[AniVerse] Load users error:', error);
+            }
+        }
+
+        // ============================================================
+        // LOAD GUILDS
+        // ============================================================
+        async function loadGuilds() {
+            try {
+                const { data: guilds, error } = await window.AniVerse.client
+                    .from('guilds')
+                    .select('*')
+                    .is('deleted_at', null)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw new Error(error.message);
+
+                const tbody = document.getElementById('guildsTableBody');
+
+                if (!guilds || guilds.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-users-slash"></i>
+                                    <h3>No guilds yet</h3>
+                                    <p>Guilds will appear here as they are created.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = guilds.map(guild => `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
+                                <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
+                                    ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
+                                    <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge">${guild.category || 'General'}</span></td>
+                        <td>${guild.member_count || 0}</td>
+                        <td>${guild.level || 0}</td>
+                        <td><span class="status-badge ${guild.visibility === 'public' ? 'active' : 'inactive'}">${guild.visibility || 'public'}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary view-guild" data-id="${guild.id}"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-danger delete-guild" data-id="${guild.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('[AniVerse] Load guilds error:', error);
+            }
+        }
+
+        // ============================================================
+        // LOAD POSTS
+        // ============================================================
+        async function loadPosts() {
+            try {
+                const { data: posts, error } = await window.AniVerse.client
+                    .from('guild_posts')
+                    .select(`
+                        *,
+                        author:profiles!author_id (id, username, display_name),
+                        guild:guilds (id, name)
+                    `)
+                    .is('deleted_at', null)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw new Error(error.message);
+
+                const tbody = document.getElementById('postsTableBody');
+
+                if (!posts || posts.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-file-alt"></i>
+                                    <h3>No posts yet</h3>
+                                    <p>Posts will appear here as they are created.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = posts.map(post => `
+                    <tr>
+                        <td>
+                            <div style="font-weight:500;">${post.title || 'Untitled'}</div>
+                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${post.content ? post.content.substring(0, 60) + '...' : ''}</div>
+                        </td>
+                        <td>${post.author?.display_name || 'Unknown'}</td>
+                        <td>${post.guild?.name || 'N/A'}</td>
+                        <td>${post.upvotes || 0}</td>
+                        <td><span class="status-badge active">Published</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-danger delete-post" data-id="${post.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('[AniVerse] Load posts error:', error);
+            }
+        }
+
+        // ============================================================
+        // LOAD MISSIONS
+        // ============================================================
+        async function loadMissions() {
+            try {
+                const { data: missions, error } = await window.AniVerse.client
+                    .from('missions')
+                    .select('*')
+                    .order('category', { ascending: true })
+                    .order('xp_reward', { ascending: false });
+
+                if (error) throw new Error(error.message);
+
+                const totalMissions = missions ? missions.length : 0;
+                const activeMissions = missions ? missions.filter(m => m.is_active).length : 0;
+                
+                document.getElementById('totalMissions').textContent = totalMissions;
+                document.getElementById('activeMissions').textContent = activeMissions;
+                
+                const { data: completedData } = await window.AniVerse.client
+                    .from('user_mission_progress')
+                    .select('*', { count: 'exact' })
+                    .eq('is_completed', true);
+                
+                document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
+                
+                const { data: xpLogs } = await window.AniVerse.client
+                    .from('user_xp_log')
+                    .select('xp_gained');
+                
+                let totalXP = 0;
+                if (xpLogs) {
+                    xpLogs.forEach(log => {
+                        totalXP += log.xp_gained || 0;
+                    });
+                }
+                document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
+
+                document.getElementById('missionsBadge').textContent = activeMissions;
+
+                const tbody = document.getElementById('missionsTableBody');
+
+                if (!missions || missions.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-tasks"></i>
+                                    <h3>No missions yet</h3>
+                                    <p>Create your first mission to start the gamification system.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                const categoryColors = {
+                    'account': 'active',
+                    'guild': 'approved',
+                    'friends': 'pending',
+                    'social': 'active',
+                    'daily': 'pending',
+                    'special': 'approved'
+                };
+
+                tbody.innerHTML = missions.map(mission => `
+                    <tr>
+                        <td>
+                            <div style="font-weight:500;">${mission.title}</div>
+                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${mission.description || ''}</div>
+                        </td>
+                        <td><span class="status-badge ${categoryColors[mission.category] || 'active'}">${mission.category}</span></td>
+                        <td><span class="status-badge" style="background:rgba(81,207,102,0.15);color:#51cf66;">${mission.xp_reward} XP</span></td>
+                        <td>${mission.is_auto_complete ? '✅ Yes' : '❌ No'}</td>
+                        <td><span class="status-badge ${mission.is_active ? 'active' : 'inactive'}">${mission.is_active ? 'Active' : 'Inactive'}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary edit-mission" data-id="${mission.id}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger delete-mission" data-id="${mission.id}"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('[AniVerse] Load missions error:', error);
+            }
+        }
+
+        // ============================================================
+        // LOAD LEADERBOARD
+        // ============================================================
+        async function loadLeaderboard() {
+            try {
+                const { data: users, error } = await window.AniVerse.client
+                    .from('profiles')
+                    .select('id, username, display_name, level, experience_points, avatar_url')
+                    .order('experience_points', { ascending: false })
+                    .limit(20);
+
+                if (error) throw new Error(error.message);
+
+                const tbody = document.getElementById('leaderboardTableBody');
+
+                if (!users || users.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state" style="padding:30px 20px;">
+                                    <i class="fas fa-trophy"></i>
+                                    <h3>No data yet</h3>
+                                    <p>Leaderboard will populate as users earn XP.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = users.map((user, index) => {
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                    return `
+                        <tr>
+                            <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
                             <td>
                                 <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
                                     <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
@@ -2028,540 +2592,303 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="status-badge active">${user.level || 0}</span></td>
-                            <td>${user.experience_points || 0}</td>
-                            <td><span class="status-badge ${user.role === 'admin' ? 'approved' : 'active'}">${user.role || 'user'}</span></td>
-                            <td><span class="status-badge ${user.is_online ? 'active' : 'inactive'}">${user.is_online ? 'Online' : 'Offline'}</span></td>
-                            <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn btn-secondary view-user" data-id="${user.id}"><i class="fas fa-eye"></i></button>
-                                    <button class="btn btn-danger delete-user" data-id="${user.id}"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </td>
+                            <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
+                            <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
                         </tr>
-                    `).join('');
+                    `;
+                }).join('');
 
-                } catch (error) {
-                    console.error('[AniVerse] Load users error:', error);
-                }
+            } catch (error) {
+                console.error('[AniVerse] Load leaderboard error:', error);
             }
+        }
 
-            // ============================================================
-            // LOAD GUILDS
-            // ============================================================
-            async function loadGuilds() {
-                try {
-                    const { data: guilds, error } = await window.AniVerse.client
-                        .from('guilds')
-                        .select('*')
-                        .is('deleted_at', null)
-                        .order('created_at', { ascending: false })
-                        .limit(50);
+        // ============================================================
+        // MISSION CRUD OPERATIONS
+        // ============================================================
 
-                    if (error) throw new Error(error.message);
+        document.getElementById('createMissionBtn').addEventListener('click', function() {
+            document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Create Mission';
+            document.getElementById('missionSubmitText').textContent = 'Create Mission';
+            document.getElementById('missionForm').reset();
+            document.getElementById('missionEditId').value = '';
+            document.getElementById('missionModal').classList.add('open');
+            document.getElementById('criteriaGroup').style.display = 'none';
+            document.getElementById('missionAutoComplete').checked = true;
+        });
 
-                    const tbody = document.getElementById('guildsTableBody');
+        document.getElementById('missionCancelBtn').addEventListener('click', function() {
+            document.getElementById('missionModal').classList.remove('open');
+        });
 
-                    if (!guilds || guilds.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state" style="padding:30px 20px;">
-                                        <i class="fas fa-users-slash"></i>
-                                        <h3>No guilds yet</h3>
-                                        <p>Guilds will appear here as they are created.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    tbody.innerHTML = guilds.map(guild => `
-                        <tr>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                    <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                        ${guild.logo_url ? `<img src="${guild.logo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (guild.name ? guild.name.charAt(0).toUpperCase() : 'G')}
-                                    </div>
-                                    <div>
-                                        <div style="font-weight:600;">${guild.name || 'Unknown'}</div>
-                                        <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${guild.slug || ''}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="status-badge">${guild.category || 'General'}</span></td>
-                            <td>${guild.member_count || 0}</td>
-                            <td>${guild.level || 0}</td>
-                            <td><span class="status-badge ${guild.visibility === 'public' ? 'active' : 'inactive'}">${guild.visibility || 'public'}</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn btn-secondary view-guild" data-id="${guild.id}"><i class="fas fa-eye"></i></button>
-                                    <button class="btn btn-danger delete-guild" data-id="${guild.id}"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join('');
-
-                } catch (error) {
-                    console.error('[AniVerse] Load guilds error:', error);
-                }
+        document.getElementById('missionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('open');
             }
+        });
 
-            // ============================================================
-            // LOAD POSTS
-            // ============================================================
-            async function loadPosts() {
-                try {
-                    const { data: posts, error } = await window.AniVerse.client
-                        .from('guild_posts')
-                        .select(`
-                            *,
-                            author:profiles!author_id (id, username, display_name),
-                            guild:guilds (id, name)
-                        `)
-                        .is('deleted_at', null)
-                        .order('created_at', { ascending: false })
-                        .limit(50);
+        document.getElementById('missionAutoComplete').addEventListener('change', function() {
+            document.getElementById('criteriaGroup').style.display = this.checked ? 'none' : 'block';
+        });
 
-                    if (error) throw new Error(error.message);
-
-                    const tbody = document.getElementById('postsTableBody');
-
-                    if (!posts || posts.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state" style="padding:30px 20px;">
-                                        <i class="fas fa-file-alt"></i>
-                                        <h3>No posts yet</h3>
-                                        <p>Posts will appear here as they are created.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    tbody.innerHTML = posts.map(post => `
-                        <tr>
-                            <td>
-                                <div style="font-weight:500;">${post.title || 'Untitled'}</div>
-                                <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${post.content ? post.content.substring(0, 60) + '...' : ''}</div>
-                            </td>
-                            <td>${post.author?.display_name || 'Unknown'}</td>
-                            <td>${post.guild?.name || 'N/A'}</td>
-                            <td>${post.upvotes || 0}</td>
-                            <td><span class="status-badge active">Published</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn btn-danger delete-post" data-id="${post.id}"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join('');
-
-                } catch (error) {
-                    console.error('[AniVerse] Load posts error:', error);
-                }
+        // Edit Mission
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.edit-mission');
+            if (target) {
+                const missionId = target.getAttribute('data-id');
+                editMission(missionId);
             }
+        });
 
-            // ============================================================
-            // LOAD MISSIONS
-            // ============================================================
-            async function loadMissions() {
-                try {
-                    const { data: missions, error } = await window.AniVerse.client
-                        .from('missions')
-                        .select('*')
-                        .order('category', { ascending: true })
-                        .order('xp_reward', { ascending: false });
+        async function editMission(missionId) {
+            try {
+                const { data: mission, error } = await window.AniVerse.client
+                    .from('missions')
+                    .select('*')
+                    .eq('id', missionId)
+                    .single();
 
-                    if (error) throw new Error(error.message);
+                if (error) throw new Error(error.message);
 
-                    const totalMissions = missions ? missions.length : 0;
-                    const activeMissions = missions ? missions.filter(m => m.is_active).length : 0;
-                    
-                    document.getElementById('totalMissions').textContent = totalMissions;
-                    document.getElementById('activeMissions').textContent = activeMissions;
-                    
-                    const { data: completedData } = await window.AniVerse.client
-                        .from('user_mission_progress')
-                        .select('*', { count: 'exact' })
-                        .eq('is_completed', true);
-                    
-                    document.getElementById('completedMissions').textContent = completedData ? completedData.length : 0;
-                    
-                    const { data: xpLogs } = await window.AniVerse.client
-                        .from('user_xp_log')
-                        .select('xp_gained');
-                    
-                    let totalXP = 0;
-                    if (xpLogs) {
-                        xpLogs.forEach(log => {
-                            totalXP += log.xp_gained || 0;
-                        });
-                    }
-                    document.getElementById('totalXPAwarded').textContent = totalXP.toLocaleString();
-
-                    document.getElementById('missionsBadge').textContent = activeMissions;
-
-                    const tbody = document.getElementById('missionsTableBody');
-
-                    if (!missions || missions.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="6">
-                                    <div class="empty-state" style="padding:30px 20px;">
-                                        <i class="fas fa-tasks"></i>
-                                        <h3>No missions yet</h3>
-                                        <p>Create your first mission to start the gamification system.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    const categoryColors = {
-                        'account': 'active',
-                        'guild': 'approved',
-                        'friends': 'pending',
-                        'social': 'active',
-                        'daily': 'pending',
-                        'special': 'approved'
-                    };
-
-                    tbody.innerHTML = missions.map(mission => `
-                        <tr>
-                            <td>
-                                <div style="font-weight:500;">${mission.title}</div>
-                                <div style="font-size:var(--font-size-xs);color:var(--text-muted);">${mission.description || ''}</div>
-                            </td>
-                            <td><span class="status-badge ${categoryColors[mission.category] || 'active'}">${mission.category}</span></td>
-                            <td><span class="status-badge" style="background:rgba(81,207,102,0.15);color:#51cf66;">${mission.xp_reward} XP</span></td>
-                            <td>${mission.is_auto_complete ? '✅ Yes' : '❌ No'}</td>
-                            <td><span class="status-badge ${mission.is_active ? 'active' : 'inactive'}">${mission.is_active ? 'Active' : 'Inactive'}</span></td>
-                            <td>
-                                <div class="table-actions">
-                                    <button class="btn btn-secondary edit-mission" data-id="${mission.id}"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-danger delete-mission" data-id="${mission.id}"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join('');
-
-                } catch (error) {
-                    console.error('[AniVerse] Load missions error:', error);
+                document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Mission';
+                document.getElementById('missionSubmitText').textContent = 'Update Mission';
+                document.getElementById('missionEditId').value = mission.id;
+                document.getElementById('missionTitle').value = mission.title;
+                document.getElementById('missionDescription').value = mission.description || '';
+                document.getElementById('missionCategory').value = mission.category;
+                document.getElementById('missionXPReward').value = mission.xp_reward;
+                document.getElementById('missionAutoComplete').checked = mission.is_auto_complete;
+                
+                if (mission.completion_criteria && Object.keys(mission.completion_criteria).length > 0) {
+                    document.getElementById('missionCriteria').value = JSON.stringify(mission.completion_criteria);
+                    document.getElementById('criteriaGroup').style.display = 'block';
+                } else {
+                    document.getElementById('criteriaGroup').style.display = 'none';
                 }
-            }
 
-            // ============================================================
-            // LOAD LEADERBOARD
-            // ============================================================
-            async function loadLeaderboard() {
-                try {
-                    const { data: users, error } = await window.AniVerse.client
-                        .from('profiles')
-                        .select('id, username, display_name, level, experience_points, avatar_url')
-                        .order('experience_points', { ascending: false })
-                        .limit(20);
-
-                    if (error) throw new Error(error.message);
-
-                    const tbody = document.getElementById('leaderboardTableBody');
-
-                    if (!users || users.length === 0) {
-                        tbody.innerHTML = `
-                            <tr>
-                                <td colspan="4">
-                                    <div class="empty-state" style="padding:30px 20px;">
-                                        <i class="fas fa-trophy"></i>
-                                        <h3>No data yet</h3>
-                                        <p>Leaderboard will populate as users earn XP.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        return;
-                    }
-
-                    tbody.innerHTML = users.map((user, index) => {
-                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                        return `
-                            <tr>
-                                <td style="font-weight:700;font-size:var(--font-size-lg);">${medal}</td>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:var(--spacing-sm);">
-                                        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-sm);font-weight:700;color:#fff;overflow:hidden;">
-                                            ${user.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U')}
-                                        </div>
-                                        <div>
-                                            <div style="font-weight:600;">${user.display_name || 'Unknown'}</div>
-                                            <div style="font-size:var(--font-size-xs);color:var(--text-muted);">@${user.username || 'unknown'}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="status-badge active" style="background:rgba(124,92,252,0.15);color:#7c5cfc;">Level ${user.level || 0}</span></td>
-                                <td style="font-weight:600;color:var(--accent-1);">${user.experience_points || 0} XP</td>
-                            </tr>
-                        `;
-                    }).join('');
-
-                } catch (error) {
-                    console.error('[AniVerse] Load leaderboard error:', error);
-                }
-            }
-
-            // ============================================================
-            // MISSION CRUD OPERATIONS
-            // ============================================================
-
-            document.getElementById('createMissionBtn').addEventListener('click', function() {
-                document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-plus"></i> Create Mission';
-                document.getElementById('missionSubmitText').textContent = 'Create Mission';
-                document.getElementById('missionForm').reset();
-                document.getElementById('missionEditId').value = '';
                 document.getElementById('missionModal').classList.add('open');
-                document.getElementById('criteriaGroup').style.display = 'none';
-                document.getElementById('missionAutoComplete').checked = true;
-            });
 
-            document.getElementById('missionCancelBtn').addEventListener('click', function() {
-                document.getElementById('missionModal').classList.remove('open');
-            });
+            } catch (error) {
+                console.error('[AniVerse] Edit mission error:', error);
+                showToast('Failed to load mission: ' + error.message, 'error');
+            }
+        }
 
-            document.getElementById('missionModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('open');
+        // Delete Mission
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.delete-mission');
+            if (target) {
+                const missionId = target.getAttribute('data-id');
+                if (confirm('Are you sure you want to delete this mission?')) {
+                    deleteMission(missionId);
                 }
-            });
+            }
+        });
 
-            document.getElementById('missionAutoComplete').addEventListener('change', function() {
-                document.getElementById('criteriaGroup').style.display = this.checked ? 'none' : 'block';
-            });
+        async function deleteMission(missionId) {
+            try {
+                const { error } = await window.AniVerse.client
+                    .from('missions')
+                    .delete()
+                    .eq('id', missionId);
 
-            // Edit Mission
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('.edit-mission');
-                if (target) {
-                    const missionId = target.getAttribute('data-id');
-                    editMission(missionId);
-                }
-            });
+                if (error) throw new Error(error.message);
 
-            async function editMission(missionId) {
+                showToast('Mission deleted successfully!', 'success');
+                await loadMissions();
+
+            } catch (error) {
+                console.error('[AniVerse] Delete mission error:', error);
+                showToast('Failed to delete mission: ' + error.message, 'error');
+            }
+        }
+
+        // Submit Mission Form
+        document.getElementById('missionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideToast();
+
+            const editId = document.getElementById('missionEditId').value;
+            const title = document.getElementById('missionTitle').value.trim();
+            const description = document.getElementById('missionDescription').value.trim();
+            const category = document.getElementById('missionCategory').value;
+            const xpReward = parseInt(document.getElementById('missionXPReward').value);
+            const isAutoComplete = document.getElementById('missionAutoComplete').checked;
+            let criteria = {};
+
+            if (!isAutoComplete) {
                 try {
-                    const { data: mission, error } = await window.AniVerse.client
-                        .from('missions')
-                        .select('*')
-                        .eq('id', missionId)
-                        .single();
-
-                    if (error) throw new Error(error.message);
-
-                    document.getElementById('missionModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Mission';
-                    document.getElementById('missionSubmitText').textContent = 'Update Mission';
-                    document.getElementById('missionEditId').value = mission.id;
-                    document.getElementById('missionTitle').value = mission.title;
-                    document.getElementById('missionDescription').value = mission.description || '';
-                    document.getElementById('missionCategory').value = mission.category;
-                    document.getElementById('missionXPReward').value = mission.xp_reward;
-                    document.getElementById('missionAutoComplete').checked = mission.is_auto_complete;
-                    
-                    if (mission.completion_criteria && Object.keys(mission.completion_criteria).length > 0) {
-                        document.getElementById('missionCriteria').value = JSON.stringify(mission.completion_criteria);
-                        document.getElementById('criteriaGroup').style.display = 'block';
-                    } else {
-                        document.getElementById('criteriaGroup').style.display = 'none';
-                    }
-
-                    document.getElementById('missionModal').classList.add('open');
-
-                } catch (error) {
-                    console.error('[AniVerse] Edit mission error:', error);
-                    showToast('Failed to load mission: ' + error.message, 'error');
+                    criteria = JSON.parse(document.getElementById('missionCriteria').value || '{}');
+                } catch (e) {
+                    showToast('Invalid JSON format for criteria.', 'error');
+                    return;
                 }
             }
 
-            // Delete Mission
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('.delete-mission');
-                if (target) {
-                    const missionId = target.getAttribute('data-id');
-                    if (confirm('Are you sure you want to delete this mission?')) {
-                        deleteMission(missionId);
-                    }
-                }
-            });
+            if (!title || !description || !category || !xpReward) {
+                showToast('Please fill in all required fields.', 'error');
+                return;
+            }
 
-            async function deleteMission(missionId) {
-                try {
+            const submitBtn = document.getElementById('missionSubmitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            try {
+                if (editId) {
                     const { error } = await window.AniVerse.client
                         .from('missions')
-                        .delete()
-                        .eq('id', missionId);
+                        .update({
+                            title,
+                            description,
+                            category,
+                            xp_reward: xpReward,
+                            is_auto_complete: isAutoComplete,
+                            completion_criteria: criteria,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', editId);
 
                     if (error) throw new Error(error.message);
+                    showToast('Mission updated successfully!', 'success');
 
-                    showToast('Mission deleted successfully!', 'success');
-                    await loadMissions();
+                } else {
+                    const { error } = await window.AniVerse.client
+                        .from('missions')
+                        .insert({
+                            title,
+                            description,
+                            category,
+                            xp_reward: xpReward,
+                            is_auto_complete: isAutoComplete,
+                            completion_criteria: criteria
+                        });
 
-                } catch (error) {
-                    console.error('[AniVerse] Delete mission error:', error);
-                    showToast('Failed to delete mission: ' + error.message, 'error');
+                    if (error) throw new Error(error.message);
+                    showToast('Mission created successfully!', 'success');
                 }
+
+                document.getElementById('missionModal').classList.remove('open');
+                await loadMissions();
+
+            } catch (error) {
+                console.error('[AniVerse] Mission submit error:', error);
+                showToast('Failed to save mission: ' + error.message, 'error');
             }
 
-            // Submit Mission Form
-            document.getElementById('missionForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                hideToast();
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        });
 
-                const editId = document.getElementById('missionEditId').value;
-                const title = document.getElementById('missionTitle').value.trim();
-                const description = document.getElementById('missionDescription').value.trim();
-                const category = document.getElementById('missionCategory').value;
-                const xpReward = parseInt(document.getElementById('missionXPReward').value);
-                const isAutoComplete = document.getElementById('missionAutoComplete').checked;
-                let criteria = {};
+        // ============================================================
+        // GLOBAL SEARCH
+        // ============================================================
+        const searchInput = document.getElementById('globalSearchInput');
+        const searchBtn = document.getElementById('globalSearchBtn');
 
-                if (!isAutoComplete) {
-                    try {
-                        criteria = JSON.parse(document.getElementById('missionCriteria').value || '{}');
-                    } catch (e) {
-                        showToast('Invalid JSON format for criteria.', 'error');
+        function performGlobalSearch() {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                window.location.href = 'search.html?q=' + encodeURIComponent(query);
+            } else {
+                searchInput.focus();
+                searchInput.style.borderColor = 'var(--color-error)';
+                setTimeout(() => {
+                    searchInput.style.borderColor = '';
+                }, 1000);
+            }
+        }
+
+        if (searchBtn) {
+            searchBtn.addEventListener('click', performGlobalSearch);
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performGlobalSearch();
+                }
+            });
+        }
+
+        // ============================================================
+        // SETTINGS SAVE
+        // ============================================================
+        document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+            showToast('Settings saved successfully!', 'success');
+        });
+
+        // ============================================================
+        // REFRESH LEADERBOARD
+        // ============================================================
+        document.getElementById('refreshLeaderboard').addEventListener('click', function() {
+            loadLeaderboard();
+            showToast('Leaderboard refreshed!', 'success');
+        });
+
+        // ============================================================
+        // CHECK IF ALREADY LOGGED IN AS ADMIN
+        // ============================================================
+        async function checkExistingSession() {
+            try {
+                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    setTimeout(checkExistingSession, 300);
+                    return;
+                }
+
+                const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+
+                if (user && profile) {
+                    const role = profile.role || user.user_metadata?.role || 'user';
+                    
+                    if (role === 'admin' || role === 'moderator') {
+                        console.log('[Admin] Already logged in as admin, showing panel...');
+                        loginSection.style.display = 'none';
+                        adminLayout.classList.add('active');
+                        await loadAllData();
                         return;
                     }
                 }
+                
+                // Not logged in as admin - show login
+                loginSection.style.display = 'flex';
+                adminLayout.classList.remove('active');
 
-                if (!title || !description || !category || !xpReward) {
-                    showToast('Please fill in all required fields.', 'error');
-                    return;
+            } catch (e) {
+                console.error('[Admin] Session check error:', e);
+                loginSection.style.display = 'flex';
+                adminLayout.classList.remove('active');
+            }
+        }
+
+        // ============================================================
+        // INITIALIZE
+        // ============================================================
+        async function init() {
+            if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                setTimeout(init, 300);
+                return;
+            }
+
+            await checkExistingSession();
+
+            window.AniVerse.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') {
+                    checkExistingSession();
+                } else if (event === 'SIGNED_OUT') {
+                    loginSection.style.display = 'flex';
+                    adminLayout.classList.remove('active');
                 }
-
-                const submitBtn = document.getElementById('missionSubmitBtn');
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-
-                try {
-                    if (editId) {
-                        const { error } = await window.AniVerse.client
-                            .from('missions')
-                            .update({
-                                title,
-                                description,
-                                category,
-                                xp_reward: xpReward,
-                                is_auto_complete: isAutoComplete,
-                                completion_criteria: criteria,
-                                updated_at: new Date().toISOString()
-                            })
-                            .eq('id', editId);
-
-                        if (error) throw new Error(error.message);
-                        showToast('Mission updated successfully!', 'success');
-
-                    } else {
-                        const { error } = await window.AniVerse.client
-                            .from('missions')
-                            .insert({
-                                title,
-                                description,
-                                category,
-                                xp_reward: xpReward,
-                                is_auto_complete: isAutoComplete,
-                                completion_criteria: criteria
-                            });
-
-                        if (error) throw new Error(error.message);
-                        showToast('Mission created successfully!', 'success');
-                    }
-
-                    document.getElementById('missionModal').classList.remove('open');
-                    await loadMissions();
-
-                } catch (error) {
-                    console.error('[AniVerse] Mission submit error:', error);
-                    showToast('Failed to save mission: ' + error.message, 'error');
-                }
-
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
             });
+        }
 
-            // ============================================================
-            // GLOBAL SEARCH
-            // ============================================================
-            const searchInput = document.getElementById('globalSearchInput');
-            const searchBtn = document.getElementById('globalSearchBtn');
+        init();
 
-            function performGlobalSearch() {
-                const query = searchInput.value.trim();
-                if (query.length > 0) {
-                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
-                } else {
-                    searchInput.focus();
-                    searchInput.style.borderColor = 'var(--color-error)';
-                    setTimeout(() => {
-                        searchInput.style.borderColor = '';
-                    }, 1000);
-                }
-            }
+        console.log('[AniVerse] Admin panel ready (Built-in Login + Missions & XP System)');
 
-            if (searchBtn) {
-                searchBtn.addEventListener('click', performGlobalSearch);
-            }
-
-            if (searchInput) {
-                searchInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        performGlobalSearch();
-                    }
-                });
-            }
-
-            // ============================================================
-            // SETTINGS SAVE
-            // ============================================================
-            document.getElementById('saveSettingsBtn').addEventListener('click', function() {
-                showToast('Settings saved successfully!', 'success');
-            });
-
-            // ============================================================
-            // REFRESH LEADERBOARD
-            // ============================================================
-            document.getElementById('refreshLeaderboard').addEventListener('click', function() {
-                loadLeaderboard();
-                showToast('Leaderboard refreshed!', 'success');
-            });
-
-            // ============================================================
-            // INITIALIZE
-            // ============================================================
-            async function init() {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                    setTimeout(init, 300);
-                    return;
-                }
-
-                await checkAdminAccess();
-
-                window.AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                        checkAdminAccess();
-                    }
-                });
-            }
-
-            init();
-
-            console.log('[AniVerse] Admin panel ready (Missions & XP System integrated)');
-
-        })();
-    </script>
+    })();
+</script>
 
 </body>
 </html>
