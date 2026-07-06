@@ -13,12 +13,16 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Centralized Supabase Client -->
+    <script src="supabaseClient.js"></script>
+
     <style>
         /* ============================================================
                    CSS VARIABLES — Shared Design System
                    ============================================================ */
         :root {
-            /* Colors */
             --bg-primary: #0a0a0c;
             --bg-secondary: #121217;
             --bg-card: rgba(255, 255, 255, 0.04);
@@ -34,7 +38,6 @@
             --color-error: #ff6b6b;
             --color-warning: #ffd93d;
 
-            /* Spacing */
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
@@ -42,18 +45,15 @@
             --spacing-xl: 32px;
             --spacing-2xl: 48px;
 
-            /* Border Radius */
             --radius-sm: 10px;
             --radius-md: 14px;
             --radius-lg: 20px;
             --radius-xl: 28px;
 
-            /* Shadows */
             --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
             --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
             --shadow-dropdown: 0 16px 48px rgba(0, 0, 0, 0.6);
 
-            /* Typography */
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-size-xs: 0.75rem;
             --font-size-sm: 0.85rem;
@@ -63,14 +63,9 @@
             --font-size-2xl: 1.8rem;
             --font-size-3xl: 2.6rem;
 
-            /* Transitions */
             --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --transition-fast: all 0.15s ease;
-
-            /* Animations */
             --animation-pulse: pulse 1.5s ease-in-out infinite;
 
-            /* Layout */
             --sidebar-width: 240px;
             --header-height: 68px;
         }
@@ -139,12 +134,9 @@
             margin-bottom: var(--spacing-lg);
         }
 
-        .sidebar-brand i {
-            font-size: 1.5rem;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .sidebar-brand img {
+            height: 32px;
+            width: auto;
         }
 
         .sidebar-nav {
@@ -205,6 +197,18 @@
             font-weight: 600;
             padding: 1px 8px;
             border-radius: 100px;
+            display: none;
+        }
+
+        .sidebar-nav .nav-item .badge.has-data {
+            display: inline-block;
+        }
+
+        .sidebar-nav .nav-item.admin-panel {
+            display: none;
+        }
+        .sidebar-nav .nav-item.admin-panel.visible {
+            display: flex;
         }
 
         .sidebar-footer {
@@ -236,7 +240,20 @@
             text-align: center;
         }
 
-        /* Sidebar Toggle (mobile) */
+        .sidebar-footer .nav-item.logout-link {
+            display: none;
+        }
+        .sidebar-footer .nav-item.logout-link.visible {
+            display: flex;
+        }
+
+        .sidebar-footer .nav-item.auth-link {
+            display: flex;
+        }
+        .sidebar-footer .nav-item.auth-link.hidden {
+            display: none;
+        }
+
         .sidebar-toggle {
             display: none;
             position: fixed;
@@ -256,6 +273,14 @@
 
         .sidebar-toggle:hover {
             background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
 
         /* ============================================================
@@ -360,14 +385,19 @@
             height: 8px;
             border-radius: 50%;
             background: var(--color-error);
+            display: none;
+        }
+
+        .header .header-actions .icon-btn .dot.has-data {
+            display: block;
         }
 
         .header .header-actions .user-avatar {
+            display: none;
             width: 36px;
             height: 36px;
             border-radius: 50%;
             background: var(--gradient-accent);
-            display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
@@ -376,6 +406,11 @@
             cursor: pointer;
             transition: var(--transition-smooth);
             border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .header .header-actions .user-avatar.visible {
+            display: flex;
         }
 
         .header .header-actions .user-avatar:hover {
@@ -384,9 +419,24 @@
         }
 
         .header .header-actions .user-level {
+            display: none;
             font-size: var(--font-size-xs);
             color: var(--text-muted);
             font-weight: 500;
+        }
+
+        .header .header-actions .user-level.visible {
+            display: inline;
+        }
+
+        .header .header-actions .auth-btn {
+            display: none;
+            padding: 8px 20px;
+            font-size: var(--font-size-xs);
+        }
+
+        .header .header-actions .auth-btn.visible {
+            display: inline-flex;
         }
 
         /* ============================================================
@@ -397,9 +447,6 @@
             flex: 1;
         }
 
-        /* ============================================================
-                   UTILITY
-                   ============================================================ */
         .container {
             max-width: 1360px;
             margin: 0 auto;
@@ -439,7 +486,7 @@
         }
 
         /* ============================================================
-                   BUTTONS — Shared
+                   BUTTONS
                    ============================================================ */
         .btn {
             display: inline-flex;
@@ -539,7 +586,7 @@
             background: var(--bg-secondary);
             padding: var(--spacing-xl) var(--spacing-2xl);
             border: 1px solid var(--border-glass);
-            min-height: 180px;
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -809,6 +856,12 @@
             font-size: 2rem;
         }
 
+        .result-card .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .result-card .card-body {
             padding: var(--spacing-md);
         }
@@ -897,6 +950,55 @@
         }
 
         /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
                    QUICK ACTIONS
                    ============================================================ */
         .quick-actions {
@@ -966,14 +1068,6 @@
 
             .sidebar.open {
                 transform: translateX(0);
-            }
-
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
             }
 
             .sidebar-overlay.active {
@@ -1107,7 +1201,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <i class="fas fa-crown"></i> AniVerse
+            <img src="assets/logo.png" alt="AniVerse Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1125,23 +1219,35 @@
             </a>
             <a href="messages.html" class="nav-item">
                 <i class="fas fa-comment-dots"></i> Messages
-                <span class="badge">3</span>
+                <span class="badge" id="messageBadge"></span>
             </a>
             <a href="notifications.html" class="nav-item">
                 <i class="fas fa-bell"></i> Notifications
-                <span class="badge">5</span>
+                <span class="badge" id="notifBadge"></span>
             </a>
             <a href="search.html" class="nav-item active">
                 <i class="fas fa-search"></i> Search
             </a>
+            <a href="admin.html" class="nav-item admin-panel" id="adminPanelLink">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </a>
         </nav>
 
         <div class="sidebar-footer">
-            <a href="settings.html" class="nav-item">
+            <a href="settings.html" class="nav-item" id="settingsLink">
                 <i class="fas fa-cog"></i> Settings
             </a>
-            <a href="profile.html" class="nav-item">
+            <a href="profile.html" class="nav-item" id="profileLink">
                 <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="nav-item logout-link" id="logoutLink">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <a href="login.html" class="nav-item auth-link" id="loginLink">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="nav-item auth-link" id="signupLink">
+                <i class="fas fa-user-plus"></i> Sign Up
             </a>
         </div>
     </aside>
@@ -1157,16 +1263,21 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
-                <button class="icon-btn" aria-label="Notifications">
+                <a href="notifications.html" class="icon-btn" aria-label="Notifications">
                     <i class="fas fa-bell"></i>
-                    <span class="dot"></span>
-                </button>
-                <div class="user-avatar" aria-label="User avatar">U</div>
-                <span class="user-level">Lv.12</span>
+                    <span class="dot" id="headerNotifDot"></span>
+                </a>
+                <a href="profile.html" class="user-avatar" id="headerAvatar" aria-label="User avatar">U</a>
+                <span class="user-level" id="headerLevel">Lv.0</span>
+                <a href="login.html" class="btn btn-primary auth-btn" id="headerLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="signup.html" class="btn btn-secondary auth-btn" id="headerSignupBtn"><i class="fas fa-user-plus"></i> Sign Up</a>
             </div>
         </header>
 
@@ -1253,11 +1364,11 @@
                             <span class="section-tag"><i class="fas fa-list"></i> Results</span>
                             <h2 class="section-title">Search Results</h2>
                         </div>
-                        <span style="color:var(--text-muted); font-size:var(--font-size-sm);">0 results</span>
+                        <span style="color:var(--text-muted); font-size:var(--font-size-sm);" id="resultCount">0 results</span>
                     </div>
 
                     <div class="results-grid" id="resultsGrid">
-                        <!-- Skeleton cards injected by JS -->
+                        <!-- Will be loaded from Supabase -->
                     </div>
                 </div>
             </section>
@@ -1302,17 +1413,108 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE SEARCH
     ============================================================ -->
-    <script src="js/supabase.js"></script>
     <script>
         (function() {
             'use strict';
 
-    
+            // ============================================================
+            // AUTH STATE
+            // ============================================================
+            let currentUser = null;
+            let currentProfile = null;
 
             // ============================================================
-            // SIDEBAR TOGGLE (mobile)
+            // GET SEARCH QUERY FROM URL
+            // ============================================================
+            function getQueryFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('q') || '';
+            }
+
+            // ============================================================
+            // UPDATE AUTH UI
+            // ============================================================
+            async function updateAuthUI() {
+                try {
+                    if (typeof window.AniVerse === 'undefined') {
+                        setTimeout(updateAuthUI, 300);
+                        return;
+                    }
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
+
+                    const isLoggedIn = !!(user && profile);
+
+                    // Sidebar
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.getElementById('adminPanelLink');
+
+                    // Header
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
+
+                    if (isLoggedIn) {
+                        const displayName = profile?.display_name || user.email || 'User';
+
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile?.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile?.level || 0}`;
+                        }
+                        if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+
+                        if (adminPanelLink) {
+                            const role = user.user_metadata?.role;
+                            if (role === 'admin' || role === 'moderator') {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+                    } else {
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        if (headerAvatar) headerAvatar.classList.remove('visible');
+                        if (headerLevel) headerLevel.classList.remove('visible');
+                        if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
+                    }
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
+                }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
             // ============================================================
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -1351,19 +1553,135 @@
             });
 
             // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await window.AniVerse.auth.signOut();
+                    if (!error) {
+                        window.clearSupabaseStorage();
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // GLOBAL SEARCH (Header)
+            // ============================================================
+            const globalSearchInput = document.getElementById('globalSearchInput');
+            const globalSearchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = globalSearchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    globalSearchInput.focus();
+                    globalSearchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        globalSearchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (globalSearchBtn) {
+                globalSearchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (globalSearchInput) {
+                globalSearchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
+
+            // ============================================================
+            // SEARCH INPUT (Main)
+            // ============================================================
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+
+            // Set initial query from URL
+            const initialQuery = getQueryFromUrl();
+            if (initialQuery) {
+                searchInput.value = initialQuery;
+            }
+
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query.length === 0) {
+                    showToast('Please enter a search term.', 'error');
+                    return;
+                }
+                // Update URL with query
+                const url = new URL(window.location);
+                url.searchParams.set('q', query);
+                window.history.pushState({}, '', url);
+                loadSearchResults(query);
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch();
+                    }
+                });
+            }
+
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    // Remove query from URL
+                    const url = new URL(window.location);
+                    url.searchParams.delete('q');
+                    window.history.pushState({}, '', url);
+                    // Show initial state
+                    showInitialState();
+                });
+            }
+
+            if (voiceSearchBtn) {
+                voiceSearchBtn.addEventListener('click', function() {
+                    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                        alert('Voice search will be available with Supabase integration.');
+                    } else {
+                        alert('Voice search is not supported in your browser.');
+                    }
+                });
+            }
+
+            // ============================================================
             // CATEGORY FILTERS
             // ============================================================
             const categoryBtns = document.querySelectorAll('.category-btn');
+            let currentCategory = 'all';
+
             categoryBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     categoryBtns.forEach(function(b) {
                         b.classList.remove('active');
                     });
                     this.classList.add('active');
-                    const category = this.getAttribute('data-category');
-                    console.log('[AniVerse] Category filter:', category);
-                    // Show loading state
-                    showLoading();
+                    currentCategory = this.getAttribute('data-category');
+                    const query = searchInput.value.trim();
+                    if (query.length > 0) {
+                        loadSearchResults(query);
+                    } else {
+                        showInitialState();
+                    }
                 });
             });
 
@@ -1400,8 +1718,11 @@
                                 }
                             }
                             dropdown.classList.remove('open');
-                            // Trigger search update
-                            showLoading();
+                            // Reload search with filters
+                            const query = searchInput.value.trim();
+                            if (query.length > 0) {
+                                loadSearchResults(query);
+                            }
                         });
                     });
                 }
@@ -1414,84 +1735,212 @@
             });
 
             // ============================================================
-            // SEARCH INPUT
+            // TOAST
             // ============================================================
-            const searchInput = document.getElementById('searchInput');
-            const searchBtn = document.getElementById('searchBtn');
-            const clearSearchBtn = document.getElementById('clearSearchBtn');
-            const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+            const toast = document.getElementById('searchToast');
+            const toastMsg = document.getElementById('toastMessage');
 
-            function performSearch() {
-                const query = searchInput.value.trim();
-                if (query.length === 0) {
-                    alert('Please enter a search term.');
-                    return;
-                }
-                console.log('[AniVerse] Search query:', query);
-                showLoading();
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 4000);
             }
 
-            function showLoading() {
+            // ============================================================
+            // LOAD SEARCH RESULTS
+            // ============================================================
+            async function loadSearchResults(query) {
                 const grid = document.getElementById('resultsGrid');
-                if (grid) {
-                    let html = '';
-                    for (let i = 0; i < 8; i++) {
-                        html += `
-                                    <div class="result-card skeleton">
-                                        <div class="card-image"></div>
-                                        <div class="card-body">
-                                            <div class="card-title"></div>
-                                            <div class="card-subtitle"></div>
-                                            <div class="card-meta"></div>
-                                        </div>
-                                    </div>
-                                `;
-                    }
-                    grid.innerHTML = html;
+                const countEl = document.getElementById('resultCount');
 
-                    // Simulate loading - show empty state after delay
-                    setTimeout(function() {
+                // Show loading skeletons
+                grid.innerHTML = '';
+                for (let i = 0; i < 8; i++) {
+                    grid.innerHTML += `
+                        <div class="result-card skeleton">
+                            <div class="card-image"></div>
+                            <div class="card-body">
+                                <div class="card-title"></div>
+                                <div class="card-subtitle"></div>
+                                <div class="card-meta"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                countEl.textContent = 'Loading...';
+
+                try {
+                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.client) {
+                        throw new Error('Supabase client not initialized');
+                    }
+
+                    let results = [];
+                    let totalCount = 0;
+
+                    // Search based on category
+                    if (currentCategory === 'all' || currentCategory === 'anime') {
+                        const { data: anime, error } = await window.AniVerse.client
+                            .from('anime_library')
+                            .select('*')
+                            .textSearch('title_romaji', query, { config: 'english' })
+                            .limit(10);
+
+                        if (!error && anime) {
+                            results = results.concat(anime.map(item => ({
+                                ...item,
+                                _type: 'anime',
+                                title: item.title_romaji || item.title_english || 'Untitled',
+                                subtitle: item.status || 'Unknown',
+                                meta: `${item.episodes || '?'} eps · ⭐ ${item.score || 'N/A'}`
+                            })));
+                            totalCount += anime.length;
+                        }
+                    }
+
+                    if (currentCategory === 'all' || currentCategory === 'users') {
+                        const { data: users, error } = await window.AniVerse.client
+                            .from('profiles')
+                            .select('id, username, display_name, avatar_url, level')
+                            .textSearch('display_name', query, { config: 'english' })
+                            .limit(10);
+
+                        if (!error && users) {
+                            results = results.concat(users.map(item => ({
+                                ...item,
+                                _type: 'user',
+                                title: item.display_name || item.username,
+                                subtitle: `@${item.username}`,
+                                meta: `Level ${item.level || 0}`
+                            })));
+                            totalCount += users.length;
+                        }
+                    }
+
+                    if (currentCategory === 'all' || currentCategory === 'guilds') {
+                        const { data: guilds, error } = await window.AniVerse.client
+                            .from('guilds')
+                            .select('id, name, description, category, member_count, level')
+                            .textSearch('name', query, { config: 'english' })
+                            .is('deleted_at', null)
+                            .limit(10);
+
+                        if (!error && guilds) {
+                            results = results.concat(guilds.map(item => ({
+                                ...item,
+                                _type: 'guild',
+                                title: item.name,
+                                subtitle: item.category || 'Guild',
+                                meta: `${item.member_count || 0} members · Level ${item.level || 0}`
+                            })));
+                            totalCount += guilds.length;
+                        }
+                    }
+
+                    if (currentCategory === 'all' || currentCategory === 'posts') {
+                        const { data: posts, error } = await window.AniVerse.client
+                            .from('guild_posts')
+                            .select('id, title, content, created_at, author_id, guild_id')
+                            .textSearch('title', query, { config: 'english' })
+                            .is('deleted_at', null)
+                            .limit(10);
+
+                        if (!error && posts) {
+                            results = results.concat(posts.map(item => ({
+                                ...item,
+                                _type: 'post',
+                                title: item.title,
+                                subtitle: 'Post',
+                                meta: new Date(item.created_at).toLocaleDateString()
+                            })));
+                            totalCount += posts.length;
+                        }
+                    }
+
+                    // Update count
+                    countEl.textContent = `${totalCount} results`;
+
+                    if (results.length === 0) {
                         grid.innerHTML = `
-                                    <div class="empty-state">
-                                        <i class="fas fa-search"></i>
-                                        <h3>No results found</h3>
-                                        <p>Try a different keyword or adjust your filters.</p>
-                                    </div>
-                                `;
-                    }, 1500);
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <h3>No results found</h3>
+                                <p>Try a different keyword or adjust your filters.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Render results
+                    grid.innerHTML = results.map(item => {
+                        let icon = 'fa-file';
+                        let link = '#';
+
+                        if (item._type === 'anime') {
+                            icon = 'fa-film';
+                            link = `anime-details.html?id=${item.id}`;
+                        } else if (item._type === 'user') {
+                            icon = 'fa-user';
+                            link = `profile.html?id=${item.id}`;
+                        } else if (item._type === 'guild') {
+                            icon = 'fa-users';
+                            link = `guild.html?id=${item.id}`;
+                        } else if (item._type === 'post') {
+                            icon = 'fa-file-alt';
+                            link = `post.html?id=${item.id}`;
+                        }
+
+                        const image = item.cover_image || item.avatar_url || '';
+
+                        return `
+                            <a href="${link}" class="result-card" style="text-decoration:none;color:inherit;display:block;">
+                                <div class="card-image">
+                                    ${image ? `<img src="${image}" alt="${item.title}" />` : `<i class="fas ${icon}"></i>`}
+                                    <span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);padding:2px 10px;border-radius:100px;font-size:10px;color:var(--accent-1);">
+                                        ${item._type}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="card-title">${item.title}</div>
+                                    <div class="card-subtitle">${item.subtitle || ''}</div>
+                                    <div class="card-meta">${item.meta || ''}</div>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('[AniVerse] Search error:', error);
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Search failed</h3>
+                            <p>Please try again later.</p>
+                            <button class="btn btn-secondary" onclick="location.reload();">Retry</button>
+                        </div>
+                    `;
+                    countEl.textContent = '0 results';
                 }
             }
 
-            if (searchBtn) {
-                searchBtn.addEventListener('click', performSearch);
-            }
+            // ============================================================
+            // SHOW INITIAL STATE
+            // ============================================================
+            function showInitialState() {
+                const grid = document.getElementById('resultsGrid');
+                const countEl = document.getElementById('resultCount');
 
-            if (searchInput) {
-                searchInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        performSearch();
-                    }
-                });
-            }
-
-            if (clearSearchBtn) {
-                clearSearchBtn.addEventListener('click', function() {
-                    searchInput.value = '';
-                    searchInput.focus();
-                    // Show initial state with skeletons
-                    showLoading();
-                });
-            }
-
-            if (voiceSearchBtn) {
-                voiceSearchBtn.addEventListener('click', function() {
-                    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                        alert('Voice search will be available with Supabase integration.');
-                    } else {
-                        alert('Voice search is not supported in your browser.');
-                    }
-                });
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Search the community</h3>
+                        <p>Enter a keyword to find anime, users, guilds, and more.</p>
+                    </div>
+                `;
+                countEl.textContent = '0 results';
             }
 
             // ============================================================
@@ -1506,19 +1955,56 @@
                         guilds: 'Browse Guilds',
                         community: 'Explore Community'
                     };
-                    alert(labels[action] + ' coming soon with Supabase integration.');
+
+                    // Set category and focus search
+                    const categoryMap = {
+                        anime: 'anime',
+                        friends: 'users',
+                        guilds: 'guilds',
+                        community: 'all'
+                    };
+
+                    const category = categoryMap[action] || 'all';
+                    categoryBtns.forEach(function(btn) {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('data-category') === category) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    currentCategory = category;
+                    searchInput.focus();
+                    showToast(`Searching ${labels[action] || ''}...`, '');
                 });
             });
 
             // ============================================================
-            // INITIAL LOAD — show skeletons then empty state
+            // INITIALIZE
             // ============================================================
-            showLoading();
+            async function init() {
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
+                }
 
-            // ============================================================
-            // LOG
-            // ============================================================
-            console.log('AniVerse · search.html ready (Supabase integration pending)');
+                await updateAuthUI();
+
+                // If there's a query in URL, perform search
+                const query = getQueryFromUrl();
+                if (query) {
+                    searchInput.value = query;
+                    await loadSearchResults(query);
+                } else {
+                    showInitialState();
+                }
+
+                window.AniVerse.auth.onAuthStateChange(() => {
+                    updateAuthUI();
+                });
+            }
+
+            init();
+
+            console.log('[AniVerse] Search page ready (Supabase integrated)');
 
         })();
     </script>

@@ -16,7 +16,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Centralized Supabase Client -->
-    <script src="supadase.js"></script>
+    <script src="supabaseClient.js"></script>
 
     <style>
         /* ============================================================
@@ -52,6 +52,7 @@
 
             --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
             --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --shadow-dropdown: 0 16px 48px rgba(0, 0, 0, 0.6);
 
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-size-xs: 0.75rem;
@@ -491,6 +492,7 @@
             box-shadow: 0 8px 32px rgba(124, 92, 252, 0.3);
             flex-shrink: 0;
             border: 3px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
         }
 
         .guild-hero .guild-logo img {
@@ -941,6 +943,55 @@
         }
 
         /* ============================================================
+                   TOAST
+                   ============================================================ */
+        .toast {
+            display: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-md);
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--text-secondary);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-color: var(--color-success);
+            background: rgba(81, 207, 102, 0.06);
+            color: var(--color-success);
+        }
+
+        .toast.error {
+            border-color: var(--color-error);
+            background: rgba(255, 107, 107, 0.06);
+            color: var(--color-error);
+        }
+
+        .toast i {
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
                    RESPONSIVE
                    ============================================================ */
         @media (max-width: 1024px) {
@@ -1144,7 +1195,10 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
@@ -1339,7 +1393,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE GUILD
     ============================================================ -->
     <script>
         (function() {
@@ -1367,67 +1421,176 @@
             // UPDATE AUTH UI
             // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
-                currentUser = user;
-                currentProfile = profile;
+                try {
+                    if (typeof window.AniVerse === 'undefined') {
+                        setTimeout(updateAuthUI, 300);
+                        return;
+                    }
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
 
-                const isLoggedIn = !!user;
+                    const isLoggedIn = !!(user && profile);
 
-                const headerAvatar = document.getElementById('headerAvatar');
-                const headerLevel = document.getElementById('headerLevel');
-                const headerLoginBtn = document.getElementById('headerLoginBtn');
-                const headerSignupBtn = document.getElementById('headerSignupBtn');
-                const loginLink = document.getElementById('loginLink');
-                const signupLink = document.getElementById('signupLink');
-                const profileLink = document.getElementById('profileLink');
-                const settingsLink = document.getElementById('settingsLink');
-                const logoutLink = document.getElementById('logoutLink');
-                const adminPanelLink = document.getElementById('adminPanelLink');
+                    // Sidebar
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.getElementById('adminPanelLink');
 
-                if (isLoggedIn && profile) {
-                    headerAvatar.classList.add('visible');
-                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                    headerLevel.textContent = `Lv.${profile.level || 0}`;
-                    headerLevel.classList.add('visible');
-                    headerLoginBtn.classList.remove('visible');
-                    headerSignupBtn.classList.remove('visible');
+                    // Header
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
 
-                    loginLink.classList.add('hidden');
-                    signupLink.classList.add('hidden');
-                    loginLink.style.display = 'none';
-                    signupLink.style.display = 'none';
-                    profileLink.style.display = 'flex';
-                    settingsLink.style.display = 'flex';
-                    logoutLink.classList.add('visible');
-                    logoutLink.style.display = 'flex';
+                    if (isLoggedIn) {
+                        const displayName = profile?.display_name || user.email || 'User';
 
-                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-                        adminPanelLink.classList.add('visible');
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile?.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile?.level || 0}`;
+                        }
+                        if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+
+                        if (adminPanelLink) {
+                            const role = user.user_metadata?.role;
+                            if (role === 'admin' || role === 'moderator') {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+
+                        // If guild ID exists, load guild data
+                        if (guildId) {
+                            await loadGuildData();
+                            if (user) {
+                                await checkMembership(user.id);
+                            }
+                        }
+
                     } else {
-                        adminPanelLink.classList.remove('visible');
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        if (headerAvatar) headerAvatar.classList.remove('visible');
+                        if (headerLevel) headerLevel.classList.remove('visible');
+                        if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
                     }
-
-                    // Check if user is member of this guild
-                    if (guildId) {
-                        await checkMembership(user.id);
-                    }
-
-                } else {
-                    headerAvatar.classList.remove('visible');
-                    headerLevel.classList.remove('visible');
-                    headerLoginBtn.classList.add('visible');
-                    headerSignupBtn.classList.add('visible');
-
-                    loginLink.classList.remove('hidden');
-                    signupLink.classList.remove('hidden');
-                    loginLink.style.display = 'flex';
-                    signupLink.style.display = 'flex';
-                    profileLink.style.display = 'none';
-                    settingsLink.style.display = 'none';
-                    logoutLink.classList.remove('visible');
-                    logoutLink.style.display = 'none';
-                    adminPanelLink.classList.remove('visible');
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
                 }
+            }
+
+            // ============================================================
+            // SIDEBAR TOGGLE
+            // ============================================================
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+            }
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    if (sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            document.getElementById('logoutLink').addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    const { error } = await window.AniVerse.auth.signOut();
+                    if (!error) {
+                        window.clearSupabaseStorage();
+                        window.location.replace('index.html');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            });
+
+            // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
             }
 
             // ============================================================
@@ -1435,7 +1598,7 @@
             // ============================================================
             async function checkMembership(userId) {
                 try {
-                    const { data, error } = await AniVerse.client
+                    const { data, error } = await window.AniVerse.client
                         .from('guild_members')
                         .select('*')
                         .eq('guild_id', guildId)
@@ -1481,7 +1644,7 @@
                 }
 
                 try {
-                    const { data: guild, error } = await AniVerse.client
+                    const { data: guild, error } = await window.AniVerse.client
                         .from('guilds')
                         .select('*')
                         .eq('id', guildId)
@@ -1528,7 +1691,7 @@
                     }
 
                     // Visibility
-                    document.getElementById('guildVisibility').textContent = guild.visibility ? 
+                    document.getElementById('guildVisibility').textContent = guild.visibility ?
                         guild.visibility.charAt(0).toUpperCase() + guild.visibility.slice(1) : 'Public';
 
                     // Created date
@@ -1563,7 +1726,7 @@
             // ============================================================
             async function loadMemberCount() {
                 try {
-                    const { data, error, count } = await AniVerse.client
+                    const { data, error, count } = await window.AniVerse.client
                         .from('guild_members')
                         .select('*', { count: 'exact', head: true })
                         .eq('guild_id', guildId);
@@ -1586,7 +1749,7 @@
             // ============================================================
             async function loadMembers() {
                 try {
-                    const { data: members, error } = await AniVerse.client
+                    const { data: members, error } = await window.AniVerse.client
                         .from('guild_members')
                         .select(`
                             user_id,
@@ -1634,8 +1797,8 @@
                         const profile = member.profiles;
                         const role = member.guild_roles;
                         const initial = profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                        const avatarHtml = profile?.avatar_url ? 
-                            `<img src="${profile.avatar_url}" alt="${profile.display_name}" />` : 
+                        const avatarHtml = profile?.avatar_url ?
+                            `<img src="${profile.avatar_url}" alt="${profile.display_name}" />` :
                             initial;
 
                         return `
@@ -1652,8 +1815,8 @@
                     recentMembers.innerHTML = recent.map(member => {
                         const profile = member.profiles;
                         const initial = profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                        const avatarHtml = profile?.avatar_url ? 
-                            `<img src="${profile.avatar_url}" alt="${profile.display_name}" />` : 
+                        const avatarHtml = profile?.avatar_url ?
+                            `<img src="${profile.avatar_url}" alt="${profile.display_name}" />` :
                             initial;
 
                         return `
@@ -1674,7 +1837,7 @@
             // ============================================================
             async function loadPosts() {
                 try {
-                    const { posts, error } = await AniVerse.db.getGuildPosts(guildId, { limit: 20 });
+                    const { posts, error } = await window.AniVerse.db.getGuildPosts(guildId, { limit: 20 });
 
                     const container = document.getElementById('postsContainer');
                     if (error || !posts || posts.length === 0) {
@@ -1726,7 +1889,7 @@
             // ============================================================
             async function loadAnnouncements() {
                 try {
-                    const { data: announcements, error } = await AniVerse.client
+                    const { data: announcements, error } = await window.AniVerse.client
                         .from('guild_announcements')
                         .select('*, profiles!author_id (display_name, avatar_url)')
                         .eq('guild_id', guildId)
@@ -1772,7 +1935,7 @@
                 }
 
                 try {
-                    const { data: defaultRole, error: roleError } = await AniVerse.client
+                    const { data: defaultRole, error: roleError } = await window.AniVerse.client
                         .from('guild_roles')
                         .select('id')
                         .eq('guild_id', guildId)
@@ -1785,7 +1948,7 @@
                         return;
                     }
 
-                    const { error } = await AniVerse.client
+                    const { error } = await window.AniVerse.client
                         .from('guild_members')
                         .insert({
                             guild_id: guildId,
@@ -1818,7 +1981,7 @@
                 if (!confirm('Are you sure you want to leave this guild?')) return;
 
                 try {
-                    const { error } = await AniVerse.client
+                    const { error } = await window.AniVerse.client
                         .from('guild_members')
                         .delete()
                         .eq('guild_id', guildId)
@@ -1841,61 +2004,6 @@
                     alert('An unexpected error occurred.');
                 }
             }
-
-            // ============================================================
-            // SIDEBAR TOGGLE
-            // ============================================================
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-            function toggleSidebar() {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('active');
-                document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-            }
-
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', toggleSidebar);
-            }
-
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', function() {
-                    if (sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-                });
-            }
-
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
-                    toggleSidebar();
-                }
-            });
-
-            document.querySelectorAll('.nav-item').forEach(function(item) {
-                item.addEventListener('click', function() {
-                    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                        toggleSidebar();
-                    }
-                });
-            });
-
-            // ============================================================
-            // LOGOUT
-            // ============================================================
-            document.getElementById('logoutLink').addEventListener('click', async function(e) {
-                e.preventDefault();
-                if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
-                    if (!error) {
-                        localStorage.removeItem('aniverse_session');
-                        window.location.replace('index.html');
-                    } else {
-                        alert('Logout failed. Please try again.');
-                    }
-                }
-            });
 
             // ============================================================
             // TABS
@@ -1975,32 +2083,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                await updateAuthUI();
-                
-                if (guildId) {
-                    await loadGuildData();
-                } else {
-                    document.getElementById('guildName').textContent = 'Guild Not Found';
-                    document.getElementById('guildDescription').textContent = 'No guild ID provided. Please go back to the guilds page.';
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
                 }
 
-                // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                        updateAuthUI();
-                        if (guildId) {
-                            loadGuildData();
-                        }
-                    }
+                await updateAuthUI();
+
+                window.AniVerse.auth.onAuthStateChange(() => {
+                    updateAuthUI();
                 });
             }
 
             init();
 
-            // ============================================================
-            // LOG
-            // ============================================================
-            console.log('[AniVerse] Guild page loaded (Supabase integrated)');
+            console.log('[AniVerse] Guild page ready (Supabase integrated)');
 
         })();
     </script>

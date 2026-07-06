@@ -16,7 +16,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Centralized Supabase Client -->
-    <script src="supadase.js"></script>
+    <script src="supabaseClient.js"></script>
 
     <style>
         /* ============================================================
@@ -652,8 +652,13 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.8;
+            }
         }
 
         /* ============================================================
@@ -1275,7 +1280,10 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
@@ -1507,7 +1515,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE ANIME
     ============================================================ -->
     <script>
         (function() {
@@ -1517,62 +1525,93 @@
             // AUTH STATE
             // ============================================================
             let currentUser = null;
+            let currentProfile = null;
 
+            // ============================================================
+            // UPDATE AUTH UI
+            // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
-                currentUser = user;
+                try {
+                    if (typeof window.AniVerse === 'undefined') {
+                        setTimeout(updateAuthUI, 300);
+                        return;
+                    }
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
 
-                const isLoggedIn = !!user;
+                    const isLoggedIn = !!(user && profile);
 
-                const headerAvatar = document.getElementById('headerAvatar');
-                const headerLevel = document.getElementById('headerLevel');
-                const headerLoginBtn = document.getElementById('headerLoginBtn');
-                const headerSignupBtn = document.getElementById('headerSignupBtn');
-                const loginLink = document.getElementById('loginLink');
-                const signupLink = document.getElementById('signupLink');
-                const profileLink = document.getElementById('profileLink');
-                const settingsLink = document.getElementById('settingsLink');
-                const logoutLink = document.getElementById('logoutLink');
-                const adminPanelLink = document.getElementById('adminPanelLink');
+                    // Sidebar
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.getElementById('adminPanelLink');
 
-                if (isLoggedIn && profile) {
-                    headerAvatar.classList.add('visible');
-                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                    headerLevel.textContent = `Lv.${profile.level || 0}`;
-                    headerLevel.classList.add('visible');
-                    headerLoginBtn.classList.remove('visible');
-                    headerSignupBtn.classList.remove('visible');
+                    // Header
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
 
-                    loginLink.classList.add('hidden');
-                    signupLink.classList.add('hidden');
-                    loginLink.style.display = 'none';
-                    signupLink.style.display = 'none';
-                    profileLink.style.display = 'flex';
-                    settingsLink.style.display = 'flex';
-                    logoutLink.classList.add('visible');
-                    logoutLink.style.display = 'flex';
+                    if (isLoggedIn) {
+                        const displayName = profile?.display_name || user.email || 'User';
 
-                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-                        adminPanelLink.classList.add('visible');
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile?.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile?.level || 0}`;
+                        }
+                        if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+
+                        if (adminPanelLink) {
+                            const role = user.user_metadata?.role;
+                            if (role === 'admin' || role === 'moderator') {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+
                     } else {
-                        adminPanelLink.classList.remove('visible');
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        if (headerAvatar) headerAvatar.classList.remove('visible');
+                        if (headerLevel) headerLevel.classList.remove('visible');
+                        if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
                     }
 
-                } else {
-                    headerAvatar.classList.remove('visible');
-                    headerLevel.classList.remove('visible');
-                    headerLoginBtn.classList.add('visible');
-                    headerSignupBtn.classList.add('visible');
+                    // Load initial anime
+                    await loadAnime('trendingGrid', null, {}, 8);
+                    await loadAnime('popularGrid', null, {}, 8);
+                    await loadAnime('recentGrid', null, {}, 8);
+                    await loadAnime('comingGrid', null, { status: 'upcoming' }, 8);
 
-                    loginLink.classList.remove('hidden');
-                    signupLink.classList.remove('hidden');
-                    loginLink.style.display = 'flex';
-                    signupLink.style.display = 'flex';
-                    profileLink.style.display = 'none';
-                    settingsLink.style.display = 'none';
-                    logoutLink.classList.remove('visible');
-                    logoutLink.style.display = 'none';
-                    adminPanelLink.classList.remove('visible');
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
                 }
             }
 
@@ -1621,15 +1660,47 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await window.AniVerse.auth.signOut();
                     if (!error) {
-                        localStorage.removeItem('aniverse_session');
+                        window.clearSupabaseStorage();
                         window.location.replace('index.html');
                     } else {
                         alert('Logout failed. Please try again.');
                     }
                 }
             });
+
+            // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInputHeader = document.getElementById('globalSearchInput');
+            const searchBtnHeader = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInputHeader.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInputHeader.focus();
+                    searchInputHeader.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInputHeader.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtnHeader) {
+                searchBtnHeader.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInputHeader) {
+                searchInputHeader.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
 
             // ============================================================
             // TOAST
@@ -1763,7 +1834,7 @@
                 }
 
                 try {
-                    let queryBuilder = AniVerse.client
+                    let queryBuilder = window.AniVerse.client
                         .from('anime_library')
                         .select('*')
                         .limit(limit);
@@ -1795,8 +1866,9 @@
                         'Alphabetical': { column: 'title_romaji', ascending: true },
                         'Highest Rated': { column: 'score', ascending: false }
                     };
-                    
-                    const sortKey = document.querySelector('.filter-group .dropdown-item.active')?.textContent || 'Popularity';
+
+                    const sortKey = document.querySelector('.filter-group .dropdown-item.active')?.textContent ||
+                    'Popularity';
                     const sort = sortMap[sortKey] || sortMap['Popularity'];
                     queryBuilder = queryBuilder.order(sort.column, { ascending: sort.ascending });
 
@@ -1875,7 +1947,7 @@
                 const genre = document.querySelector('.filter-group .dropdown-item.active')?.textContent || 'All';
                 const season = document.querySelector('.filter-group .dropdown-item.active')?.textContent || 'All';
                 const status = document.querySelector('.filter-group .dropdown-item.active')?.textContent || 'All';
-                
+
                 const filters = {};
                 if (genre !== 'All') filters.genre = genre;
                 if (season !== 'All') filters.season = season;
@@ -1895,18 +1967,20 @@
                 const filters = {};
                 const genre = document.querySelector('.filter-group .dropdown-item.active')?.textContent || 'All';
                 if (genre !== 'All') filters.genre = genre;
-                
+
                 await loadAnime('trendingGrid', query, filters, 12);
-                
+
                 // Hide other sections when searching
-                const sections = ['popularGrid', 'recentGrid', 'comingGrid', 'continueGrid', 'favoritesGrid', 'watchlistGrid'];
+                const sections = ['popularGrid', 'recentGrid', 'comingGrid', 'continueGrid', 'favoritesGrid',
+                    'watchlistGrid'
+                ];
                 sections.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
                         el.closest('.anime-grid-section').style.display = 'none';
                     }
                 });
-                
+
                 // Show search results header
                 const header = document.querySelector('.section-header');
                 if (header) {
@@ -1946,104 +2020,22 @@
             // INITIALIZE
             // ============================================================
             async function init() {
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
+                }
+
                 await updateAuthUI();
 
-                // Load initial anime
-                await loadAnime('trendingGrid', null, {}, 8);
-                await loadAnime('popularGrid', null, {}, 8);
-                await loadAnime('recentGrid', null, {}, 8);
-                await loadAnime('comingGrid', null, { status: 'upcoming' }, 8);
-
-                // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                        updateAuthUI();
-                    }
+                window.AniVerse.auth.onAuthStateChange(() => {
+                    updateAuthUI();
                 });
             }
 
             init();
 
-            // ============================================================
-            // LOG
-            // ============================================================
-            console.log('[AniVerse] Anime page loaded (Supabase integrated)');
+            console.log('[AniVerse] Anime page ready (Supabase integrated)');
 
-            // ============================================================
-// AUTH UI SYNC - All Pages
-// ============================================================
-async function syncAuthUI() {
-    try {
-        if (typeof window.AniVerse === 'undefined') {
-            setTimeout(syncAuthUI, 300);
-            return;
-        }
-        const { user, profile } = await window.AniVerse.auth.getCurrentUser();
-        const isLoggedIn = !!(user && profile);
-        
-        // Sidebar elements
-        const loginLink = document.getElementById('loginLink');
-        const signupLink = document.getElementById('signupLink');
-        const profileLink = document.getElementById('profileLink');
-        const settingsLink = document.getElementById('settingsLink');
-        const logoutLink = document.getElementById('logoutLink');
-        const adminPanelLink = document.getElementById('adminPanelLink');
-        const headerAvatar = document.getElementById('headerAvatar');
-        const headerLevel = document.getElementById('headerLevel');
-        const headerLoginBtn = document.getElementById('headerLoginBtn');
-        const headerSignupBtn = document.getElementById('headerSignupBtn');
-
-        if (isLoggedIn) {
-            // Show logged-in UI
-            loginLink.style.display = 'none';
-            signupLink.style.display = 'none';
-            profileLink.style.display = 'flex';
-            settingsLink.style.display = 'flex';
-            logoutLink.style.display = 'flex';
-            if (headerAvatar) {
-                headerAvatar.classList.add('visible');
-                headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-            }
-            if (headerLevel) {
-                headerLevel.classList.add('visible');
-                headerLevel.textContent = `Lv.${profile.level || 0}`;
-            }
-            if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
-            if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
-            // Admin panel
-            if (adminPanelLink) {
-                if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-                    adminPanelLink.classList.add('visible');
-                } else {
-                    adminPanelLink.classList.remove('visible');
-                }
-            }
-        } else {
-            // Show logged-out UI
-            loginLink.style.display = 'flex';
-            signupLink.style.display = 'flex';
-            profileLink.style.display = 'none';
-            settingsLink.style.display = 'none';
-            logoutLink.style.display = 'none';
-            if (headerAvatar) headerAvatar.classList.remove('visible');
-            if (headerLevel) headerLevel.classList.remove('visible');
-            if (headerLoginBtn) headerLoginBtn.classList.add('visible');
-            if (headerSignupBtn) headerSignupBtn.classList.add('visible');
-            if (adminPanelLink) adminPanelLink.classList.remove('visible');
-        }
-    } catch (e) {
-        console.error('Auth UI sync error:', e);
-    }
-}
-
-// Call on page load
-document.addEventListener('DOMContentLoaded', function() {
-    syncAuthUI();
-    // Listen to auth changes
-    if (window.AniVerse) {
-        window.AniVerse.auth.onAuthStateChange(() => syncAuthUI());
-    }
-});
         })();
     </script>
 

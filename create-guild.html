@@ -16,7 +16,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Centralized Supabase Client -->
-    <script src="supadase.js"></script>
+    <script src="supabaseClient.js"></script>
 
     <style>
         /* ============================================================
@@ -37,6 +37,7 @@
             --color-success: #51cf66;
             --color-error: #ff6b6b;
             --color-warning: #ffd93d;
+            --color-info: #5c8cfc;
 
             --spacing-xs: 4px;
             --spacing-sm: 8px;
@@ -570,6 +571,80 @@
         }
 
         /* ============================================================
+                   ELIGIBILITY CHECK — Conditions Cards
+                   ============================================================ */
+        .eligibility-section {
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .eligibility-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .eligibility-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg) var(--spacing-md);
+            text-align: center;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .eligibility-card:hover {
+            border-color: rgba(124, 92, 252, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .eligibility-card .icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .eligibility-card .icon.passed {
+            color: var(--color-success);
+        }
+
+        .eligibility-card .icon.failed {
+            color: var(--color-error);
+        }
+
+        .eligibility-card .icon.loading {
+            color: var(--color-warning);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .eligibility-card .requirement {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+            color: var(--text-secondary);
+        }
+
+        .eligibility-card .status {
+            font-size: var(--font-size-sm);
+            margin-top: var(--spacing-xs);
+        }
+
+        .eligibility-card .status.passed {
+            color: var(--color-success);
+        }
+
+        .eligibility-card .status.failed {
+            color: var(--color-error);
+        }
+
+        .eligibility-card .status.loading {
+            color: var(--color-warning);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* ============================================================
                    FORM ELEMENTS
                    ============================================================ */
         .form-card {
@@ -876,6 +951,12 @@
             color: var(--color-error);
         }
 
+        .toast.info {
+            border-color: var(--color-info);
+            background: rgba(92, 140, 252, 0.06);
+            color: var(--color-info);
+        }
+
         .toast i {
             font-size: var(--font-size-lg);
             flex-shrink: 0;
@@ -1043,6 +1124,10 @@
                 font-size: var(--font-size-xl);
             }
 
+            .eligibility-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
             .modal-box {
                 padding: 32px 24px;
             }
@@ -1059,6 +1144,10 @@
 
             .guidelines-card {
                 padding: var(--spacing-md);
+            }
+
+            .eligibility-grid {
+                grid-template-columns: 1fr;
             }
 
             .header .header-actions .icon-btn {
@@ -1199,7 +1288,33 @@
                 </div>
 
                 <!-- ============================================================
-                CREATE GUILD FORM
+                ELIGIBILITY CHECK — Conditions
+                ============================================================ -->
+                <section class="eligibility-section">
+                    <div class="eligibility-grid" id="eligibilityGrid">
+                        <div class="eligibility-card" id="ageCheck">
+                            <div class="icon loading"><i class="fas fa-clock"></i></div>
+                            <div class="requirement">Account Age</div>
+                            <div class="status loading">Checking...</div>
+                            <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">Must be at least 15 days old</div>
+                        </div>
+                        <div class="eligibility-card" id="friendsCheck">
+                            <div class="icon loading"><i class="fas fa-user-friends"></i></div>
+                            <div class="requirement">Friends</div>
+                            <div class="status loading">Checking...</div>
+                            <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">Must have at least 10 friends</div>
+                        </div>
+                        <div class="eligibility-card" id="xpCheck">
+                            <div class="icon loading"><i class="fas fa-star"></i></div>
+                            <div class="requirement">Experience Points</div>
+                            <div class="status loading">Checking...</div>
+                            <div style="font-size:var(--font-size-xs); color:var(--text-muted); margin-top:4px;">Must have at least 100 XP</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================
+                CREATE GUILD FORM — Disabled if conditions not met
                 ============================================================ -->
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl); align-items: start;">
 
@@ -1298,7 +1413,7 @@
 
                             <!-- Form Actions -->
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
                                     <span class="btn-text"><i class="fas fa-paper-plane"></i> Create Guild</span>
                                     <span class="spinner"></span>
                                 </button>
@@ -1399,16 +1514,132 @@
             'use strict';
 
             // ============================================================
+            // DOM REFS
+            // ============================================================
+            const ageCheckEl = document.getElementById('ageCheck');
+            const friendsCheckEl = document.getElementById('friendsCheck');
+            const xpCheckEl = document.getElementById('xpCheck');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('guildForm');
+
+            // ============================================================
+            // ELIGIBILITY STATE
+            // ============================================================
+            let eligibility = {
+                ageMet: false,
+                friendsMet: false,
+                xpMet: false,
+                allMet: false
+            };
+
+            // ============================================================
+            // CHECK ELIGIBILITY
+            // ============================================================
+            async function checkEligibility() {
+                try {
+                    // Get current user
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+
+                    if (!user || !profile) {
+                        // Not logged in - show login required
+                        updateEligibilityUI(false, false, false, 'Please log in to create a guild');
+                        return;
+                    }
+
+                    // 1. Check Account Age (15 days = 1,296,000 seconds)
+                    const createdAt = new Date(profile.created_at);
+                    const now = new Date();
+                    const daysOld = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
+                    const ageMet = daysOld >= 15;
+
+                    // 2. Check Friends Count
+                    const { friends, error: friendsError } = await window.AniVerse.db.getFriends(user.id);
+                    const friendCount = friends ? friends.length : 0;
+                    const friendsMet = friendCount >= 10;
+
+                    // 3. Check XP
+                    const xp = profile.experience_points || 0;
+                    const xpMet = xp >= 100;
+
+                    // Update UI
+                    updateEligibilityUI(ageMet, friendsMet, xpMet, null);
+
+                    // Update eligibility state
+                    eligibility.ageMet = ageMet;
+                    eligibility.friendsMet = friendsMet;
+                    eligibility.xpMet = xpMet;
+                    eligibility.allMet = ageMet && friendsMet && xpMet;
+
+                    // Enable/disable submit button
+                    submitBtn.disabled = !eligibility.allMet;
+
+                    if (eligibility.allMet) {
+                        submitBtn.title = '';
+                    } else {
+                        submitBtn.title = 'You must meet all requirements to create a guild';
+                    }
+
+                } catch (error) {
+                    console.error('[AniVerse] Eligibility check error:', error);
+                    updateEligibilityUI(false, false, false, 'Error checking eligibility. Please refresh.');
+                }
+            }
+
+            // ============================================================
+            // UPDATE ELIGIBILITY UI
+            // ============================================================
+            function updateEligibilityUI(ageMet, friendsMet, xpMet, errorMessage) {
+                // Age Check
+                const ageIcon = ageCheckEl.querySelector('.icon');
+                const ageStatus = ageCheckEl.querySelector('.status');
+                if (errorMessage) {
+                    ageIcon.className = 'icon failed';
+                    ageStatus.className = 'status failed';
+                    ageStatus.textContent = errorMessage;
+                } else {
+                    ageIcon.className = ageMet ? 'icon passed' : 'icon failed';
+                    ageIcon.innerHTML = ageMet ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+                    ageStatus.className = ageMet ? 'status passed' : 'status failed';
+                    ageStatus.textContent = ageMet ? '✅ Eligible' : '❌ Not eligible';
+                }
+
+                // Friends Check
+                const friendsIcon = friendsCheckEl.querySelector('.icon');
+                const friendsStatus = friendsCheckEl.querySelector('.status');
+                if (errorMessage) {
+                    friendsIcon.className = 'icon failed';
+                    friendsStatus.className = 'status failed';
+                    friendsStatus.textContent = errorMessage;
+                } else {
+                    friendsIcon.className = friendsMet ? 'icon passed' : 'icon failed';
+                    friendsIcon.innerHTML = friendsMet ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+                    friendsStatus.className = friendsMet ? 'status passed' : 'status failed';
+                    friendsStatus.textContent = friendsMet ? '✅ Eligible' : '❌ Not eligible';
+                }
+
+                // XP Check
+                const xpIcon = xpCheckEl.querySelector('.icon');
+                const xpStatus = xpCheckEl.querySelector('.status');
+                if (errorMessage) {
+                    xpIcon.className = 'icon failed';
+                    xpStatus.className = 'status failed';
+                    xpStatus.textContent = errorMessage;
+                } else {
+                    xpIcon.className = xpMet ? 'icon passed' : 'icon failed';
+                    xpIcon.innerHTML = xpMet ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+                    xpStatus.className = xpMet ? 'status passed' : 'status failed';
+                    xpStatus.textContent = xpMet ? '✅ Eligible' : '❌ Not eligible';
+                }
+            }
+
+            // ============================================================
             // AUTH STATE
             // ============================================================
             let currentUser = null;
             let currentProfile = null;
 
-            // ============================================================
-            // UPDATE AUTH UI
-            // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                const { user, profile } = await window.AniVerse.auth.getCurrentUser();
                 currentUser = user;
                 currentProfile = profile;
 
@@ -1448,6 +1679,9 @@
                         adminPanelLink.classList.remove('visible');
                     }
 
+                    // Check eligibility after auth is ready
+                    await checkEligibility();
+
                 } else {
                     headerAvatar.classList.remove('visible');
                     headerLevel.classList.remove('visible');
@@ -1463,6 +1697,10 @@
                     logoutLink.classList.remove('visible');
                     logoutLink.style.display = 'none';
                     adminPanelLink.classList.remove('visible');
+
+                    // Show login required in eligibility cards
+                    updateEligibilityUI(false, false, false, 'Please log in to create a guild');
+                    submitBtn.disabled = true;
                 }
             }
 
@@ -1511,7 +1749,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await window.AniVerse.auth.signOut();
                     if (!error) {
                         localStorage.removeItem('aniverse_session');
                         window.location.replace('index.html');
@@ -1643,16 +1881,19 @@
             });
 
             // ============================================================
-            // FORM SUBMISSION - REAL SUPABASE INTEGRATION
+            // FORM SUBMISSION — With Eligibility Check
             // ============================================================
-            const form = document.getElementById('guildForm');
-            const submitBtn = document.getElementById('submitBtn');
-
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 hideToast();
 
-                // Validate
+                // Double-check eligibility before submission
+                if (!eligibility.allMet) {
+                    showToast('You do not meet the requirements to create a guild.', 'error');
+                    return;
+                }
+
+                // Validate form fields
                 const isNameValid = validateName();
                 const isDescValid = validateDescription();
 
@@ -1699,7 +1940,7 @@
                     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
                     // Check if name or slug exists
-                    const { data: existing } = await AniVerse.client
+                    const { data: existing } = await window.AniVerse.client
                         .from('guilds')
                         .select('id')
                         .or(`name.eq.${name},slug.eq.${slug}`)
@@ -1713,7 +1954,7 @@
                     }
 
                     // Create the guild
-                    const { data: guild, error } = await AniVerse.client
+                    const { data: guild, error } = await window.AniVerse.client
                         .from('guilds')
                         .insert({
                             name,
@@ -1738,7 +1979,7 @@
                     }
 
                     // Get default role (Member)
-                    const { data: defaultRole, error: roleError } = await AniVerse.client
+                    const { data: defaultRole, error: roleError } = await window.AniVerse.client
                         .from('guild_roles')
                         .select('id')
                         .eq('guild_id', guild.id)
@@ -1752,7 +1993,7 @@
 
                     // Add creator as member with default role
                     if (defaultRole) {
-                        await AniVerse.client
+                        await window.AniVerse.client
                             .from('guild_members')
                             .insert({
                                 guild_id: guild.id,
@@ -1795,10 +2036,15 @@
             // INITIALIZE
             // ============================================================
             async function init() {
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
+                }
+
                 await updateAuthUI();
 
                 // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
+                window.AniVerse.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                         updateAuthUI();
                     }

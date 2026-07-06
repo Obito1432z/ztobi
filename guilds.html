@@ -16,7 +16,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Centralized Supabase Client -->
-    <script src="supadase.js"></script>
+    <script src="supabaseClient.js"></script>
 
     <style>
         /* ============================================================
@@ -1376,7 +1376,10 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
@@ -1625,7 +1628,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE GUILDS
     ============================================================ -->
     <script>
         (function() {
@@ -1641,66 +1644,85 @@
             // UPDATE AUTH UI
             // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
-                currentUser = user;
-                currentProfile = profile;
+                try {
+                    if (typeof window.AniVerse === 'undefined') {
+                        setTimeout(updateAuthUI, 300);
+                        return;
+                    }
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
 
-                const isLoggedIn = !!user;
+                    const isLoggedIn = !!(user && profile);
 
-                const headerAvatar = document.getElementById('headerAvatar');
-                const headerLevel = document.getElementById('headerLevel');
-                const headerLoginBtn = document.getElementById('headerLoginBtn');
-                const headerSignupBtn = document.getElementById('headerSignupBtn');
-                const loginLink = document.getElementById('loginLink');
-                const signupLink = document.getElementById('signupLink');
-                const profileLink = document.getElementById('profileLink');
-                const settingsLink = document.getElementById('settingsLink');
-                const logoutLink = document.getElementById('logoutLink');
-                const adminPanelLink = document.getElementById('adminPanelLink');
+                    // Sidebar
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.getElementById('adminPanelLink');
 
-                if (isLoggedIn && profile) {
-                    headerAvatar.classList.add('visible');
-                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                    headerLevel.textContent = `Lv.${profile.level || 0}`;
-                    headerLevel.classList.add('visible');
-                    headerLoginBtn.classList.remove('visible');
-                    headerSignupBtn.classList.remove('visible');
+                    // Header
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
 
-                    loginLink.classList.add('hidden');
-                    signupLink.classList.add('hidden');
-                    loginLink.style.display = 'none';
-                    signupLink.style.display = 'none';
-                    profileLink.style.display = 'flex';
-                    settingsLink.style.display = 'flex';
-                    logoutLink.classList.add('visible');
-                    logoutLink.style.display = 'flex';
+                    if (isLoggedIn) {
+                        const displayName = profile?.display_name || user.email || 'User';
 
-                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-                        adminPanelLink.classList.add('visible');
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile?.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile?.level || 0}`;
+                        }
+                        if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+
+                        if (adminPanelLink) {
+                            const role = user.user_metadata?.role;
+                            if (role === 'admin' || role === 'moderator') {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+
                     } else {
-                        adminPanelLink.classList.remove('visible');
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        if (headerAvatar) headerAvatar.classList.remove('visible');
+                        if (headerLevel) headerLevel.classList.remove('visible');
+                        if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
                     }
 
-                } else {
-                    headerAvatar.classList.remove('visible');
-                    headerLevel.classList.remove('visible');
-                    headerLoginBtn.classList.add('visible');
-                    headerSignupBtn.classList.add('visible');
-
-                    loginLink.classList.remove('hidden');
-                    signupLink.classList.remove('hidden');
-                    loginLink.style.display = 'flex';
-                    signupLink.style.display = 'flex';
-                    profileLink.style.display = 'none';
-                    settingsLink.style.display = 'none';
-                    logoutLink.classList.remove('visible');
-                    logoutLink.style.display = 'none';
-                    adminPanelLink.classList.remove('visible');
+                    // Load guilds
+                    await loadGuilds();
+                    await loadStats();
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
                 }
-
-                // Load guilds
-                await loadGuilds();
-                await loadStats();
             }
 
             // ============================================================
@@ -1748,9 +1770,9 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await window.AniVerse.auth.signOut();
                     if (!error) {
-                        localStorage.removeItem('aniverse_session');
+                        window.clearSupabaseStorage();
                         window.location.replace('index.html');
                     } else {
                         alert('Logout failed. Please try again.');
@@ -1759,18 +1781,35 @@
             });
 
             // ============================================================
-            // TOAST
+            // GLOBAL SEARCH
             // ============================================================
-            const toast = document.getElementById('guildToast');
-            const toastMsg = document.getElementById('toastMessage');
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
 
-            function showToast(message, type) {
-                toast.className = 'toast show ' + (type || 'success');
-                toastMsg.textContent = message;
-                clearTimeout(toast._hideTimer);
-                toast._hideTimer = setTimeout(function() {
-                    toast.classList.remove('show');
-                }, 4000);
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
             }
 
             // ============================================================
@@ -1820,14 +1859,29 @@
             });
 
             // ============================================================
-            // SEARCH
+            // TOAST
             // ============================================================
-            const searchInput = document.getElementById('searchInput');
-            const searchBtn = document.getElementById('searchBtn');
+            const toast = document.getElementById('guildToast');
+            const toastMsg = document.getElementById('toastMessage');
+
+            function showToast(message, type) {
+                toast.className = 'toast show ' + (type || 'success');
+                toastMsg.textContent = message;
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            // ============================================================
+            // SEARCH GUILDS
+            // ============================================================
+            const searchInputGuild = document.getElementById('searchInput');
+            const searchBtnGuild = document.getElementById('searchBtn');
             const clearBtn = document.getElementById('clearBtn');
 
             function performSearch() {
-                const query = searchInput.value.trim();
+                const query = searchInputGuild.value.trim();
                 if (query.length === 0) {
                     showToast('Please enter a search term.', 'error');
                     return;
@@ -1835,12 +1889,12 @@
                 loadGuilds(query);
             }
 
-            if (searchBtn) {
-                searchBtn.addEventListener('click', performSearch);
+            if (searchBtnGuild) {
+                searchBtnGuild.addEventListener('click', performSearch);
             }
 
-            if (searchInput) {
-                searchInput.addEventListener('keydown', function(e) {
+            if (searchInputGuild) {
+                searchInputGuild.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         performSearch();
@@ -1850,8 +1904,8 @@
 
             if (clearBtn) {
                 clearBtn.addEventListener('click', function() {
-                    searchInput.value = '';
-                    searchInput.focus();
+                    searchInputGuild.value = '';
+                    searchInputGuild.focus();
                     loadGuilds();
                 });
             }
@@ -1887,7 +1941,7 @@
                 }
 
                 try {
-                    let query = AniVerse.client
+                    let query = window.AniVerse.client
                         .from('guilds')
                         .select('*')
                         .is('deleted_at', null)
@@ -1905,7 +1959,8 @@
                     }
 
                     // Apply sort
-                    const sortFilter = document.querySelector('.filter-group .dropdown-item.active')?.textContent || 'Newest';
+                    const sortFilter = document.querySelector('.filter-group .dropdown-item.active')?.textContent ||
+                    'Newest';
                     const sortMap = {
                         'Newest': { column: 'created_at', ascending: false },
                         'Most Active': { column: 'member_count', ascending: false },
@@ -2001,7 +2056,7 @@
             // ============================================================
             async function joinGuild(guildId) {
                 try {
-                    const { data: guild } = await AniVerse.client
+                    const { data: guild } = await window.AniVerse.client
                         .from('guilds')
                         .select('visibility')
                         .eq('id', guildId)
@@ -2018,7 +2073,7 @@
                     }
 
                     // Get default role
-                    const { data: defaultRole } = await AniVerse.client
+                    const { data: defaultRole } = await window.AniVerse.client
                         .from('guild_roles')
                         .select('id')
                         .eq('guild_id', guildId)
@@ -2030,7 +2085,7 @@
                         return;
                     }
 
-                    const { error } = await AniVerse.client
+                    const { error } = await window.AniVerse.client
                         .from('guild_members')
                         .insert({
                             guild_id: guildId,
@@ -2061,12 +2116,12 @@
             // ============================================================
             async function loadStats() {
                 try {
-                    const { count: guildCount } = await AniVerse.client
+                    const { count: guildCount } = await window.AniVerse.client
                         .from('guilds')
                         .select('*', { count: 'exact', head: true })
                         .is('deleted_at', null);
 
-                    const { count: memberCount } = await AniVerse.client
+                    const { count: memberCount } = await window.AniVerse.client
                         .from('guild_members')
                         .select('*', { count: 'exact', head: true });
 
@@ -2108,21 +2163,20 @@
             // INITIALIZE
             // ============================================================
             async function init() {
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
+                }
+
                 await updateAuthUI();
 
-                // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                        updateAuthUI();
-                    }
+                window.AniVerse.auth.onAuthStateChange(() => {
+                    updateAuthUI();
                 });
             }
 
             init();
 
-            // ============================================================
-            // LOG
-            // ============================================================
             console.log('[AniVerse] Guilds page ready (Supabase integrated)');
 
         })();

@@ -16,7 +16,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Centralized Supabase Client -->
-    <script src="supadase.js"></script>
+    <script src="supabaseClient.js"></script>
 
     <style>
         /* ============================================================
@@ -63,7 +63,6 @@
             --font-size-2xl: 1.8rem;
 
             --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --animation-pulse: pulse 1.5s ease-in-out infinite;
 
             --sidebar-width: 240px;
             --header-height: 68px;
@@ -732,95 +731,6 @@
         }
 
         /* ============================================================
-                   NOTIFICATION FILTERS
-                   ============================================================ */
-        .notif-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
-            align-items: center;
-        }
-
-        .filter-group {
-            position: relative;
-        }
-
-        .filter-group .filter-btn {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            padding: 8px 16px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
-            font-family: var(--font-family);
-            font-size: var(--font-size-sm);
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .filter-group .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
-        }
-
-        .filter-group .filter-btn i {
-            font-size: var(--font-size-xs);
-        }
-
-        .filter-dropdown {
-            display: none;
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
-            min-width: 180px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-md);
-            padding: 8px 0;
-            box-shadow: var(--shadow-dropdown);
-            z-index: 100;
-            backdrop-filter: blur(12px);
-        }
-
-        .filter-dropdown.open {
-            display: block;
-            animation: fadeSlide 0.2s ease;
-        }
-
-        .filter-dropdown .dropdown-item {
-            padding: 8px 20px;
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .filter-dropdown .dropdown-item:hover {
-            background: rgba(124, 92, 252, 0.08);
-            color: var(--text-primary);
-        }
-
-        .filter-dropdown .dropdown-item.active {
-            color: var(--accent-1);
-            background: rgba(124, 92, 252, 0.06);
-        }
-
-        @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ============================================================
                    NOTIFICATION CARDS
                    ============================================================ */
         .notif-list {
@@ -980,6 +890,62 @@
 
         .empty-state p {
             font-size: var(--font-size-md);
+        }
+
+        /* ============================================================
+                   NOTIFICATION SETTINGS PREVIEW
+                   ============================================================ */
+        .settings-preview {
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-xl);
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .settings-preview .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .settings-preview .setting-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) 0;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .settings-preview .setting-item .toggle {
+            width: 40px;
+            height: 22px;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            position: relative;
+            cursor: default;
+            flex-shrink: 0;
+        }
+
+        .settings-preview .setting-item .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: var(--transition-smooth);
+        }
+
+        .settings-preview .setting-item .toggle.active::after {
+            left: 20px;
+            background: var(--accent-1);
+        }
+
+        .settings-preview .setting-item .toggle.active {
+            background: rgba(124, 92, 252, 0.2);
         }
 
         /* ============================================================
@@ -1239,7 +1205,10 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
@@ -1308,24 +1277,6 @@
                     TAB: ALL
                     ============================================================ -->
                     <div class="tab-content active" id="tab-all" role="tabpanel">
-                        <div class="notif-filters">
-                            <div class="filter-group">
-                                <button class="filter-btn" data-filter="sort"><i class="fas fa-arrow-up-wide-short"></i> Newest <i class="fas fa-chevron-down"></i></button>
-                                <div class="filter-dropdown" data-filter="sort">
-                                    <div class="dropdown-item active">Newest</div>
-                                    <div class="dropdown-item">Oldest</div>
-                                </div>
-                            </div>
-                            <div class="filter-group">
-                                <button class="filter-btn" data-filter="type"><i class="fas fa-filter"></i> All Types <i class="fas fa-chevron-down"></i></button>
-                                <div class="filter-dropdown" data-filter="type">
-                                    <div class="dropdown-item active">All</div>
-                                    <div class="dropdown-item">Unread</div>
-                                    <div class="dropdown-item">Read</div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="notif-list" id="notifList">
                             <!-- Will be loaded from Supabase -->
                         </div>
@@ -1385,6 +1336,44 @@
                         </div>
                     </div>
 
+                    <!-- ============================================================
+                    NOTIFICATION SETTINGS PREVIEW
+                    ============================================================ -->
+                    <div class="settings-preview">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-cog"></i> Preferences</span>
+                                <h2 class="section-title">Notification Settings</h2>
+                            </div>
+                        </div>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <span>Email Notifications</span>
+                                <div class="toggle"></div>
+                            </div>
+                            <div class="setting-item">
+                                <span>Push Notifications</span>
+                                <div class="toggle active"></div>
+                            </div>
+                            <div class="setting-item">
+                                <span>Guild Notifications</span>
+                                <div class="toggle active"></div>
+                            </div>
+                            <div class="setting-item">
+                                <span>Friend Requests</span>
+                                <div class="toggle active"></div>
+                            </div>
+                            <div class="setting-item">
+                                <span>Messages</span>
+                                <div class="toggle active"></div>
+                            </div>
+                            <div class="setting-item">
+                                <span>Announcements</span>
+                                <div class="toggle"></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -1392,92 +1381,106 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE NOTIFICATIONS
     ============================================================ -->
     <script>
         (function() {
             'use strict';
 
             // ============================================================
-            // AUTH STATE
+            // AUTH STATE - NOTIFICATIONS PAGE
             // ============================================================
             let currentUser = null;
             let currentProfile = null;
-            let notificationSubscription = null;
 
-            // ============================================================
-            // UPDATE AUTH UI
-            // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
-                currentUser = user;
-                currentProfile = profile;
-
-                const isLoggedIn = !!user;
-
-                const headerAvatar = document.getElementById('headerAvatar');
-                const headerLevel = document.getElementById('headerLevel');
-                const headerLoginBtn = document.getElementById('headerLoginBtn');
-                const headerSignupBtn = document.getElementById('headerSignupBtn');
-                const loginLink = document.getElementById('loginLink');
-                const signupLink = document.getElementById('signupLink');
-                const profileLink = document.getElementById('profileLink');
-                const settingsLink = document.getElementById('settingsLink');
-                const logoutLink = document.getElementById('logoutLink');
-                const adminPanelLink = document.getElementById('adminPanelLink');
-
-                if (isLoggedIn && profile) {
-                    headerAvatar.classList.add('visible');
-                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                    headerLevel.textContent = `Lv.${profile.level || 0}`;
-                    headerLevel.classList.add('visible');
-                    headerLoginBtn.classList.remove('visible');
-                    headerSignupBtn.classList.remove('visible');
-
-                    loginLink.classList.add('hidden');
-                    signupLink.classList.add('hidden');
-                    loginLink.style.display = 'none';
-                    signupLink.style.display = 'none';
-                    profileLink.style.display = 'flex';
-                    settingsLink.style.display = 'flex';
-                    logoutLink.classList.add('visible');
-                    logoutLink.style.display = 'flex';
-
-                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-                        adminPanelLink.classList.add('visible');
-                    } else {
-                        adminPanelLink.classList.remove('visible');
+                try {
+                    if (typeof window.AniVerse === 'undefined') {
+                        setTimeout(updateAuthUI, 300);
+                        return;
                     }
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
 
-                    // Load notifications
-                    await loadNotifications(user.id);
-                    await loadNotificationCounts(user.id);
+                    const isLoggedIn = !!(user && profile);
 
-                } else {
-                    headerAvatar.classList.remove('visible');
-                    headerLevel.classList.remove('visible');
-                    headerLoginBtn.classList.add('visible');
-                    headerSignupBtn.classList.add('visible');
+                    // Sidebar elements
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.getElementById('adminPanelLink');
 
-                    loginLink.classList.remove('hidden');
-                    signupLink.classList.remove('hidden');
-                    loginLink.style.display = 'flex';
-                    signupLink.style.display = 'flex';
-                    profileLink.style.display = 'none';
-                    settingsLink.style.display = 'none';
-                    logoutLink.classList.remove('visible');
-                    logoutLink.style.display = 'none';
-                    adminPanelLink.classList.remove('visible');
+                    // Header elements
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
 
-                    // Show login required
-                    document.getElementById('notifList').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-user-lock"></i>
-                            <h3>Login Required</h3>
-                            <p>Please log in to see your notifications.</p>
-                            <a href="login.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Log In</a>
-                        </div>
-                    `;
+                    if (isLoggedIn) {
+                        const displayName = profile?.display_name || user.email || 'User';
+
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile?.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile?.level || 0}`;
+                        }
+                        if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+
+                        if (adminPanelLink) {
+                            const role = user.user_metadata?.role;
+                            if (role === 'admin' || role === 'moderator') {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+
+                        // Load notifications
+                        await loadNotifications(user.id);
+                        await loadNotificationCounts(user.id);
+
+                    } else {
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        if (headerAvatar) headerAvatar.classList.remove('visible');
+                        if (headerLevel) headerLevel.classList.remove('visible');
+                        if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
+
+                        document.getElementById('notifList').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-lock"></i>
+                                <h3>Login Required</h3>
+                                <p>Please log in to see your notifications.</p>
+                                <a href="login.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Log In</a>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
                 }
             }
 
@@ -1526,15 +1529,47 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await window.AniVerse.auth.signOut();
                     if (!error) {
-                        localStorage.removeItem('aniverse_session');
+                        window.clearSupabaseStorage();
                         window.location.replace('index.html');
                     } else {
                         alert('Logout failed. Please try again.');
                     }
                 }
             });
+
+            // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
 
             // ============================================================
             // TOAST
@@ -1590,7 +1625,6 @@
                     const targetContent = tabContents[tabId];
                     if (targetContent) {
                         targetContent.classList.add('active');
-                        // Load notifications for this tab
                         if (currentUser) {
                             loadNotificationsByType(currentUser.id, tabId);
                         }
@@ -1599,77 +1633,25 @@
             });
 
             // ============================================================
-            // FILTER DROPDOWNS
-            // ============================================================
-            document.querySelectorAll('.filter-group').forEach(function(group) {
-                const btn = group.querySelector('.filter-btn');
-                const dropdown = group.querySelector('.filter-dropdown');
-
-                if (btn && dropdown) {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const isOpen = dropdown.classList.toggle('open');
-                        document.querySelectorAll('.filter-dropdown.open').forEach(function(d) {
-                            if (d !== dropdown) d.classList.remove('open');
-                        });
-                    });
-
-                    dropdown.querySelectorAll('.dropdown-item').forEach(function(item) {
-                        item.addEventListener('click', function() {
-                            dropdown.querySelectorAll('.dropdown-item').forEach(function(i) {
-                                i.classList.remove('active');
-                            });
-                            item.classList.add('active');
-                            const label = item.textContent.trim();
-                            const icon = btn.querySelector('i:first-child');
-                            const chevron = btn.querySelector('i:last-child');
-                            if (icon && chevron) {
-                                const textNode = btn.childNodes[1];
-                                if (textNode) {
-                                    btn.replaceChild(document.createTextNode(' ' + label +
-                                        ' '), textNode);
-                                }
-                            }
-                            dropdown.classList.remove('open');
-                            // Refresh notifications with filter
-                            if (currentUser) {
-                                loadNotifications(currentUser.id);
-                            }
-                        });
-                    });
-                }
-            });
-
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.filter-dropdown.open').forEach(function(d) {
-                    d.classList.remove('open');
-                });
-            });
-
-            // ============================================================
             // LOAD NOTIFICATION COUNTS
             // ============================================================
             async function loadNotificationCounts(userId) {
                 try {
-                    // Get unread count
-                    const { count: unreadCount } = await AniVerse.client
+                    const { count: unreadCount } = await window.AniVerse.client
                         .from('notifications')
                         .select('*', { count: 'exact', head: true })
                         .eq('user_id', userId)
                         .eq('is_read', false);
 
-                    // Get total count
-                    const { count: totalCount } = await AniVerse.client
+                    const { count: totalCount } = await window.AniVerse.client
                         .from('notifications')
                         .select('*', { count: 'exact', head: true })
                         .eq('user_id', userId);
 
-                    // Update UI
                     document.getElementById('unreadCount').textContent = unreadCount || 0;
                     document.getElementById('totalCount').textContent = totalCount || 0;
                     document.getElementById('unreadTabBadge').textContent = unreadCount || 0;
 
-                    // Update sidebar badge
                     const notifBadge = document.getElementById('notifBadge');
                     const headerNotifDot = document.getElementById('headerNotifDot');
                     if (unreadCount > 0) {
@@ -1691,7 +1673,7 @@
             // ============================================================
             async function loadNotifications(userId) {
                 try {
-                    const { notifications, count, error } = await AniVerse.db.getNotifications(userId, { limit: 50 });
+                    const { notifications, count, error } = await window.AniVerse.db.getNotifications(userId, { limit: 50 });
 
                     const container = document.getElementById('notifList');
 
@@ -1758,7 +1740,7 @@
 
                     const container = document.getElementById(containerId);
 
-                    let query = AniVerse.client
+                    let query = window.AniVerse.client
                         .from('notifications')
                         .select('*')
                         .eq('user_id', userId)
@@ -1865,7 +1847,7 @@
             function getNotificationDescription(type, data) {
                 if (data?.message) return data.message;
                 if (data?.description) return data.description;
-                
+
                 const descriptions = {
                     friend_request: 'Someone wants to be your friend.',
                     friend_accepted: 'Your friend request was accepted.',
@@ -1887,10 +1869,9 @@
             // ============================================================
             async function markNotificationRead(notificationId) {
                 try {
-                    const { error } = await AniVerse.db.markNotificationRead(notificationId, currentUser.id);
+                    const { error } = await window.AniVerse.db.markNotificationRead(notificationId, currentUser.id);
                     if (error) throw new Error(error);
 
-                    // Refresh notifications
                     const activeTab = document.querySelector('.tab-btn.active');
                     if (activeTab) {
                         const tabId = activeTab.getAttribute('data-tab');
@@ -1913,7 +1894,7 @@
             // ============================================================
             async function deleteNotification(notificationId) {
                 try {
-                    const { error } = await AniVerse.client
+                    const { error } = await window.AniVerse.client
                         .from('notifications')
                         .delete()
                         .eq('id', notificationId)
@@ -1921,7 +1902,6 @@
 
                     if (error) throw new Error(error);
 
-                    // Refresh notifications
                     const activeTab = document.querySelector('.tab-btn.active');
                     if (activeTab) {
                         const tabId = activeTab.getAttribute('data-tab');
@@ -1944,7 +1924,7 @@
             // ============================================================
             async function markAllAsRead() {
                 try {
-                    const { error } = await AniVerse.client
+                    const { error } = await window.AniVerse.client
                         .from('notifications')
                         .update({ is_read: true, read_at: new Date().toISOString() })
                         .eq('user_id', currentUser.id)
@@ -1953,8 +1933,7 @@
                     if (error) throw new Error(error);
 
                     showToast('All notifications marked as read.', 'success');
-                    
-                    // Refresh notifications
+
                     const activeTab = document.querySelector('.tab-btn.active');
                     if (activeTab) {
                         const tabId = activeTab.getAttribute('data-tab');
@@ -1979,7 +1958,7 @@
                 if (!confirm('Delete all notifications? This action cannot be undone.')) return;
 
                 try {
-                    const { error } = await AniVerse.client
+                    const { error } = await window.AniVerse.client
                         .from('notifications')
                         .delete()
                         .eq('user_id', currentUser.id);
@@ -1987,8 +1966,7 @@
                     if (error) throw new Error(error);
 
                     showToast('All notifications cleared.', 'success');
-                    
-                    // Refresh notifications
+
                     const activeTab = document.querySelector('.tab-btn.active');
                     if (activeTab) {
                         const tabId = activeTab.getAttribute('data-tab');
@@ -2045,7 +2023,7 @@
                     const btn = document.getElementById('refreshBtn');
                     btn.classList.remove('loading');
                     btn.innerHTML = '<i class="fas fa-sync"></i> Refresh';
-                    
+
                     if (currentUser) {
                         const activeTab = document.querySelector('.tab-btn.active');
                         if (activeTab) {
@@ -2066,46 +2044,20 @@
             // INITIALIZE
             // ============================================================
             async function init() {
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
+                }
+
                 await updateAuthUI();
 
-                // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN') {
-                        updateAuthUI();
-                    } else if (event === 'SIGNED_OUT') {
-                        window.location.replace('index.html');
-                    }
+                window.AniVerse.auth.onAuthStateChange(() => {
+                    updateAuthUI();
                 });
-
-                // Subscribe to realtime notifications
-                if (currentUser) {
-                    notificationSubscription = AniVerse.realtime.subscribe(
-                        'notifications',
-                        (payload) => {
-                            if (payload.eventType === 'INSERT' && payload.new.user_id === currentUser.id) {
-                                // New notification - refresh
-                                const activeTab = document.querySelector('.tab-btn.active');
-                                if (activeTab) {
-                                    const tabId = activeTab.getAttribute('data-tab');
-                                    if (tabId === 'all') {
-                                        loadNotifications(currentUser.id);
-                                    } else {
-                                        loadNotificationsByType(currentUser.id, tabId);
-                                    }
-                                }
-                                loadNotificationCounts(currentUser.id);
-                            }
-                        },
-                        { column: 'user_id', value: currentUser.id }
-                    );
-                }
             }
 
             init();
 
-            // ============================================================
-            // LOG
-            // ============================================================
             console.log('[AniVerse] Notifications page ready (Supabase integrated)');
 
         })();

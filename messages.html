@@ -16,7 +16,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Centralized Supabase Client -->
-    <script src="supadase.js"></script>
+    <script src="supabaseClient.js"></script>
 
     <style>
         /* ============================================================
@@ -1112,7 +1112,10 @@
         <header class="header" role="banner">
             <div class="header-search">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <input type="text" id="globalSearchInput" placeholder="Search anime, guilds, people..." aria-label="Global search" />
+                <button id="globalSearchBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0 8px;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
 
             <div class="header-actions">
@@ -1215,7 +1218,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE MESSAGES
     ============================================================ -->
     <script>
         (function() {
@@ -1228,81 +1231,98 @@
             let currentProfile = null;
             let selectedConversationId = null;
             let selectedUserId = null;
-            let conversationSubscription = null;
             let messageSubscription = null;
 
             // ============================================================
             // UPDATE AUTH UI
             // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
-                currentUser = user;
-                currentProfile = profile;
-
-                const isLoggedIn = !!user;
-
-                const headerAvatar = document.getElementById('headerAvatar');
-                const headerLevel = document.getElementById('headerLevel');
-                const headerLoginBtn = document.getElementById('headerLoginBtn');
-                const headerSignupBtn = document.getElementById('headerSignupBtn');
-                const loginLink = document.getElementById('loginLink');
-                const signupLink = document.getElementById('signupLink');
-                const profileLink = document.getElementById('profileLink');
-                const settingsLink = document.getElementById('settingsLink');
-                const logoutLink = document.getElementById('logoutLink');
-                const adminPanelLink = document.getElementById('adminPanelLink');
-
-                if (isLoggedIn && profile) {
-                    headerAvatar.classList.add('visible');
-                    headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
-                    headerLevel.textContent = `Lv.${profile.level || 0}`;
-                    headerLevel.classList.add('visible');
-                    headerLoginBtn.classList.remove('visible');
-                    headerSignupBtn.classList.remove('visible');
-
-                    loginLink.classList.add('hidden');
-                    signupLink.classList.add('hidden');
-                    loginLink.style.display = 'none';
-                    signupLink.style.display = 'none';
-                    profileLink.style.display = 'flex';
-                    settingsLink.style.display = 'flex';
-                    logoutLink.classList.add('visible');
-                    logoutLink.style.display = 'flex';
-
-                    if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-                        adminPanelLink.classList.add('visible');
-                    } else {
-                        adminPanelLink.classList.remove('visible');
+                try {
+                    if (typeof window.AniVerse === 'undefined') {
+                        setTimeout(updateAuthUI, 300);
+                        return;
                     }
+                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    currentUser = user;
+                    currentProfile = profile;
 
-                    // Load conversations
-                    await loadConversations(user.id);
+                    const isLoggedIn = !!(user && profile);
 
-                } else {
-                    headerAvatar.classList.remove('visible');
-                    headerLevel.classList.remove('visible');
-                    headerLoginBtn.classList.add('visible');
-                    headerSignupBtn.classList.add('visible');
+                    // Sidebar
+                    const loginLink = document.getElementById('loginLink');
+                    const signupLink = document.getElementById('signupLink');
+                    const profileLink = document.getElementById('profileLink');
+                    const settingsLink = document.getElementById('settingsLink');
+                    const logoutLink = document.getElementById('logoutLink');
+                    const adminPanelLink = document.getElementById('adminPanelLink');
 
-                    loginLink.classList.remove('hidden');
-                    signupLink.classList.remove('hidden');
-                    loginLink.style.display = 'flex';
-                    signupLink.style.display = 'flex';
-                    profileLink.style.display = 'none';
-                    settingsLink.style.display = 'none';
-                    logoutLink.classList.remove('visible');
-                    logoutLink.style.display = 'none';
-                    adminPanelLink.classList.remove('visible');
+                    // Header
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    const headerLevel = document.getElementById('headerLevel');
+                    const headerLoginBtn = document.getElementById('headerLoginBtn');
+                    const headerSignupBtn = document.getElementById('headerSignupBtn');
 
-                    // Show login required
-                    document.getElementById('conversationList').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-user-lock"></i>
-                            <h3>Login Required</h3>
-                            <p>Please log in to see your messages.</p>
-                            <a href="login.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Log In</a>
-                        </div>
-                    `;
+                    if (isLoggedIn) {
+                        const displayName = profile?.display_name || user.email || 'User';
+
+                        loginLink.style.display = 'none';
+                        signupLink.style.display = 'none';
+                        profileLink.style.display = 'flex';
+                        settingsLink.style.display = 'flex';
+                        logoutLink.style.display = 'flex';
+
+                        if (headerAvatar) {
+                            headerAvatar.classList.add('visible');
+                            headerAvatar.textContent = displayName.charAt(0).toUpperCase();
+                            if (profile?.avatar_url) {
+                                headerAvatar.style.backgroundImage = `url(${profile.avatar_url})`;
+                                headerAvatar.style.backgroundSize = 'cover';
+                                headerAvatar.style.backgroundPosition = 'center';
+                                headerAvatar.textContent = '';
+                            }
+                        }
+                        if (headerLevel) {
+                            headerLevel.classList.add('visible');
+                            headerLevel.textContent = `Lv.${profile?.level || 0}`;
+                        }
+                        if (headerLoginBtn) headerLoginBtn.classList.remove('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.remove('visible');
+
+                        if (adminPanelLink) {
+                            const role = user.user_metadata?.role;
+                            if (role === 'admin' || role === 'moderator') {
+                                adminPanelLink.classList.add('visible');
+                            } else {
+                                adminPanelLink.classList.remove('visible');
+                            }
+                        }
+
+                        // Load conversations
+                        await loadConversations(user.id);
+
+                    } else {
+                        loginLink.style.display = 'flex';
+                        signupLink.style.display = 'flex';
+                        profileLink.style.display = 'none';
+                        settingsLink.style.display = 'none';
+                        logoutLink.style.display = 'none';
+                        if (headerAvatar) headerAvatar.classList.remove('visible');
+                        if (headerLevel) headerLevel.classList.remove('visible');
+                        if (headerLoginBtn) headerLoginBtn.classList.add('visible');
+                        if (headerSignupBtn) headerSignupBtn.classList.add('visible');
+                        if (adminPanelLink) adminPanelLink.classList.remove('visible');
+
+                        document.getElementById('conversationList').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-lock"></i>
+                                <h3>Login Required</h3>
+                                <p>Please log in to see your messages.</p>
+                                <a href="login.html" class="btn btn-primary" style="margin-top:var(--spacing-md);">Log In</a>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('[AniVerse] Auth UI update error:', error);
                 }
             }
 
@@ -1351,9 +1371,9 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await window.AniVerse.auth.signOut();
                     if (!error) {
-                        localStorage.removeItem('aniverse_session');
+                        window.clearSupabaseStorage();
                         window.location.replace('index.html');
                     } else {
                         alert('Logout failed. Please try again.');
@@ -1362,12 +1382,43 @@
             });
 
             // ============================================================
+            // GLOBAL SEARCH
+            // ============================================================
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchBtn = document.getElementById('globalSearchBtn');
+
+            function performGlobalSearch() {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    window.location.href = 'search.html?q=' + encodeURIComponent(query);
+                } else {
+                    searchInput.focus();
+                    searchInput.style.borderColor = 'var(--color-error)';
+                    setTimeout(() => {
+                        searchInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performGlobalSearch);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performGlobalSearch();
+                    }
+                });
+            }
+
+            // ============================================================
             // LOAD CONVERSATIONS
             // ============================================================
             async function loadConversations(userId) {
                 try {
-                    // Get all conversations for the user
-                    const { data: conversations, error } = await AniVerse.client
+                    const { data: conversations, error } = await window.AniVerse.client
                         .from('conversations')
                         .select(`
                             *,
@@ -1397,13 +1448,12 @@
                         return;
                     }
 
-                    // Render conversations
                     container.innerHTML = conversations.map(convo => {
-                        // Determine the other participant
-                        const otherUser = convo.participant1_id === userId ? 
+                        const otherUser = convo.participant1_id === userId ?
                             convo.participant2 : convo.participant1;
-                        
-                        const initial = otherUser?.display_name ? otherUser.display_name.charAt(0).toUpperCase() : 'U';
+
+                        const initial = otherUser?.display_name ? otherUser.display_name.charAt(0).toUpperCase() :
+                            'U';
                         const avatarHtml = otherUser?.avatar_url ?
                             `<img src="${otherUser.avatar_url}" alt="${otherUser.display_name}" />` :
                             initial;
@@ -1429,7 +1479,6 @@
                         `;
                     }).join('');
 
-                    // Add click listeners to conversation items
                     document.querySelectorAll('.convo-item').forEach(item => {
                         item.addEventListener('click', function() {
                             const convoId = this.getAttribute('data-convoid');
@@ -1452,7 +1501,6 @@
                 selectedConversationId = conversationId;
                 selectedUserId = userId;
 
-                // Update UI
                 document.querySelectorAll('.convo-item').forEach(item => {
                     item.classList.remove('active');
                     if (item.getAttribute('data-convoid') === conversationId) {
@@ -1460,8 +1508,7 @@
                     }
                 });
 
-                // Get user info
-                const { data: user, error } = await AniVerse.client
+                const { data: user, error } = await window.AniVerse.client
                     .from('profiles')
                     .select('display_name, username, avatar_url, is_online')
                     .eq('id', userId)
@@ -1471,10 +1518,10 @@
                     const nameEl = document.getElementById('chatUserName');
                     const statusEl = document.getElementById('chatUserStatus');
                     const avatarEl = document.querySelector('.chat-header .chat-user .avatar');
-                    
+
                     nameEl.textContent = user.display_name || 'Unknown User';
                     statusEl.textContent = user.is_online ? 'Online' : 'Offline';
-                    
+
                     if (user.avatar_url) {
                         avatarEl.innerHTML = `<img src="${user.avatar_url}" alt="${user.display_name}" />`;
                     } else {
@@ -1483,20 +1530,14 @@
                     }
                 }
 
-                // Enable input
                 const messageInput = document.getElementById('messageInput');
                 const sendBtn = document.getElementById('sendBtn');
                 messageInput.disabled = false;
                 messageInput.placeholder = `Message ${user?.display_name || 'User'}...`;
                 sendBtn.disabled = false;
 
-                // Load messages
                 await loadMessages(conversationId);
-
-                // Subscribe to new messages
                 await subscribeToMessages(conversationId);
-
-                // Mark messages as read
                 await markMessagesAsRead(conversationId);
             }
 
@@ -1505,7 +1546,7 @@
             // ============================================================
             async function loadMessages(conversationId) {
                 try {
-                    const { messages, error } = await AniVerse.db.getMessages(conversationId, { limit: 100 });
+                    const { messages, error } = await window.AniVerse.db.getMessages(conversationId, { limit: 100 });
 
                     const container = document.getElementById('chatMessages');
 
@@ -1524,7 +1565,8 @@
                         const isSent = msg.sender_id === currentUser.id;
                         const sender = msg.sender;
                         const senderName = sender?.display_name || 'Unknown User';
-                        const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit',
+                            minute: '2-digit' });
 
                         return `
                             <div class="message ${isSent ? 'sent' : 'received'}">
@@ -1535,7 +1577,6 @@
                         `;
                     }).join('');
 
-                    // Scroll to bottom
                     container.scrollTop = container.scrollHeight;
 
                 } catch (error) {
@@ -1553,7 +1594,7 @@
                 if (!content || !selectedUserId || !selectedConversationId) return;
 
                 try {
-                    const result = await AniVerse.auth.sendMessage({
+                    const result = await window.AniVerse.auth.sendMessage({
                         receiverId: selectedUserId,
                         content: content,
                         replyToId: null
@@ -1563,13 +1604,8 @@
                         throw new Error(result.error);
                     }
 
-                    // Clear input
                     input.value = '';
-
-                    // Reload messages
                     await loadMessages(selectedConversationId);
-
-                    // Update conversation list
                     await loadConversations(currentUser.id);
 
                 } catch (error) {
@@ -1583,7 +1619,7 @@
             // ============================================================
             async function markMessagesAsRead(conversationId) {
                 try {
-                    await AniVerse.client
+                    await window.AniVerse.client
                         .from('messages')
                         .update({ is_read: true, read_at: new Date().toISOString() })
                         .eq('conversation_id', conversationId)
@@ -1598,30 +1634,25 @@
             // SUBSCRIBE TO MESSAGES (Realtime)
             // ============================================================
             async function subscribeToMessages(conversationId) {
-                // Unsubscribe from previous subscription
                 if (messageSubscription) {
-                    AniVerse.realtime.unsubscribe(messageSubscription);
+                    window.AniVerse.realtime.unsubscribe(messageSubscription);
                     messageSubscription = null;
                 }
 
-                messageSubscription = AniVerse.realtime.subscribe(
+                messageSubscription = window.AniVerse.realtime.subscribe(
                     'messages',
                     (payload) => {
                         if (payload.eventType === 'INSERT') {
                             const newMessage = payload.new;
                             if (newMessage.conversation_id === conversationId) {
-                                // Reload messages
                                 loadMessages(conversationId);
-                                // Update conversation list
                                 loadConversations(currentUser.id);
-                                // Mark as read if it's from the other user
                                 if (newMessage.sender_id !== currentUser.id) {
                                     markMessagesAsRead(conversationId);
                                 }
                             }
                         }
-                    },
-                    { column: 'conversation_id', value: conversationId }
+                    }, { column: 'conversation_id', value: conversationId }
                 );
             }
 
@@ -1629,13 +1660,11 @@
             // CREATE NEW CONVERSATION
             // ============================================================
             async function createNewConversation() {
-                // Show a modal or prompt to select a friend
                 const friendId = prompt('Enter the username of the person you want to message:');
                 if (!friendId) return;
 
                 try {
-                    // Find user by username
-                    const { data: user, error } = await AniVerse.client
+                    const { data: user, error } = await window.AniVerse.client
                         .from('profiles')
                         .select('id, display_name')
                         .ilike('username', friendId)
@@ -1651,8 +1680,7 @@
                         return;
                     }
 
-                    // Get or create conversation
-                    const { data: existing } = await AniVerse.client
+                    const { data: existing } = await window.AniVerse.client
                         .from('conversations')
                         .select('id')
                         .or(`participant1_id.eq.${currentUser.id},participant1_id.eq.${user.id}`)
@@ -1663,8 +1691,10 @@
                     if (existing) {
                         conversationId = existing.id;
                     } else {
-                        const [p1, p2] = currentUser.id < user.id ? [currentUser.id, user.id] : [user.id, currentUser.id];
-                        const { data: newConvo, error: convoError } = await AniVerse.client
+                        const [p1, p2] = currentUser.id < user.id ? [currentUser.id, user.id] : [user.id, currentUser
+                            .id
+                        ];
+                        const { data: newConvo, error: convoError } = await window.AniVerse.client
                             .from('conversations')
                             .insert({ participant1_id: p1, participant2_id: p2 })
                             .select()
@@ -1676,11 +1706,8 @@
                         conversationId = newConvo.id;
                     }
 
-                    // Select the conversation
                     await selectConversation(conversationId, user.id);
                     await loadConversations(currentUser.id);
-
-                    // Focus on input
                     document.getElementById('messageInput').focus();
 
                 } catch (error) {
@@ -1688,21 +1715,6 @@
                     alert('Could not start conversation. Please try again.');
                 }
             }
-
-            // ============================================================
-            // SEARCH CONVERSATIONS
-            // ============================================================
-            const searchInput = document.getElementById('convoSearch');
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                const items = document.querySelectorAll('.convo-item');
-                items.forEach(item => {
-                    const name = item.querySelector('.convo-name')?.textContent?.toLowerCase() || '';
-                    const preview = item.querySelector('.convo-preview')?.textContent?.toLowerCase() || '';
-                    const match = name.includes(query) || preview.includes(query);
-                    item.style.display = match ? 'flex' : 'none';
-                });
-            });
 
             // ============================================================
             // UTILITY: TIME AGO
@@ -1723,10 +1735,25 @@
             }
 
             // ============================================================
+            // SEARCH CONVERSATIONS
+            // ============================================================
+            const convoSearch = document.getElementById('convoSearch');
+            convoSearch.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.convo-item');
+                items.forEach(item => {
+                    const name = item.querySelector('.convo-name')?.textContent?.toLowerCase() || '';
+                    const preview = item.querySelector('.convo-preview')?.textContent?.toLowerCase() || '';
+                    const match = name.includes(query) || preview.includes(query);
+                    item.style.display = match ? 'flex' : 'none';
+                });
+            });
+
+            // ============================================================
             // EVENT LISTENERS
             // ============================================================
             document.getElementById('sendBtn').addEventListener('click', sendMessage);
-            
+
             document.getElementById('messageInput').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1740,23 +1767,20 @@
             // INITIALIZE
             // ============================================================
             async function init() {
+                if (typeof window.AniVerse === 'undefined') {
+                    setTimeout(init, 300);
+                    return;
+                }
+
                 await updateAuthUI();
 
-                // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN') {
-                        updateAuthUI();
-                    } else if (event === 'SIGNED_OUT') {
-                        window.location.replace('index.html');
-                    }
+                window.AniVerse.auth.onAuthStateChange(() => {
+                    updateAuthUI();
                 });
             }
 
             init();
 
-            // ============================================================
-            // LOG
-            // ============================================================
             console.log('[AniVerse] Messages page ready (Supabase integrated)');
 
         })();
