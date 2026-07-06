@@ -61,7 +61,7 @@ const Auth = {
             if (password.length < 8) {
                 throw new Error('Password must be at least 8 characters');
             }
-            if (username && username.length < 3) {
+            if (!username || username.length < 3) {
                 throw new Error('Username must be at least 3 characters');
             }
 
@@ -69,7 +69,7 @@ const Auth = {
             console.log('[Auth] Username:', username);
 
             // ✅ CHECK DUPLICATE USERNAME
-            if (username) {
+            try {
                 const { data: existingUser, error: checkError } = await supabaseClient
                     .from('profiles')
                     .select('username')
@@ -77,10 +77,30 @@ const Auth = {
                     .maybeSingle();
 
                 if (checkError) {
-                    console.warn('[Auth] Username check error:', checkError);
+                    console.warn('[Auth] Username check error (RLS may be blocking):', checkError);
+                    // If RLS is blocking, try using RPC function
+                    try {
+                        const { data: exists, error: rpcError } = await supabaseClient.rpc('check_username_exists', {
+                            username: username
+                        });
+                        if (rpcError) {
+                            console.warn('[Auth] RPC username check failed:', rpcError);
+                        } else if (exists === true) {
+                            throw new Error('Username already taken. Please choose another.');
+                        }
+                    } catch (rpcErr) {
+                        console.warn('[Auth] RPC username check error:', rpcErr);
+                        // If RPC also fails, proceed with signup but handle duplicate later
+                    }
                 } else if (existingUser) {
                     throw new Error('Username already taken. Please choose another.');
                 }
+            } catch (checkErr) {
+                if (checkErr.message.includes('Username already taken')) {
+                    throw checkErr;
+                }
+                console.warn('[Auth] Username check warning:', checkErr);
+                // Continue with signup if check fails due to RLS
             }
 
             clearSupabaseStorage();
@@ -90,8 +110,8 @@ const Auth = {
                 password,
                 options: {
                     data: {
-                        username: username || email.split('@')[0],
-                        display_name: displayName || username || email.split('@')[0],
+                        username: username,
+                        display_name: displayName || username,
                         country: country || null,
                         birth_date: birthDate || null
                     }
@@ -109,6 +129,9 @@ const Auth = {
                 let errorMessage = response.error.message || 'Signup failed. Please try again.';
                 if (errorMessage.includes('User already registered')) {
                     errorMessage = 'An account with this email already exists. Please log in instead.';
+                }
+                if (errorMessage.includes('duplicate key value violates unique constraint')) {
+                    errorMessage = 'Username already taken. Please choose another.';
                 }
                 throw new Error(errorMessage);
             }
@@ -133,8 +156,8 @@ const Auth = {
                         .from('profiles')
                         .insert({
                             id: response.data.user.id,
-                            username: username || email.split('@')[0],
-                            display_name: displayName || username || email.split('@')[0],
+                            username: username,
+                            display_name: displayName || username,
                             email: email,
                             created_at: new Date().toISOString()
                         });
