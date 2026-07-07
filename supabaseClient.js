@@ -256,18 +256,15 @@ const Auth = {
             const { user } = await this.getCurrentUser();
             if (!user) throw new Error('Not authenticated');
 
-            // Validate avatar URL if provided
             if (updates.avatar_url && !updates.avatar_url.startsWith('http')) {
                 throw new Error('Invalid avatar URL');
             }
 
-            // Update auth metadata
             const { error: metaError } = await supabaseClient.auth.updateUser({
                 data: updates
             });
             if (metaError) throw new Error(metaError.message);
 
-            // Update profiles table
             const allowed = ['display_name', 'bio', 'country', 'birth_date', 'preferred_language',
                 'avatar_url', 'banner_url', 'favorite_genres', 'favorite_anime', 'favorite_character',
                 'favorite_studio', 'favorite_quote', 'social_links'
@@ -392,7 +389,7 @@ const Auth = {
     },
 
     // ============================================================
-    // GUILD MANAGEMENT (NEW)
+    // GUILD MANAGEMENT (FIXED)
     // ============================================================
     
     async createGuild(guildData) {
@@ -418,10 +415,8 @@ const Auth = {
                 throw new Error('Description must be 20-500 characters');
             }
 
-            // Create slug from name
             const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-            // Check if name or slug exists
             const { data: existing } = await supabaseClient
                 .from('guilds')
                 .select('id')
@@ -432,7 +427,6 @@ const Auth = {
                 throw new Error('A guild with this name already exists');
             }
 
-            // Create the guild
             const { data: guild, error } = await supabaseClient
                 .from('guilds')
                 .insert({
@@ -454,49 +448,59 @@ const Auth = {
 
             if (error) throw new Error(error.message);
 
-            // Get default role
-            const { data: defaultRole, error: roleError } = await supabaseClient
+            // --- CREATE DEFAULT ROLES ---
+            const { data: memberRole, error: memberError } = await supabaseClient
                 .from('guild_roles')
-                .select('id')
-                .eq('guild_id', guild.id)
-                .eq('is_default', true)
+                .insert({
+                    guild_id: guild.id,
+                    name: 'Member',
+                    color: '#6a6a7a',
+                    is_default: true
+                })
+                .select()
                 .single();
 
-            if (roleError) {
-                // Create default roles if they don't exist
-                await supabaseClient
-                    .from('guild_roles')
-                    .insert([
-                        { guild_id: guild.id, name: 'Member', is_default: true },
-                        { guild_id: guild.id, name: 'Admin', is_default: false },
-                        { guild_id: guild.id, name: 'Moderator', is_default: false }
-                    ]);
-                
-                // Get the newly created default role
-                const { data: newDefault, error: newError } = await supabaseClient
-                    .from('guild_roles')
-                    .select('id')
-                    .eq('guild_id', guild.id)
-                    .eq('is_default', true)
-                    .single();
-                
-                if (!newError && newDefault) {
-                    await supabaseClient
-                        .from('guild_members')
-                        .insert({
-                            guild_id: guild.id,
-                            user_id: user.id,
-                            role_id: newDefault.id
-                        });
-                }
-            } else if (defaultRole) {
-                // Add creator as member with default role
+            if (memberError) {
+                console.error('[Auth] Member role creation error:', memberError);
+            }
+
+            const { data: adminRole, error: adminError } = await supabaseClient
+                .from('guild_roles')
+                .insert({
+                    guild_id: guild.id,
+                    name: 'Admin',
+                    color: '#7c5cfc',
+                    is_default: false
+                })
+                .select()
+                .single();
+
+            if (adminError) {
+                console.error('[Auth] Admin role creation error:', adminError);
+            }
+
+            const { data: modRole, error: modError } = await supabaseClient
+                .from('guild_roles')
+                .insert({
+                    guild_id: guild.id,
+                    name: 'Moderator',
+                    color: '#5c8cfc',
+                    is_default: false
+                })
+                .select()
+                .single();
+
+            if (modError) {
+                console.error('[Auth] Moderator role creation error:', modError);
+            }
+
+            if (memberRole) {
                 await supabaseClient
                     .from('guild_members')
                     .insert({
                         guild_id: guild.id,
                         user_id: user.id,
-                        role_id: defaultRole.id
+                        role_id: memberRole.id
                     });
             }
 
@@ -827,34 +831,24 @@ const Realtime = {
 };
 
 // ============================================================
-// STORAGE MODULE (FIXED)
+// STORAGE MODULE
 // ============================================================
 
 const Storage = {
-    /**
-     * Upload a file to Supabase Storage
-     * @param {string} bucket - Bucket name (avatars, banners, guilds, etc.)
-     * @param {string} path - File path in bucket
-     * @param {File} file - File object to upload
-     * @param {Object} options - Optional settings
-     * @returns {Promise<{url: string|null, error: string|null}>}
-     */
     async upload(bucket, path, file, options = {}) {
         try {
-            // Validate file
             const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type)) {
                 throw new Error('Only PNG, JPG, GIF, and WEBP images are allowed.');
             }
             
-            const maxSize = options.maxSize || 5 * 1024 * 1024; // 5MB default
+            const maxSize = options.maxSize || 5 * 1024 * 1024;
             if (file.size > maxSize) {
                 throw new Error(`File size must be less than ${maxSize / 1024 / 1024}MB.`);
             }
 
             console.log(`[Storage] Uploading to ${bucket}/${path}...`);
 
-            // Upload file
             const { data, error } = await supabaseClient.storage
                 .from(bucket)
                 .upload(path, file, {
@@ -869,7 +863,6 @@ const Storage = {
 
             console.log('[Storage] Upload successful:', data);
 
-            // Get public URL
             const publicUrl = getPublicUrl(bucket, path);
             
             if (!publicUrl) {
@@ -885,9 +878,6 @@ const Storage = {
         }
     },
 
-    /**
-     * Delete a file from Supabase Storage
-     */
     async delete(bucket, path) {
         try {
             const { data, error } = await supabaseClient.storage
@@ -902,16 +892,10 @@ const Storage = {
         }
     },
 
-    /**
-     * Get public URL for a file
-     */
     getPublicUrl(bucket, path) {
         return getPublicUrl(bucket, path);
     },
 
-    /**
-     * List files in a bucket
-     */
     async list(bucket, path = '') {
         try {
             const { data, error } = await supabaseClient.storage
