@@ -1286,7 +1286,7 @@
                     </div>
 
                     <div class="guilds-grid" id="guildsGrid">
-                        <!-- Guilds will be loaded from Supabase with official guild first -->
+                        <!-- Guilds will be loaded from Supabase -->
                     </div>
                 </div>
             </section>
@@ -1333,7 +1333,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT
+    JAVASCRIPT - COMPLETE INDEX
     ============================================================ -->
     <script>
         (function() {
@@ -1378,7 +1378,6 @@
                     const adminPanelLink = document.getElementById('adminPanelLink');
 
                     if (isLoggedIn && profile) {
-                        // Show logged-in UI
                         headerAvatar.classList.add('visible');
                         headerAvatar.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
                         headerLevel.textContent = `Lv.${profile.level || 0}`;
@@ -1478,10 +1477,12 @@
             }
 
             // ============================================================
-            // LOAD GUILDS - SHOWS OFFICIAL GUILD FIRST
+            // LOAD GUILDS - FIXED
             // ============================================================
             async function loadGuilds() {
                 try {
+                    console.log('[AniVerse] Loading guilds...');
+                    
                     const { data: guilds, error } = await window.AniVerse.client
                         .from('guilds')
                         .select('*')
@@ -1490,22 +1491,23 @@
                         .order('created_at', { ascending: false })
                         .limit(4);
 
-                    const guildsGrid = document.getElementById('guildsGrid');
-
                     if (error) {
                         console.error('[AniVerse] Load guilds error:', error);
-                        guildsGrid.innerHTML = `
+                        document.getElementById('guildsGrid').innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-users-slash"></i>
-                                <h3>Unable to load guilds</h3>
-                                <p>Please try again later.</p>
+                                <h3>Error loading guilds</h3>
+                                <p>${error.message}</p>
+                                <button class="btn btn-secondary" onclick="location.reload();">Retry</button>
                             </div>
                         `;
                         return;
                     }
 
+                    console.log('[AniVerse] Guilds loaded:', guilds);
+
                     if (!guilds || guilds.length === 0) {
-                        guildsGrid.innerHTML = `
+                        document.getElementById('guildsGrid').innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-users-slash"></i>
                                 <h3>No guilds yet</h3>
@@ -1518,6 +1520,7 @@
                         return;
                     }
 
+                    const guildsGrid = document.getElementById('guildsGrid');
                     guildsGrid.innerHTML = guilds.map(guild => {
                         const initial = guild.name ? guild.name.charAt(0).toUpperCase() : 'G';
                         const isOfficial = guild.is_official || false;
@@ -1540,6 +1543,13 @@
 
                 } catch (error) {
                     console.error('[AniVerse] Load guilds error:', error);
+                    document.getElementById('guildsGrid').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Error loading guilds</h3>
+                            <p>Please refresh the page.</p>
+                        </div>
+                    `;
                 }
             }
 
