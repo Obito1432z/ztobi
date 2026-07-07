@@ -1397,7 +1397,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - COMPLETE GUILD (FIXED JOIN)
+    JAVASCRIPT - COMPLETE GUILD (FULLY FIXED)
     ============================================================ -->
     <script>
         (function() {
@@ -1510,7 +1510,7 @@
             }
 
             // ============================================================
-            // SIDEBAR TOGGLE
+            // SIDEBAR TOGGLE (mobile)
             // ============================================================
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -1681,9 +1681,7 @@
                         officialBadge.classList.remove('show');
                     }
 
-                    const levelEl = document.getElementById('guildLevel');
-                    levelEl.textContent = guild.level || 0;
-
+                    document.getElementById('guildLevel').textContent = guild.level || 0;
                     document.getElementById('guildVisibility').textContent = guild.visibility ?
                         guild.visibility.charAt(0).toUpperCase() + guild.visibility.slice(1) : 'Public';
 
@@ -1902,7 +1900,7 @@
             }
 
             // ============================================================
-            // JOIN GUILD - FIXED
+            // JOIN GUILD - FINAL FIX
             // ============================================================
             async function joinGuild() {
                 if (!currentUser) {
@@ -1911,7 +1909,20 @@
                 }
 
                 try {
-                    // Try to get any role for this guild
+                    // Step 1: Check if already a member
+                    const { data: existing } = await window.AniVerse.client
+                        .from('guild_members')
+                        .select('id')
+                        .eq('guild_id', guildId)
+                        .eq('user_id', currentUser.id)
+                        .maybeSingle();
+
+                    if (existing) {
+                        alert('You are already a member of this guild.');
+                        return;
+                    }
+
+                    // Step 2: Try to get any role for this guild
                     let { data: roles, error: rolesError } = await window.AniVerse.client
                         .from('guild_roles')
                         .select('id')
@@ -1920,9 +1931,9 @@
 
                     let roleId = null;
 
-                    // If no roles exist, create one
                     if (rolesError || !roles || roles.length === 0) {
-                        console.log('[AniVerse] No roles found, creating default role...');
+                        // Step 3: No roles found – create one
+                        console.log('[AniVerse] Creating default role...');
                         
                         const { data: newRole, error: insertError } = await window.AniVerse.client
                             .from('guild_roles')
@@ -1933,33 +1944,20 @@
                                 is_default: true
                             })
                             .select()
-                            .single();
+                            .maybeSingle();
 
                         if (insertError) {
-                            console.error('[AniVerse] Failed to create role:', insertError);
-                            alert('Could not create default role. Please contact admin.');
-                            return;
+                            console.error('[AniVerse] Role creation error:', insertError);
+                            // Fallback: insert member with NULL role (if column allows null)
+                            roleId = null;
+                        } else if (newRole) {
+                            roleId = newRole.id;
                         }
-
-                        roleId = newRole.id;
                     } else {
                         roleId = roles[0].id;
                     }
 
-                    // Check if already a member
-                    const { data: existingMember } = await window.AniVerse.client
-                        .from('guild_members')
-                        .select('id')
-                        .eq('guild_id', guildId)
-                        .eq('user_id', currentUser.id)
-                        .maybeSingle();
-
-                    if (existingMember) {
-                        alert('You are already a member of this guild.');
-                        return;
-                    }
-
-                    // Join the guild
+                    // Step 4: Join the guild
                     const { error: joinError } = await window.AniVerse.client
                         .from('guild_members')
                         .insert({
@@ -1974,6 +1972,7 @@
                         return;
                     }
 
+                    // Step 5: Update UI
                     isMember = true;
                     updateMembershipUI();
                     await loadMemberCount();
