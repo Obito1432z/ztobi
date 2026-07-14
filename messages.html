@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Messages · AniVerse</title>
+    <title>Messages · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1094,7 +1094,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1292,11 +1292,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1383,7 +1383,7 @@
                         `;
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1432,7 +1432,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1480,11 +1480,11 @@
             async function loadFriendsAndConversations(userId) {
                 try {
                     // 1. Get all accepted friends
-                    const { friends, error: friendsError } = await window.AniVerse.db.getFriends(userId);
+                    const { friends, error: friendsError } = await window.Ztobi.db.getFriends(userId);
                     if (friendsError) throw new Error(friendsError);
 
                     // 2. Get existing conversations
-                    const { conversations, error: convError } = await window.AniVerse.db.getConversations(userId);
+                    const { conversations, error: convError } = await window.Ztobi.db.getConversations(userId);
                     if (convError) throw new Error(convError);
 
                     // Build a map of friend IDs to their data
@@ -1559,7 +1559,7 @@
                     renderConversationList(combinedItems, userId);
 
                 } catch (error) {
-                    console.error('[AniVerse] Load friends & conversations error:', error);
+                    console.error('[Ztobi] Load friends & conversations error:', error);
                     document.getElementById('conversationList').innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
@@ -1645,7 +1645,7 @@
                     });
 
                     // Fetch user details
-                    const { data: user, error } = await window.AniVerse.client
+                    const { data: user, error } = await window.Ztobi.client
                         .from('profiles')
                         .select('display_name, username, avatar_url, is_online')
                         .eq('id', userId)
@@ -1684,7 +1684,7 @@
                             const participant1 = id1 < id2 ? id1 : id2;
                             const participant2 = id1 < id2 ? id2 : id1;
 
-                            const { data: newConvo, error: createError } = await window.AniVerse.client
+                            const { data: newConvo, error: createError } = await window.Ztobiient
                                 .from('conversations')
                                 .insert({
                                     participant1_id: participant1,
@@ -1745,7 +1745,7 @@
             // ============================================================
             async function loadMessages(conversationId) {
                 try {
-                    const { messages, error } = await window.AniVerse.db.getMessages(conversationId, { limit: 100 });
+                    const { messages, error } = await window.Ztobi.db.getMessages(conversationId, { limit: 100 });
 
                     const container = document.getElementById('chatMessages');
 
@@ -1779,7 +1779,7 @@
                     container.scrollTop = container.scrollHeight;
 
                 } catch (error) {
-                    console.error('[AniVerse] Load messages error:', error);
+                    console.error('[Ztobi] Load messages error:', error);
                 }
             }
 
@@ -1814,7 +1814,7 @@
                 });
 
                 try {
-                    const result = await window.AniVerse.auth.sendMessage({
+                    const result = await window.Ztobi.auth.sendMessage({
                         receiverId: selectedUserId,
                         content: content
                     });
@@ -1836,7 +1836,7 @@
                     await loadFriendsAndConversations(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Send message error:', error);
+                    console.error('[Ztobi] Send message error:', error);
                     alert('Could not send message: ' + error.message);
                 }
             }
@@ -1846,14 +1846,14 @@
             // ============================================================
             async function markMessagesAsRead(conversationId) {
                 try {
-                    await window.AniVerse.client
+                    await window.Ztobi.client
                         .from('messages')
                         .update({ is_read: true, read_at: new Date().toISOString() })
                         .eq('conversation_id', conversationId)
                         .eq('receiver_id', currentUser.id)
                         .eq('is_read', false);
                 } catch (error) {
-                    console.error('[AniVerse] Mark messages as read error:', error);
+                    console.error('[Ztobi] Mark messages as read error:', error);
                 }
             }
 
@@ -1866,7 +1866,7 @@
                     messageSubscription = null;
                 }
 
-                messageSubscription = window.AniVerse.realtime.subscribe(
+                messageSubscription = window.Ztobi.realtime.subscribe(
                     'messages',
                     (payload) => {
                         if (payload.eventType === 'INSERT') {
@@ -1925,7 +1925,7 @@
 
                     try {
                         // Find user by username
-                        const { data: user, error } = await window.AniVerse.client
+                        const { data: user, error } = await window.Ztobi.client
                             .from('profiles')
                             .select('id, display_name')
                             .ilike('username', username)
@@ -1948,7 +1948,7 @@
                         await loadFriendsAndConversations(currentUser.id);
 
                     } catch (error) {
-                        console.error('[AniVerse] Start conversation error:', error);
+                        console.error('[Ztobi] Start conversation error:', error);
                         errorEl.textContent = error.message || 'Could not start conversation.';
                         errorEl.classList.add('show');
                     }
@@ -1967,24 +1967,24 @@
             async function startConversationWithUser(userId) {
                 try {
                     // Check if user exists
-                    const { data: user, error } = await window.AniVerse.client
+                    const { data: user, error } = await window.Ztobi.client
                         .from('profiles')
                         .select('id, display_name')
                         .eq('id', userId)
                         .single();
 
                     if (error || !user) {
-                        console.warn('[AniVerse] User not found:', userId);
+                        console.warn('[Ztobi] User not found:', userId);
                         return;
                     }
 
                     if (user.id === currentUser.id) {
-                        console.warn('[AniVerse] Cannot message yourself');
+                        console.warn('[Ztobi] Cannot message yourself');
                         return;
                     }
 
                     // Find existing conversation
-                    const { conversations } = await window.AniVerse.db.getConversations(currentUser.id);
+                    const { conversations } = await window.Ztobi.db.getConversations(currentUser.id);
                     let existingConv = null;
                     if (conversations) {
                         existingConv = conversations.find(conv =>
@@ -2002,7 +2002,7 @@
                     await loadFriendsAndConversations(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Start conversation with user error:', error);
+                    console.error('[Ztobi] Start conversation with user error:', error);
                 }
             }
 
@@ -2057,21 +2057,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Messages page ready - Message sending fixed!');
+            console.log('[Ztobi] Messages page ready - Message sending fixed!');
 
         })();
     </script>

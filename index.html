@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AniVerse — Anime Community</title>
+    <title>Ztobi — Anime Community</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1108,7 +1108,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1350,13 +1350,13 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                        console.warn('[AniVerse] Auth not ready, waiting...');
+                    if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
+                        console.warn('[Ztobi] Auth not ready, waiting...');
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
 
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1427,7 +1427,7 @@
                         document.getElementById('statGuilds').textContent = '0';
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1436,7 +1436,7 @@
             // ============================================================
             async function loadRealData(userId) {
                 try {
-                    const { count: notifCount } = await window.AniVerse.client
+                    const { count: notifCount } = await window.Ztobi.client
                         .from('notifications')
                         .select('*', { count: 'exact', head: true })
                         .eq('user_id', userId)
@@ -1453,16 +1453,16 @@
                         headerNotifDot.classList.remove('has-data');
                     }
 
-                    const { count: memberCount } = await window.AniVerse.client
+                    const { count: memberCount } = await window.Ztobi.client
                         .from('profiles')
                         .select('*', { count: 'exact', head: true });
 
-                    const { count: postCount } = await window.AniVerse.client
+                    const { count: postCount } = await window.Ztobi.client
                         .from('guild_posts')
                         .select('*', { count: 'exact', head: true })
                         .is('deleted_at', null);
 
-                    const { count: guildCount } = await window.AniVerse.client
+                    const { count: guildCount } = await window.Ztobi.client
                         .from('guilds')
                         .select('*', { count: 'exact', head: true })
                         .is('deleted_at', null);
@@ -1472,7 +1472,7 @@
                     document.getElementById('statGuilds').textContent = guildCount || 0;
 
                 } catch (error) {
-                    console.error('[AniVerse] Error loading real data:', error);
+                    console.error('[Ztobi] Error loading real data:', error);
                 }
             }
 
@@ -1481,9 +1481,9 @@
             // ============================================================
             async function loadGuilds() {
                 try {
-                    console.log('[AniVerse] Loading guilds...');
+                    console.log('[Ztobi] Loading guilds...');
                     
-                    const { data: guilds, error } = await window.AniVerse.client
+                    const { data: guilds, error } = await window.Ztobi.client
                         .from('guilds')
                         .select('*')
                         .is('deleted_at', null)
@@ -1492,7 +1492,7 @@
                         .limit(4);
 
                     if (error) {
-                        console.error('[AniVerse] Load guilds error:', error);
+                        console.error('[Ztobi] Load guilds error:', error);
                         document.getElementById('guildsGrid').innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-users-slash"></i>
@@ -1504,7 +1504,7 @@
                         return;
                     }
 
-                    console.log('[AniVerse] Guilds loaded:', guilds);
+                    console.log('[Ztobi] Guilds loaded:', guilds);
 
                     if (!guilds || guilds.length === 0) {
                         document.getElementById('guildsGrid').innerHTML = `
@@ -1542,7 +1542,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load guilds error:', error);
+                    console.error('[Ztobi] Load guilds error:', error);
                     document.getElementById('guildsGrid').innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-circle"></i>
@@ -1560,7 +1560,7 @@
                 try {
                     const grid = document.getElementById('trendingGrid');
 
-                    const { data: anime, error } = await window.AniVerse.client
+                    const { data: anime, error } = await window.Ztobi.client
                         .from('anime_library')
                         .select('*')
                         .order('popularity', { ascending: false })
@@ -1601,7 +1601,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load trending anime error:', error);
+                    console.error('[Ztobi] Load trending anime error:', error);
                 }
             }
 
@@ -1650,7 +1650,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1681,8 +1681,8 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
-                    console.warn('[AniVerse] Waiting for client to initialize...');
+                if (typeof window.Ztobi === 'undefined') {
+                    console.warn('[Ztobi] Waiting for client to initialize...');
                     setTimeout(init, 300);
                     return;
                 }
@@ -1691,8 +1691,8 @@
                 await loadGuilds();
                 await loadTrendingAnime();
 
-                window.AniVerse.auth.onAuthStateChange(async (event, session) => {
-                    console.log('[AniVerse] Auth state changed:', event);
+                window.Ztobi.auth.onAuthStateChange(async (event, session) => {
+                    console.log('[Ztobi] Auth state changed:', event);
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
                         await updateAuthUI();
                         await loadGuilds();
@@ -1701,7 +1701,7 @@
                 });
 
                 if (window.location.hash && window.location.hash.includes('access_token')) {
-                    console.log('[AniVerse] Detected access token in URL, waiting for session...');
+                    console.log('[Ztobi] Detected access token in URL, waiting for session...');
                     setTimeout(async () => {
                         await updateAuthUI();
                         await loadGuilds();
@@ -1712,7 +1712,7 @@
 
             init();
 
-            console.log('[AniVerse] Index page loaded with Official Guild');
+            console.log('[Ztobi] Index page loaded with Official Guild');
 
         })();
     </script>

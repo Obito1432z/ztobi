@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Profile · AniVerse</title>
+    <title>Edit Profile · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1035,7 +1035,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1417,11 +1417,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1518,7 +1518,7 @@
                 } else {
                     avatarEl.textContent = profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U';
                 }
-                document.getElementById('previewName').textContent = profile.display_name || 'AniVerse User';
+                document.getElementById('previewName').textContent = profile.display_name || 'Ztobi User';
                 document.getElementById('previewUsername').textContent = `@${profile.username || 'username'}`;
                 document.getElementById('previewLevel').textContent = `Level ${profile.level || 0}`;
 
@@ -1583,7 +1583,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1658,7 +1658,7 @@
             // ============================================================
             document.getElementById('displayName').addEventListener('input', function() {
                 document.getElementById('displayNameCount').textContent = this.value.length;
-                document.getElementById('previewName').textContent = this.value || 'AniVerse User';
+                document.getElementById('previewName').textContent = this.value || 'Ztobi User';
             });
 
             document.getElementById('bio').addEventListener('input', function() {
@@ -1783,7 +1783,7 @@
                     const file = avatarInput.files[0];
                     const ext = file.name.split('.').pop();
                     const path = `${currentUser.id}/avatar.${ext}`;
-                    const { url, error } = await window.AniVerse.storage.upload('avatars', path, file);
+                    const { url, error } = await window.Ztobi.storage.upload('avatars', path, file);
                     if (error) {
                         showToast('Avatar upload failed: ' + error, 'error');
                         return;
@@ -1796,7 +1796,7 @@
                     const file = bannerInput.files[0];
                     const ext = file.name.split('.').pop();
                     const path = `${currentUser.id}/banner.${ext}`;
-                    const { url, error } = await window.AniVerse.storage.upload('banners', path, file);
+                    const { url, error } = await window.Ztobi.storage.upload('banners', path, file);
                     if (error) {
                         showToast('Banner upload failed: ' + error, 'error');
                         return;
@@ -1808,7 +1808,7 @@
                 saveBtn.disabled = true;
 
                 try {
-                    const { data, error } = await window.AniVerse.auth.updateProfile(updateData);
+                    const { data, error } = await window.Ztobi.auth.updateProfile(updateData);
                     if (error) {
                         showToast('Failed to update profile: ' + error, 'error');
                         saveBtn.classList.remove('loading');
@@ -1821,7 +1821,7 @@
                     saveBtn.disabled = false;
 
                     // Reload profile data to reflect changes
-                    const { profile: updatedProfile } = await window.AniVerse.auth.getCurrentUser();
+                    const { profile: updatedProfile } = await window.Ztobi.auth.getCurrentUser();
                     if (updatedProfile) {
                         currentProfile = updatedProfile;
                         await loadProfileData(updatedProfile);
@@ -1832,7 +1832,7 @@
                     }, 1500);
 
                 } catch (error) {
-                    console.error('[AniVerse] Profile update error:', error);
+                    console.error('[Ztobi] Profile update error:', error);
                     showToast('An unexpected error occurred: ' + error.message, 'error');
                     saveBtn.classList.remove('loading');
                     saveBtn.disabled = false;
@@ -1867,20 +1867,20 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
                     setTimeout(init, 300);
                     return;
                 }
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Edit profile page ready (Fixed Upload)');
+            console.log('[Ztobi] Edit profile page ready (Fixed Upload)');
 
         })();
     </script>

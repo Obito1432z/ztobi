@@ -1,12 +1,12 @@
 /**
- * AniVerse - Centralized Supabase Client
+ * Ztobi - Centralized Supabase Client
  * Version: 3.1.0 - Cache Busting Fix
  */
 
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_P1NWw77Jrucazh4qozx2oQ_fcU0skIh';
 
-console.log('[AniVerse] Initializing Supabase client...');
+console.log('[Ztobi] Initializing Supabase client...');
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
@@ -16,7 +16,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     }
 });
 
-console.log('[AniVerse] Supabase client initialized');
+console.log('[Ztobi] Supabase client initialized');
 
 // ============================================================
 // HELPER FUNCTIONS
@@ -28,16 +28,16 @@ function clearSupabaseStorage() {
         keys.forEach(key => {
             if (key.includes('supabase') || 
                 key.includes('sb-') || 
-                key.includes('aniverse') ||
+                key.includes('Ztobi') ||
                 key.includes('auth.token') ||
                 key.includes('refresh_token')) {
                 localStorage.removeItem(key);
             }
         });
         sessionStorage.clear();
-        console.log('[AniVerse] Storage cleared');
+        console.log('[Ztobi] Storage cleared');
     } catch (error) {
-        console.error('[AniVerse] Error clearing storage:', error);
+        console.error('[Ztobi] Error clearing storage:', error);
     }
 }
 
@@ -56,7 +56,7 @@ function addCacheBust(url) {
  * Refresh all profile images on the page with cache-busting
  */
 function refreshProfileImages(avatarUrl, bannerUrl) {
-    console.log('[AniVerse] Refreshing profile images with cache busting...');
+    console.log('[Ztobi] Refreshing profile images with cache busting...');
     
     // Refresh avatar
     if (avatarUrl) {
@@ -98,7 +98,7 @@ function refreshProfileImages(avatarUrl, bannerUrl) {
         }
     }
     
-    console.log('[AniVerse] Profile images refreshed');
+    console.log('[Ztobi] Profile images refreshed');
 }
 
 // ============================================================
@@ -1255,7 +1255,7 @@ window.removeBanner = async function() {
 // EXPOSE GLOBALLY
 // ============================================================
 
-window.AniVerse = {
+window.Ztobi = {
     client: supabaseClient,
     auth: Auth,
     db: DB,
@@ -1280,8 +1280,8 @@ window.updateProfile = Auth.updateProfile.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
-console.log('[AniVerse] Supabase client initialized with Cache Busting');
-console.log('[AniVerse] Commands:');
+console.log('[Ztobi] Supabase client initialized with Cache Busting');
+console.log('[Ztobi] Commands:');
 console.log('  testAvatarUpload() - Upload new avatar with cache busting');
 console.log('  testBannerUpload() - Upload new banner with cache busting');
 console.log('  removeAvatar() - Remove avatar');

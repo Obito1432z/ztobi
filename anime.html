@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anime · AniVerse</title>
+    <title>Anime · Ztobiitle>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1218,7 +1218,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1532,11 +1532,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1611,7 +1611,7 @@
                     await loadAnime('comingGrid', null, { status: 'upcoming' }, 8);
 
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1660,7 +1660,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1791,7 +1791,7 @@
                     showToast('Please enter a search term.', 'error');
                     return;
                 }
-                console.log('[AniVerse] Search:', query);
+                console.log('[Ztobi] Search:', query);
                 showToast('Searching for "' + query + '"', '');
                 loadAnimeResults(query);
             }
@@ -1834,7 +1834,7 @@
                 }
 
                 try {
-                    let queryBuilder = window.AniVerse.client
+                    let queryBuilder = window.Ztobi.client
                         .from('anime_library')
                         .select('*')
                         .limit(limit);
@@ -1875,7 +1875,7 @@
                     const { data: anime, error } = await queryBuilder;
 
                     if (error) {
-                        console.error('[AniVerse] Load anime error:', error);
+                        console.error('[Ztobi] Load anime error:', error);
                         grid.innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -1929,7 +1929,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load anime error:', error);
+                    console.error('[Ztobi] Load anime error:', error);
                     grid.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-circle"></i>
@@ -2020,21 +2020,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Anime page ready (Supabase integrated)');
+            console.log('[Ztobi] Anime page ready (Supabase integrated)');
 
         })();
     </script>

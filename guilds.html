@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Guilds · AniVerse</title>
+    <title>Guilds · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1314,7 +1314,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1645,11 +1645,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1721,7 +1721,7 @@
                     await loadGuilds();
                     await loadStats();
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1770,7 +1770,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1941,7 +1941,7 @@
                 }
 
                 try {
-                    let query = window.AniVerse.client
+                    let query = window.Ztobi.client
                         .from('guilds')
                         .select('*')
                         .is('deleted_at', null)
@@ -1973,7 +1973,7 @@
                     const { data: guilds, error } = await query;
 
                     if (error) {
-                        console.error('[AniVerse] Load guilds error:', error);
+                        console.error('[Ztobi] Load guilds error:', error);
                         grid.innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -2047,7 +2047,7 @@
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Load guilds error:', error);
+                    console.error('[Ztobi] Load guilds error:', error);
                 }
             }
 
@@ -2056,7 +2056,7 @@
             // ============================================================
             async function joinGuild(guildId) {
                 try {
-                    const { data: guild } = await window.AniVerse.client
+                    const { data: guild } = await window.Ztobi.client
                         .from('guilds')
                         .select('visibility')
                         .eq('id', guildId)
@@ -2073,7 +2073,7 @@
                     }
 
                     // Get default role
-                    const { data: defaultRole } = await window.AniVerse.client
+                    const { data: defaultRole } = await window.Ztobi.client
                         .from('guild_roles')
                         .select('id')
                         .eq('guild_id', guildId)
@@ -2085,7 +2085,7 @@
                         return;
                     }
 
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('guild_members')
                         .insert({
                             guild_id: guildId,
@@ -2106,7 +2106,7 @@
                     await loadGuilds();
 
                 } catch (error) {
-                    console.error('[AniVerse] Join guild error:', error);
+                    console.error('[Ztobi] Join guild error:', error);
                     showToast('An unexpected error occurred.', 'error');
                 }
             }
@@ -2116,12 +2116,12 @@
             // ============================================================
             async function loadStats() {
                 try {
-                    const { count: guildCount } = await window.AniVerse.client
+                    const { count: guildCount } = await window.Ztobi.client
                         .from('guilds')
                         .select('*', { count: 'exact', head: true })
                         .is('deleted_at', null);
 
-                    const { count: memberCount } = await window.AniVerse.client
+                    const { count: memberCount } = await window.Ztobi.client
                         .from('guild_members')
                         .select('*', { count: 'exact', head: true });
 
@@ -2148,7 +2148,7 @@
                     }
 
                 } catch (error) {
-                    console.error('[AniVerse] Load stats error:', error);
+                    console.error('[Ztobi] Load stats error:', error);
                 }
             }
 
@@ -2163,21 +2163,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Guilds page ready (Supabase integrated)');
+            console.log('[Ztobi] Guilds page ready (Supabase integrated)');
 
         })();
     </script>

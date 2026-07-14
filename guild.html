@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Guild · AniVerse</title>
+    <title>Guild · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1138,7 +1138,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1426,11 +1426,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobith.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1505,7 +1505,7 @@
                         if (adminPanelLink) adminPanelLink.classList.remove('visible');
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1554,7 +1554,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1601,7 +1601,7 @@
             // ============================================================
             async function checkMembership(userId) {
                 try {
-                    const { data, error } = await window.AniVerse.client
+                    const { data, error } = await window.Ztobi.client
                         .from('guild_members')
                         .select('*')
                         .eq('guild_id', guildId)
@@ -1609,14 +1609,14 @@
                         .maybeSingle();
 
                     if (error) {
-                        console.error('[AniVerse] Membership check error:', error);
+                        console.error('[Ztobi] Membership check error:', error);
                         return;
                     }
 
                     isMember = !!data;
                     updateMembershipUI();
                 } catch (error) {
-                    console.error('[AniVerse] Membership check error:', error);
+                    console.error('[Ztobi] Membership check error:', error);
                 }
             }
 
@@ -1647,14 +1647,14 @@
                 }
 
                 try {
-                    const { data: guild, error } = await window.AniVerse.client
+                    const { data: guild, error } = await window.Ztobi.client
                         .from('guilds')
                         .select('*')
                         .eq('id', guildId)
                         .single();
 
                     if (error) {
-                        console.error('[AniVerse] Guild load error:', error);
+                        console.error('[Ztobi] Guild load error:', error);
                         document.getElementById('guildName').textContent = 'Guild Not Found';
                         document.getElementById('guildDescription').textContent = 'This guild does not exist or has been removed.';
                         return;
@@ -1700,7 +1700,7 @@
                     await loadAnnouncements();
 
                 } catch (error) {
-                    console.error('[AniVerse] Guild load error:', error);
+                    console.error('[Ztobi] Guild load error:', error);
                 }
             }
 
@@ -1709,13 +1709,13 @@
             // ============================================================
             async function loadMemberCount() {
                 try {
-                    const { data, error, count } = await window.AniVerse.client
+                    const { data, error, count } = await window.Ztobi.client
                         .from('guild_members')
                         .select('*', { count: 'exact', head: true })
                         .eq('guild_id', guildId);
 
                     if (error) {
-                        console.error('[AniVerse] Member count error:', error);
+                        console.error('[Ztobi] Member count error:', error);
                         return;
                     }
 
@@ -1723,7 +1723,7 @@
                     document.getElementById('memberCount').textContent = memberCount;
                     document.getElementById('memberCountDisplay').textContent = `${memberCount} members`;
                 } catch (error) {
-                    console.error('[AniVerse] Member count error:', error);
+                    console.error('[Ztobi] Member count error:', error);
                 }
             }
 
@@ -1732,7 +1732,7 @@
             // ============================================================
             async function loadMembers() {
                 try {
-                    const { data: members, error } = await window.AniVerse.client
+                    const { data: members, error } = await window.Ztobi.client
                         .from('guild_members')
                         .select(`
                             user_id,
@@ -1755,7 +1755,7 @@
                         .limit(50);
 
                     if (error) {
-                        console.error('[AniVerse] Members load error:', error);
+                        console.error('[Ztobi] Members load error:', error);
                         return;
                     }
 
@@ -1809,7 +1809,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Members load error:', error);
+                    console.error('[Ztobi] Members load error:', error);
                 }
             }
 
@@ -1818,7 +1818,7 @@
             // ============================================================
             async function loadPosts() {
                 try {
-                    const { posts, error } = await window.AniVerse.db.getGuildPosts(guildId, { limit: 20 });
+                    const { posts, error } = await window.Ztobi.db.getGuildPosts(guildId, { limit: 20 });
 
                     const container = document.getElementById('postsContainer');
                     if (error || !posts || posts.length === 0) {
@@ -1854,7 +1854,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Posts load error:', error);
+                    console.error('[Ztobi] Posts load error:', error);
                 }
             }
 
@@ -1863,7 +1863,7 @@
             // ============================================================
             async function loadAnnouncements() {
                 try {
-                    const { data: announcements, error } = await window.AniVerse.client
+                    const { data: announcements, error } = await window.Ztobi.client
                         .from('guild_announcements')
                         .select('*, profiles!author_id (display_name, avatar_url)')
                         .eq('guild_id', guildId)
@@ -1895,7 +1895,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Announcements load error:', error);
+                    console.error('[Ztobi] Announcements load error:', error);
                 }
             }
 
@@ -1910,7 +1910,7 @@
 
                 try {
                     // Step 1: Check if already a member
-                    const { data: existing } = await window.AniVerse.client
+                    const { data: existing } = await window.Ztobi.client
                         .from('guild_members')
                         .select('id')
                         .eq('guild_id', guildId)
@@ -1923,7 +1923,7 @@
                     }
 
                     // Step 2: Try to get any role for this guild
-                    let { data: roles, error: rolesError } = await window.AniVerse.client
+                    let { data: roles, error: rolesError } = await window.Ztobi.client
                         .from('guild_roles')
                         .select('id')
                         .eq('guild_id', guildId)
@@ -1933,9 +1933,9 @@
 
                     if (rolesError || !roles || roles.length === 0) {
                         // Step 3: No roles found – create one
-                        console.log('[AniVerse] Creating default role...');
+                        console.log('[Ztobi] Creating default role...');
                         
-                        const { data: newRole, error: insertError } = await window.AniVerse.client
+                        const { data: newRole, error: insertError } = await window.Ztobi.client
                             .from('guild_roles')
                             .insert({
                                 guild_id: guildId,
@@ -1947,7 +1947,7 @@
                             .maybeSingle();
 
                         if (insertError) {
-                            console.error('[AniVerse] Role creation error:', insertError);
+                            console.error('[Ztobi] Role creation error:', insertError);
                             // Fallback: insert member with NULL role (if column allows null)
                             roleId = null;
                         } else if (newRole) {
@@ -1958,7 +1958,7 @@
                     }
 
                     // Step 4: Join the guild
-                    const { error: joinError } = await window.AniVerse.client
+                    const { error: joinError } = await window.Ztobi.client
                         .from('guild_members')
                         .insert({
                             guild_id: guildId,
@@ -1967,7 +1967,7 @@
                         });
 
                     if (joinError) {
-                        console.error('[AniVerse] Join error:', joinError);
+                        console.error('[Ztobi] Join error:', joinError);
                         alert('Could not join guild: ' + joinError.message);
                         return;
                     }
@@ -1980,7 +1980,7 @@
                     alert('Successfully joined the guild!');
 
                 } catch (error) {
-                    console.error('[AniVerse] Join guild error:', error);
+                    console.error('[Ztobi] Join guild error:', error);
                     alert('An unexpected error occurred: ' + error.message);
                 }
             }
@@ -1992,14 +1992,14 @@
                 if (!confirm('Are you sure you want to leave this guild?')) return;
 
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('guild_members')
                         .delete()
                         .eq('guild_id', guildId)
                         .eq('user_id', currentUser.id);
 
                     if (error) {
-                        console.error('[AniVerse] Leave guild error:', error);
+                        console.error('[Ztobi] Leave guild error:', error);
                         alert('Could not leave guild. Please try again.');
                         return;
                     }
@@ -2011,7 +2011,7 @@
                     alert('You have left the guild.');
 
                 } catch (error) {
-                    console.error('[AniVerse] Leave guild error:', error);
+                    console.error('[Ztobi] Leave guild error:', error);
                     alert('An unexpected error occurred.');
                 }
             }
@@ -2066,7 +2066,7 @@
                 if (navigator.share) {
                     navigator.share({
                         title: guildData?.name || 'Guild',
-                        text: `Join ${guildData?.name || 'this guild'} on AniVerse!`,
+                        text: `Join ${guildData?.name || 'this guild'} on Ztobi!`,
                         url: window.location.href
                     }).catch(() => {});
                 } else {
@@ -2094,21 +2094,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Guild page ready with Official Guild support');
+            console.log('[Ztobi] Guild page ready with Official Guild support');
 
         })();
     </script>

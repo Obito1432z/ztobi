@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up · AniVerse</title>
+    <title>Sign Up · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -490,7 +490,7 @@
 
             <!-- Brand -->
             <a href="index.html" class="auth-brand">
-                <i class="fas fa-crown"></i> AniVerse
+                <i class="fas fa-crown"></i> Ztobi
             </a>
             <p class="auth-sub">
                 Join the community &middot; <a href="login.html">already have an account?</a>
@@ -865,22 +865,22 @@ JAVASCRIPT - COMPLETE SIGNUP
         // ============================================================
         async function checkExistingSession() {
             try {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                    console.warn('[AniVerse] Auth not ready, waiting...');
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
+                    console.warn('[Ztobi] Auth not ready, waiting...');
                     setTimeout(checkExistingSession, 300);
                     return;
                 }
                 
-                const { session } = await window.AniVerse.auth.getSession();
+                const { session } = await window.Ztobi.auth.getSession();
                 if (session && session.user) {
-                    console.log('[AniVerse] User already logged in:', session.user.email);
+                    console.log('[Ztobi] User already logged in:', session.user.email);
                     showToast('You are already logged in. Redirecting...', 'success');
                     setTimeout(() => {
                         window.location.replace('index.html');
                     }, 1500);
                 }
             } catch (e) {
-                console.error('[AniVerse] Session check error:', e);
+                console.error('[Ztobi] Session check error:', e);
             }
         }
 
@@ -920,15 +920,15 @@ JAVASCRIPT - COMPLETE SIGNUP
             signupBtn.disabled = true;
 
             try {
-                // Check if AniVerse is available
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                // Check if Ztobi is available
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
                     throw new Error('Supabase client not initialized. Please refresh the page.');
                 }
 
-                console.log('[AniVerse] Attempting signup for:', email);
+                console.log('[Ztobi] Attempting signup for:', email);
 
                 // Call signup
-                const result = await window.AniVerse.auth.signUp({
+                const result = await window.Ztobi.auth.signUp({
                     email,
                     password,
                     username,
@@ -939,7 +939,7 @@ JAVASCRIPT - COMPLETE SIGNUP
 
                 // Check for auth error
                 if (result.error) {
-                    console.error('[AniVerse] Signup error:', result.error);
+                    console.error('[Ztobi] Signup error:', result.error);
                     showToast(result.error, 'error');
                     signupBtn.classList.remove('loading');
                     signupBtn.disabled = false;
@@ -948,7 +948,7 @@ JAVASCRIPT - COMPLETE SIGNUP
 
                 // If user is created
                 if (result.user) {
-                    console.log('[AniVerse] User created successfully:', result.user.id);
+                    console.log('[Ztobi] User created successfully:', result.user.id);
 
                     // Check if email confirmation is required
                     if (result.user.confirmed_at) {
@@ -978,7 +978,7 @@ JAVASCRIPT - COMPLETE SIGNUP
                 }
 
             } catch (error) {
-                console.error('[AniVerse] Signup error:', error);
+                console.error('[Ztobi] Signup error:', error);
                 showToast('An unexpected error occurred: ' + (error.message || 'Please try again.'), 'error');
                 signupBtn.classList.remove('loading');
                 signupBtn.disabled = false;
@@ -989,18 +989,18 @@ JAVASCRIPT - COMPLETE SIGNUP
         // INITIALIZE
         // ============================================================
         function init() {
-            if (typeof window.AniVerse === 'undefined') {
-                console.warn('[AniVerse] Waiting for client...');
+            if (typeof window.Ztobi === 'undefined') {
+                console.warn('[Ztobi] Waiting for client...');
                 setTimeout(init, 300);
                 return;
             }
-            console.log('[AniVerse] Client ready, checking session...');
+            console.log('[Ztobi] Client ready, checking session...');
             checkExistingSession();
         }
 
         init();
 
-        console.log('[AniVerse] Signup page ready (Supabase integrated)');
+        console.log('[Ztobi] Signup page ready (Supabase integrated)');
 
     })();
 </script>

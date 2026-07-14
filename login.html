@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log In · AniVerse</title>
+    <title>Log In · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -512,7 +512,7 @@
 
             <!-- Brand -->
             <a href="index.html" class="auth-brand">
-                <i class="fas fa-crown"></i> AniVerse
+                <i class="fas fa-crown"></i> Ztobi
             </a>
             <p class="auth-sub">
                 Welcome back &middot; <a href="signup.html">create an account</a>
@@ -725,23 +725,23 @@ JAVASCRIPT - COMPLETE LOGIN
         // ============================================================
         async function checkExistingSession() {
             try {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                    console.warn('[AniVerse] Auth not ready, waiting...');
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
+                    console.warn('[Ztobi] Auth not ready, waiting...');
                     setTimeout(checkExistingSession, 300);
                     return;
                 }
                 
-                const { session } = await window.AniVerse.auth.getSession();
+                const { session } = await window.Ztobi.auth.getSession();
                 
                 if (session && session.user) {
-                    console.log('[AniVerse] User already logged in:', session.user.email);
+                    console.log('[Ztobi] User already logged in:', session.user.email);
                     showToast('Already logged in. Redirecting...', 'success');
                     setTimeout(() => {
                         window.location.replace('index.html');
                     }, 1500);
                 }
             } catch (e) {
-                console.error('[AniVerse] Session check error:', e);
+                console.error('[Ztobi] Session check error:', e);
             }
         }
 
@@ -750,19 +750,19 @@ JAVASCRIPT - COMPLETE LOGIN
         // ============================================================
         async function resendConfirmationEmail(email) {
             try {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.client) {
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.client) {
                     throw new Error('Client not initialized');
                 }
 
-                console.log('[AniVerse] Resending confirmation email to:', email);
+                console.log('[Ztobi] Resending confirmation email to:', email);
 
-                const { data, error } = await window.AniVerse.client.auth.resend({
+                const { data, error } = await window.Ztobi.client.auth.resend({
                     type: 'signup',
                     email: email
                 });
 
                 if (error) {
-                    console.error('[AniVerse] Resend error:', error);
+                    console.error('[Ztobi] Resend error:', error);
                     showToast('Error sending confirmation email: ' + error.message, 'error');
                     return;
                 }
@@ -770,7 +770,7 @@ JAVASCRIPT - COMPLETE LOGIN
                 showToast('✅ Confirmation email resent! Please check your inbox.', 'success');
 
             } catch (error) {
-                console.error('[AniVerse] Resend error:', error);
+                console.error('[Ztobi] Resend error:', error);
                 showToast('Could not resend confirmation email. Please try again.', 'error');
             }
         }
@@ -798,17 +798,17 @@ JAVASCRIPT - COMPLETE LOGIN
             loginBtn.disabled = true;
 
             try {
-                // Check if AniVerse is available
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                // Check if Ztobi is available
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
                     throw new Error('Supabase client not initialized. Please refresh the page.');
                 }
 
-                console.log('[AniVerse] Attempting login for:', email);
+                console.log('[Ztobi] Attempting login for:', email);
 
-                const result = await window.AniVerse.auth.signIn({ email, password });
+                const result = await window.Ztobi.auth.signIn({ email, password });
 
                 if (result.error) {
-                    console.error('[AniVerse] Login error:', result.error);
+                    console.error('[Ztobi] Login error:', result.error);
                     
                     // Handle email not confirmed error
                     if (result.error && result.error.includes('Email not confirmed')) {
@@ -835,7 +835,7 @@ JAVASCRIPT - COMPLETE LOGIN
                 }
 
                 if (result.user) {
-                    console.log('[AniVerse] Login successful for:', result.user.id);
+                    console.log('[Ztobi] Login successful for:', result.user.id);
                     
                     // Check if user is confirmed
                     if (!result.user.confirmed_at) {
@@ -858,7 +858,7 @@ JAVASCRIPT - COMPLETE LOGIN
                     showToast('Login successful! Redirecting...', 'success');
                     
                     if (rememberMe.checked) {
-                        localStorage.setItem('aniverse_session', 'true');
+                        localStorage.setItem('Ztobi_session', 'true');
                     }
 
                     setTimeout(() => {
@@ -871,7 +871,7 @@ JAVASCRIPT - COMPLETE LOGIN
                 }
 
             } catch (error) {
-                console.error('[AniVerse] Login error:', error);
+                console.error('[Ztobi] Login error:', error);
                 showToast('An unexpected error occurred: ' + error.message, 'error');
                 loginBtn.classList.remove('loading');
                 loginBtn.disabled = false;
@@ -889,8 +889,8 @@ JAVASCRIPT - COMPLETE LOGIN
                 return;
             }
 
-            if (window.AniVerse && window.AniVerse.client) {
-                window.AniVerse.client.auth.resetPasswordForEmail(email, {
+            if (window.Ztobi && window.Ztobi.client) {
+                window.Ztobi.client.auth.resetPasswordForEmail(email, {
                     redirectTo: window.location.origin + '/reset-password.html'
                 }).then(({ error }) => {
                     if (error) {
@@ -905,21 +905,21 @@ JAVASCRIPT - COMPLETE LOGIN
         });
 
         // ============================================================
-        // INITIALIZE - Wait for AniVerse to be ready
+        // INITIALIZE - Wait for Ztobi to be ready
         // ============================================================
         function init() {
-            if (typeof window.AniVerse === 'undefined') {
-                console.warn('[AniVerse] Waiting for client...');
+            if (typeof window.Ztobi === 'undefined') {
+                console.warn('[Ztobi] Waiting for client...');
                 setTimeout(init, 300);
                 return;
             }
-            console.log('[AniVerse] Client ready, checking session...');
+            console.log('[Ztobi] Client ready, checking session...');
             checkExistingSession();
         }
 
         init();
 
-        console.log('[AniVerse] Login page ready (Supabase integrated)');
+        console.log('[Ztobi] Login page ready (Supabase integrated)');
 
     })();
 </script>

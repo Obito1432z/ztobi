@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Friends · AniVerse</title>
+    <title>Friends · Ztobi</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1229,7 +1229,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1511,11 +1511,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1598,7 +1598,7 @@
                         document.getElementById('friendCount').textContent = '0 friends';
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1647,7 +1647,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1720,7 +1720,7 @@
             // ============================================================
             async function loadAllFriends(userId) {
                 try {
-                    const { friends, error } = await window.AniVerse.db.getFriends(userId);
+                    const { friends, error } = await window.Ztobi.db.getFriends(userId);
 
                     const grid = document.getElementById('allFriendsGrid');
                     const countEl = document.getElementById('friendCount');
@@ -1812,7 +1812,7 @@
                     }
 
                 } catch (error) {
-                    console.error('[AniVerse] Load friends error:', error);
+                    console.error('[Ztobi] Load friends error:', error);
                 }
             }
 
@@ -1821,7 +1821,7 @@
             // ============================================================
             async function loadPendingRequests(userId) {
                 try {
-                    const { requests, error } = await window.AniVerse.db.getFriendRequests(userId, 'received');
+                    const { requests, error } = await window.Ztobi.db.getFriendRequests(userId, 'received');
 
                     const container = document.getElementById('pendingRequestsContainer');
 
@@ -1863,7 +1863,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load pending requests error:', error);
+                    console.error('[Ztobi] Load pending requests error:', error);
                 }
             }
 
@@ -1872,7 +1872,7 @@
             // ============================================================
             async function loadSentRequests(userId) {
                 try {
-                    const { requests, error } = await window.AniVerse.db.getFriendRequests(userId, 'sent');
+                    const { requests, error } = await window.Ztobi.db.getFriendRequests(userId, 'sent');
 
                     const container = document.getElementById('sentRequestsContainer');
 
@@ -1911,7 +1911,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load sent requests error:', error);
+                    console.error('[Ztobi] Load sent requests error:', error);
                 }
             }
 
@@ -1920,14 +1920,14 @@
             // ============================================================
             async function acceptFriendRequest(requestId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('friend_requests')
                         .update({ status: 'accepted' })
                         .eq('id', requestId);
 
                     if (error) throw new Error(error.message);
 
-                    const { data: req, error: fetchError } = await window.AniVerse.client
+                    const { data: req, error: fetchError } = await window.Ztobi.client
                         .from('friend_requests')
                         .select('sender_id, receiver_id')
                         .eq('id', requestId)
@@ -1935,7 +1935,7 @@
 
                     if (fetchError) throw new Error(fetchError.message);
 
-                    await window.AniVerse.client
+                    await window.Ztobi.client
                         .from('friends')
                         .insert([
                             { user_id: req.sender_id, friend_id: req.receiver_id },
@@ -1947,14 +1947,14 @@
                     await loadPendingRequests(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Accept error:', error);
+                    console.error('[Ztobi] Accept error:', error);
                     showToast('Could not accept request. Please try again.', 'error');
                 }
             }
 
             async function declineFriendRequest(requestId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('friend_requests')
                         .update({ status: 'declined' })
                         .eq('id', requestId);
@@ -1964,14 +1964,14 @@
                     await loadPendingRequests(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Decline error:', error);
+                    console.error('[Ztobi] Decline error:', error);
                     showToast('Could not decline request.', 'error');
                 }
             }
 
             async function cancelFriendRequest(requestId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('friend_requests')
                         .update({ status: 'withdrawn' })
                         .eq('id', requestId);
@@ -1981,7 +1981,7 @@
                     await loadSentRequests(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Cancel error:', error);
+                    console.error('[Ztobi] Cancel error:', error);
                     showToast('Could not cancel request.', 'error');
                 }
             }
@@ -1990,7 +1990,7 @@
                 if (!confirm('Are you sure you want to remove this friend?')) return;
 
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('friends')
                         .delete()
                         .or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`)
@@ -2001,7 +2001,7 @@
                     await loadAllFriends(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Remove friend error:', error);
+                    console.error('[Ztobi] Remove friend error:', error);
                     showToast('Could not remove friend.', 'error');
                 }
             }
@@ -2045,7 +2045,7 @@
                 resultsContainer.innerHTML = `<p style="color:var(--text-secondary);">Searching...</p>`;
 
                 try {
-                    const { users, error } = await window.AniVerse.db.searchUsers(query);
+                    const { users, error } = await window.Ztobi.db.searchUsers(query);
 
                     if (error || !users || users.length === 0) {
                         resultsContainer.innerHTML = `<p style="color:var(--text-muted);">No users found.</p>`;
@@ -2078,7 +2078,7 @@
                     document.querySelectorAll('.send-request-btn').forEach(btn => {
                         btn.addEventListener('click', async function() {
                             const receiverId = this.getAttribute('data-userid');
-                            const result = await window.AniVerse.auth.sendFriendRequest(receiverId);
+                            const result = await window.Ztobi.auth.sendFriendRequest(receiverId);
                             if (result.error) {
                                 showToast(result.error, 'error');
                             } else {
@@ -2092,7 +2092,7 @@
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Search users error:', error);
+                    console.error('[Ztobi] Search users error:', error);
                     resultsContainer.innerHTML = `<p style="color:var(--color-error);">Search failed. Please try again.</p>`;
                 }
             }
@@ -2163,21 +2163,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Friends page ready (Supabase integrated)');
+            console.log('[Ztobi] Friends page ready (Supabase integrated)');
 
         })();
     </script>

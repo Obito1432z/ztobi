@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About · AniVerse</title>
+    <title>About · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -974,7 +974,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <i class="fas fa-crown"></i> AniVerse
+            <i class="fas fa-crown"></i> Ztobi
         </a>
 
         <nav class="sidebar-nav">
@@ -1051,7 +1051,7 @@
                         <div class="banner-glow"></div>
                         <div class="banner-glow-2"></div>
                         <span class="section-tag"><i class="fas fa-info-circle"></i> About Us</span>
-                        <h1>Welcome to <span class="highlight">AniVerse</span></h1>
+                        <h1>Welcome to <span class="highlight">Ztobi</span></h1>
                         <p>A community built by anime fans, for anime fans. Connect, create, and celebrate the world of anime together.</p>
                         <div class="hero-actions">
                             <a href="signup.html" class="btn btn-primary"><i class="fas fa-rocket"></i> Join Community</a>
@@ -1159,7 +1159,7 @@
                     <div class="section-header">
                         <span class="section-tag"><i class="fas fa-route"></i> Journey</span>
                         <h2 class="section-title">How It Works</h2>
-                        <p>Your journey to becoming part of the AniVerse community.</p>
+                        <p>Your journey to becoming part of the Ztobimmunity.</p>
                     </div>
                     <div class="steps-grid">
                         <div class="step-card">
@@ -1210,7 +1210,7 @@
                     <div class="section-header">
                         <span class="section-tag"><i class="fas fa-road"></i> Roadmap</span>
                         <h2 class="section-title">Future Roadmap</h2>
-                        <p>Our vision for the growth of AniVerse.</p>
+                        <p>Our vision for the growth of Ztobi.</p>
                     </div>
                     <div class="roadmap-grid">
                         <div class="roadmap-item">
@@ -1261,22 +1261,22 @@
                     <div class="section-header">
                         <span class="section-tag"><i class="fas fa-question-circle"></i> FAQ</span>
                         <h2 class="section-title">Frequently Asked Questions</h2>
-                        <p>Find answers to common questions about AniVerse.</p>
+                        <p>Find answers to common questions about Ztobip>
                     </div>
                     <div class="faq-list">
                         <div class="faq-item">
                             <button class="faq-question">
-                                What is AniVerse?
+                                What is Ztobi?
                                 <i class="fas fa-chevron-down"></i>
                             </button>
-                            <div class="faq-answer">AniVerse is a premium anime community platform designed for fans to connect, create, and celebrate anime together. It features guilds, friends, messaging, and community projects.</div>
+                            <div class="faq-answer">Ztobi is a premium anime community platform designed for fans to connect, create, and celebrate anime together. It features guilds, friends, messaging, and community projects.</div>
                         </div>
                         <div class="faq-item">
                             <button class="faq-question">
-                                Is AniVerse free to join?
+                                Is Ztobi free to join?
                                 <i class="fas fa-chevron-down"></i>
                             </button>
-                            <div class="faq-answer">Yes, AniVerse is completely free. Future premium features may be added, but the core experience will always remain free for everyone.</div>
+                            <div class="faq-answer">Yes, Ztobi is completely free. Future premium features may be added, but the core experience will always remain free for everyone.</div>
                         </div>
                         <div class="faq-item">
                             <button class="faq-question">
@@ -1290,14 +1290,14 @@
                                 What kind of community projects can I join?
                                 <i class="fas fa-chevron-down"></i>
                             </button>
-                            <div class="faq-answer">AniVerse supports various projects including anime discussions, art collaborations, writing projects, voice acting, cosplay, and more.</div>
+                            <div class="faq-answer">Ztobi supports various projects including anime discussions, art collaborations, writing projects, voice acting, cosplay, and more.</div>
                         </div>
                         <div class="faq-item">
                             <button class="faq-question">
-                                Is AniVerse safe and moderated?
+                                Is Ztobi safe and moderated?
                                 <i class="fas fa-chevron-down"></i>
                             </button>
-                            <div class="faq-answer">Yes, AniVerse has active moderation to ensure a safe, respectful, and positive environment for all members.</div>
+                            <div class="faq-answer">Yes, Ztobi has active moderation to ensure a safe, respectful, and positive environment for all members.</div>
                         </div>
                     </div>
                 </div>
@@ -1403,18 +1403,18 @@
             // ============================================================
             // LOG
             // ============================================================
-            console.log('AniVerse · about.html ready');
+            console.log('Ztobi · about.html ready');
 
             // ============================================================
 // AUTH UI SYNC - All Pages
 // ============================================================
 async function syncAuthUI() {
     try {
-        if (typeof window.AniVerse === 'undefined') {
+        if (typeof window.Ztobi === 'undefined') {
             setTimeout(syncAuthUI, 300);
             return;
         }
-        const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+        const { user, profile } = await window.Ztobi.auth.getCurrentUser();
         const isLoggedIn = !!(user && profile);
         
         // Sidebar elements
@@ -1476,8 +1476,8 @@ async function syncAuthUI() {
 document.addEventListener('DOMContentLoaded', function() {
     syncAuthUI();
     // Listen to auth changes
-    if (window.AniVerse) {
-        window.AniVerse.auth.onAuthStateChange(() => syncAuthUI());
+    if (window.Ztobi) {
+        window.Ztobi.auth.onAuthStateChange(() => syncAuthUI());
     }
 });
         })();

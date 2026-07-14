@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search · AniVerse</title>
+    <title>Search · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1201,7 +1201,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1438,11 +1438,11 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1509,7 +1509,7 @@
                         if (adminPanelLink) adminPanelLink.classList.remove('visible');
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1558,7 +1558,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1774,7 +1774,7 @@
                 countEl.textContent = 'Loading...';
 
                 try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.client) {
+                    if (typeof window.Ztobi === 'undefined' || !window.Ztobi.client) {
                         throw new Error('Supabase client not initialized');
                     }
 
@@ -1783,7 +1783,7 @@
 
                     // Search based on category
                     if (currentCategory === 'all' || currentCategory === 'anime') {
-                        const { data: anime, error } = await window.AniVerse.client
+                        const { data: anime, error } = await window.Ztobi.client
                             .from('anime_library')
                             .select('*')
                             .textSearch('title_romaji', query, { config: 'english' })
@@ -1802,7 +1802,7 @@
                     }
 
                     if (currentCategory === 'all' || currentCategory === 'users') {
-                        const { data: users, error } = await window.AniVerse.client
+                        const { data: users, error } = await window.Ztobi.client
                             .from('profiles')
                             .select('id, username, display_name, avatar_url, level')
                             .textSearch('display_name', query, { config: 'english' })
@@ -1821,7 +1821,7 @@
                     }
 
                     if (currentCategory === 'all' || currentCategory === 'guilds') {
-                        const { data: guilds, error } = await window.AniVerse.client
+                        const { data: guilds, error } = await window.Ztobi.client
                             .from('guilds')
                             .select('id, name, description, category, member_count, level')
                             .textSearch('name', query, { config: 'english' })
@@ -1841,7 +1841,7 @@
                     }
 
                     if (currentCategory === 'all' || currentCategory === 'posts') {
-                        const { data: posts, error } = await window.AniVerse.client
+                        const { data: posts, error } = await window.Ztobi.client
                             .from('guild_posts')
                             .select('id, title, content, created_at, author_id, guild_id')
                             .textSearch('title', query, { config: 'english' })
@@ -1913,7 +1913,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Search error:', error);
+                    console.error('[Ztobi] Search error:', error);
                     grid.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-circle"></i>
@@ -1981,7 +1981,7 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
@@ -1997,14 +1997,14 @@
                     showInitialState();
                 }
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Search page ready (Supabase integrated)');
+            console.log('[Ztobi] Search page ready (Supabase integrated)');
 
         })();
     </script>

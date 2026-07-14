@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Settings · AniVerse</title>
+    <title>Settings · Ztobiitle>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1050,7 +1050,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1542,7 +1542,7 @@
             // UPDATE AUTH UI
             // ============================================================
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                const { user, profile } = await Ztobi.auth.getCurrentUser();
                 currentUser = user;
                 currentProfile = profile;
 
@@ -1658,9 +1658,9 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await Ztobi.auth.signOut();
                     if (!error) {
-                        localStorage.removeItem('aniverse_session');
+                        localStorage.removeItem('Ztobi_session');
                         window.location.replace('index.html');
                     } else {
                         alert('Logout failed. Please try again.');
@@ -1824,7 +1824,7 @@
                         privacy_settings: privacySettings
                     };
 
-                    const { data, error } = await AniVerse.auth.updateProfile(updateData);
+                    const { data, error } = await Ztobi.auth.updateProfile(updateData);
 
                     if (error) {
                         showToast('Failed to save settings: ' + error, 'error');
@@ -1837,7 +1837,7 @@
                     document.getElementById('profileAvatarPreview').textContent = displayName.charAt(0).toUpperCase();
 
                 } catch (error) {
-                    console.error('[AniVerse] Save settings error:', error);
+                    console.error('[Ztobi] Save settings error:', error);
                     showToast('An unexpected error occurred.', 'error');
                 }
             }
@@ -1887,7 +1887,7 @@
                 }
 
                 try {
-                    const { error } = await AniVerse.client.auth.updateUser({
+                    const { error } = await Ztobi.client.auth.updateUser({
                         password: newPwd
                     });
 
@@ -1902,7 +1902,7 @@
                     document.getElementById('confirmPassword').value = '';
 
                 } catch (error) {
-                    console.error('[AniVerse] Update password error:', error);
+                    console.error('[Ztobi] Update password error:', error);
                     showToast('An unexpected error occurred.', 'error');
                 }
             });
@@ -1924,7 +1924,7 @@
                     }
 
                     try {
-                        const { url, error } = await AniVerse.storage.upload('avatars', `${currentUser.id}/avatar.${file.name.split('.').pop()}`, file);
+                        const { url, error } = await Ztobi.storage.upload('avatars', `${currentUser.id}/avatar.${file.name.split('.').pop()}`, file);
                         
                         if (error) {
                             showToast('Failed to upload avatar: ' + error, 'error');
@@ -1932,7 +1932,7 @@
                         }
 
                         // Update profile with new avatar URL
-                        const { data, error: updateError } = await AniVerse.auth.updateProfile({
+                        const { data, error: updateError } = await Ztobi.auth.updateProfile({
                             avatar_url: url
                         });
 
@@ -1945,7 +1945,7 @@
                         document.getElementById('profileAvatarPreview').innerHTML = `<img src="${url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`;
 
                     } catch (error) {
-                        console.error('[AniVerse] Upload avatar error:', error);
+                        console.error('[Ztobi] Upload avatar error:', error);
                         showToast('Failed to upload avatar.', 'error');
                     }
                 };
@@ -1956,7 +1956,7 @@
                 if (!confirm('Remove your profile picture?')) return;
 
                 try {
-                    const { data, error } = await AniVerse.auth.updateProfile({
+                    const { data, error } = await Ztobi.auth.updateProfile({
                         avatar_url: null
                     });
 
@@ -1971,7 +1971,7 @@
                     document.getElementById('profileAvatarPreview').innerHTML = '';
 
                 } catch (error) {
-                    console.error('[AniVerse] Remove avatar error:', error);
+                    console.error('[Ztobi] Remove avatar error:', error);
                     showToast('Failed to remove avatar.', 'error');
                 }
             });
@@ -2003,7 +2003,7 @@
                 await updateAuthUI();
 
                 // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
+                Ztobi.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN') {
                         updateAuthUI();
                     } else if (event === 'SIGNED_OUT') {
@@ -2017,7 +2017,7 @@
             // ============================================================
             // LOG
             // ============================================================
-            console.log('[AniVerse] Settings page ready (Supabase integrated)');
+            console.log('[Ztobi] Settings page ready (Supabase integrated)');
 
         })();
     </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notifications · AniVerse</title>
+    <title>Notifications · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1143,7 +1143,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1395,11 +1395,11 @@
 
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined') {
+                    if (typeof window.Ztobi === 'undefined') {
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
 
@@ -1480,7 +1480,7 @@
                         `;
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                 }
             }
 
@@ -1529,7 +1529,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -1637,13 +1637,13 @@
             // ============================================================
             async function loadNotificationCounts(userId) {
                 try {
-                    const { count: unreadCount } = await window.AniVerse.client
+                    const { count: unreadCount } = await window.Ztobi.client
                         .from('notifications')
                         .select('*', { count: 'exact', head: true })
                         .eq('user_id', userId)
                         .eq('is_read', false);
 
-                    const { count: totalCount } = await window.AniVerse.client
+                    const { count: totalCount } = await window.Ztobi.client
                         .from('notifications')
                         .select('*', { count: 'exact', head: true })
                         .eq('user_id', userId);
@@ -1664,7 +1664,7 @@
                     }
 
                 } catch (error) {
-                    console.error('[AniVerse] Load notification counts error:', error);
+                    console.error('[Ztobi] Load notification counts error:', error);
                 }
             }
 
@@ -1673,7 +1673,7 @@
             // ============================================================
             async function loadNotifications(userId) {
                 try {
-                    const { notifications, count, error } = await window.AniVerse.db.getNotifications(userId, { limit: 50 });
+                    const { notifications, count, error } = await window.Ztobi.db.getNotifications(userId, { limit: 50 });
 
                     const container = document.getElementById('notifList');
 
@@ -1717,7 +1717,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load notifications error:', error);
+                    console.error('[Ztobi] Load notifications error:', error);
                 }
             }
 
@@ -1740,7 +1740,7 @@
 
                     const container = document.getElementById(containerId);
 
-                    let query = window.AniVerse.client
+                    let query = window.Ztobi.client
                         .from('notifications')
                         .select('*')
                         .eq('user_id', userId)
@@ -1803,7 +1803,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load notifications by type error:', error);
+                    console.error('[Ztobi] Load notifications by type error:', error);
                 }
             }
 
@@ -1869,7 +1869,7 @@
             // ============================================================
             async function markNotificationRead(notificationId) {
                 try {
-                    const { error } = await window.AniVerse.db.markNotificationRead(notificationId, currentUser.id);
+                    const { error } = await window.Ztobi.db.markNotificationRead(notificationId, currentUser.id);
                     if (error) throw new Error(error);
 
                     const activeTab = document.querySelector('.tab-btn.active');
@@ -1884,7 +1884,7 @@
                     await loadNotificationCounts(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Mark notification read error:', error);
+                    console.error('[Ztobi] Mark notification read error:', error);
                     showToast('Could not mark notification as read.', 'error');
                 }
             }
@@ -1894,7 +1894,7 @@
             // ============================================================
             async function deleteNotification(notificationId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('notifications')
                         .delete()
                         .eq('id', notificationId)
@@ -1914,7 +1914,7 @@
                     await loadNotificationCounts(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Delete notification error:', error);
+                    console.error('[Ztobi] Delete notification error:', error);
                     showToast('Could not delete notification.', 'error');
                 }
             }
@@ -1924,7 +1924,7 @@
             // ============================================================
             async function markAllAsRead() {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('notifications')
                         .update({ is_read: true, read_at: new Date().toISOString() })
                         .eq('user_id', currentUser.id)
@@ -1946,7 +1946,7 @@
                     await loadNotificationCounts(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Mark all read error:', error);
+                    console.error('[Ztobi] Mark all read error:', error);
                     showToast('Could not mark all as read.', 'error');
                 }
             }
@@ -1958,7 +1958,7 @@
                 if (!confirm('Delete all notifications? This action cannot be undone.')) return;
 
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('notifications')
                         .delete()
                         .eq('user_id', currentUser.id);
@@ -1979,7 +1979,7 @@
                     await loadNotificationCounts(currentUser.id);
 
                 } catch (error) {
-                    console.error('[AniVerse] Clear all error:', error);
+                    console.error('[Ztobi] Clear all error:', error);
                     showToast('Could not clear notifications.', 'error');
                 }
             }
@@ -2044,21 +2044,21 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined') {
+                if (typeof window.Ztobi === 'undefined') {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await updateAuthUI();
 
-                window.AniVerse.auth.onAuthStateChange(() => {
+                window.Ztobi.auth.onAuthStateChange(() => {
                     updateAuthUI();
                 });
             }
 
             init();
 
-            console.log('[AniVerse] Notifications page ready (Supabase integrated)');
+            console.log('[Ztobi] Notifications page ready (Supabase integrated)');
 
         })();
     </script>

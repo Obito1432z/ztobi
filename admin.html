@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel · AniVerse</title>
+    <title>Admin Panel · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1352,7 +1352,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobigo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1891,7 +1891,7 @@
                             <div class="form-group">
                                 <label for="siteName">Site Name</label>
                                 <div class="input-wrapper">
-                                    <input type="text" id="siteName" placeholder="AniVerse" value="AniVerse" />
+                                    <input type="text" id="siteName" placeholder="Ztobialue="Ztobi" />
                                 </div>
                             </div>
 
@@ -2232,11 +2232,11 @@
                 loginBtn.disabled = true;
 
                 try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    if (typeof window.Ztobi= 'undefined' || !window.Ztobi.auth) {
                         throw new Error('Supabase client not initialized.');
                     }
 
-                    const result = await window.AniVerse.auth.signIn({ email, password });
+                    const result = await window.Ztobi.auth.signIn({ email, password });
 
                     if (result.error) {
                         showToast(result.error, 'error');
@@ -2254,7 +2254,7 @@
 
                     const { user } = result;
                     
-                    const { data: profile, error: profileError } = await window.AniVerse.client
+                    const { data: profile, error: profileError } = await window.Ztobi.client
                         .from('profiles')
                         .select('role')
                         .eq('id', user.id)
@@ -2264,7 +2264,7 @@
 
                     if (role !== 'admin' && role !== 'moderator') {
                         showToast('Access denied. You do not have admin privileges.', 'error');
-                        await window.AniVerse.auth.signOut();
+                        await window.Ztobi.auth.signOut();
                         loginBtn.classList.remove('loading');
                         loginBtn.disabled = false;
                         return;
@@ -2332,7 +2332,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -2411,26 +2411,26 @@
             // ============================================================
             async function loadDashboardStats() {
                 try {
-                    const { count: userCount } = await window.AniVerse.client
+                    const { count: userCount } = await window.Ztobiient
                         .from('profiles')
                         .select('*', { count: 'exact', head: true });
 
-                    const { count: guildCount } = await window.AniVerse.client
+                    const { count: guildCount } = await window.Ztobi.client
                         .from('guilds')
                         .select('*', { count: 'exact', head: true })
                         .is('deleted_at', null);
 
-                    const { count: postCount } = await window.AniVerse.client
+                    const { count: postCount } = await window.Ztobi.client
                         .from('guild_posts')
                         .select('*', { count: 'exact', head: true })
                         .is('deleted_at', null);
 
-                    const { count: missionCount } = await window.AniVerse.client
+                    const { count: missionCount } = await window.Ztobi.client
                         .from('missions')
                         .select('*', { count: 'exact', head: true })
                         .eq('is_active', true);
 
-                    const { data: xpData } = await window.AniVerse.client
+                    const { data: xpData } = await window.Ztobi.client
                         .from('profiles')
                         .select('experience_points');
 
@@ -2441,7 +2441,7 @@
                         });
                     }
 
-                    const { count: animeCount } = await window.AniVerse.client
+                    const { count: animeCount } = await window.Ztobi.client
                         .from('anime_library')
                         .select('*', { count: 'exact', head: true });
 
@@ -2462,7 +2462,7 @@
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Load dashboard stats error:', error);
+                    console.error('[Ztobi] Load dashboard stats error:', error);
                 }
             }
 
@@ -2471,7 +2471,7 @@
             // ============================================================
             async function loadUsers() {
                 try {
-                    const { data: users, error } = await window.AniVerse.client
+                    const { data: users, error } = await window.Ztobi.client
                         .from('profiles')
                         .select('*')
                         .order('created_at', { ascending: false })
@@ -2524,7 +2524,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load users error:', error);
+                    console.error('[Ztobi] Load users error:', error);
                 }
             }
 
@@ -2533,7 +2533,7 @@
             // ============================================================
             async function loadGuilds() {
                 try {
-                    const { data: guilds, error } = await window.AniVerse.client
+                    const { data: guilds, error } = await window.Ztobi.client
                         .from('guilds')
                         .select('*')
                         .is('deleted_at', null)
@@ -2586,7 +2586,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load guilds error:', error);
+                    console.error('[Ztobi] Load guilds error:', error);
                 }
             }
 
@@ -2595,7 +2595,7 @@
             // ============================================================
             async function loadOfficialGuilds() {
                 try {
-                    const { data: guilds, error } = await window.AniVerse.client
+                    const { data: guilds, error } = await window.Ztobi.client
                         .from('guilds')
                         .select('*')
                         .is('deleted_at', null)
@@ -2616,7 +2616,7 @@
                     let officialMembers = 0;
                     if (officialGuilds.length > 0) {
                         const guildIds = officialGuilds.map(g => g.id);
-                        const { data: members, error: mError } = await window.AniVerse.client
+                        const { data: members, error: mError } = await window.Ztobi.client
                             .from('guild_members')
                             .select('guild_id', { count: 'exact' })
                             .in('guild_id', guildIds);
@@ -2703,7 +2703,7 @@
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Load official guilds error:', error);
+                    console.error('[Ztobi] Load official guilds error:', error);
                 }
             }
 
@@ -2712,7 +2712,7 @@
             // ============================================================
             async function toggleOfficialGuild(guildId, newStatus, guildName) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('guilds')
                         .update({ 
                             is_official: newStatus,
@@ -2734,7 +2734,7 @@
                     await loadDashboardStats();
 
                 } catch (error) {
-                    console.error('[AniVerse] Toggle official guild error:', error);
+                    console.error('[Ztobi] Toggle official guild error:', error);
                     showToast('Failed to update guild: ' + error.message, 'error');
                 }
             }
@@ -2752,7 +2752,7 @@
             // ============================================================
             async function loadAnime() {
                 try {
-                    const { data: anime, error } = await window.AniVerse.client
+                    const { data: anime, error } = await window.Ztobi.client
                         .from('anime_library')
                         .select('*')
                         .order('popularity', { ascending: false });
@@ -2766,7 +2766,7 @@
                     document.getElementById('popularAnime').textContent = popularAnime;
                     document.getElementById('animeBadge').textContent = totalAnime;
 
-                    const { data: genres } = await window.AniVerse.client
+                    const { data: genres } = await window.Ztobi.client
                         .from('anime_genres')
                         .select('*');
                     document.getElementById('animeGenres').textContent = genres ? genres.length : 0;
@@ -2815,7 +2815,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load anime error:', error);
+                    console.error('[Ztobi] Load anime error:', error);
                 }
             }
 
@@ -2824,7 +2824,7 @@
             // ============================================================
             async function loadPosts() {
                 try {
-                    const { data: posts, error } = await window.AniVerse.client
+                    const { data: posts, error } = await window.Ztobi.client
                         .from('guild_posts')
                         .select(`
                             *,
@@ -2873,7 +2873,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load posts error:', error);
+                    console.error('[Ztobi] Load posts error:', error);
                 }
             }
 
@@ -2882,7 +2882,7 @@
             // ============================================================
             async function loadMissions() {
                 try {
-                    const { data: missions, error } = await window.AniVerse.client
+                    const { data: missions, error } = await window.Ztobi.client
                         .from('missions')
                         .select('*')
                         .order('category', { ascending: true })
@@ -2943,7 +2943,7 @@
                     `).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load missions error:', error);
+                    console.error('[Ztobi] Load missions error:', error);
                 }
             }
 
@@ -2952,7 +2952,7 @@
             // ============================================================
             async function loadLeaderboard() {
                 try {
-                    const { data: users, error } = await window.AniVerse.client
+                    const { data: users, error } = await window.Ztobi.client
                         .from('profiles')
                         .select('id, username, display_name, level, experience_points, avatar_url')
                         .order('experience_points', { ascending: false })
@@ -3000,7 +3000,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load leaderboard error:', error);
+                    console.error('[Ztobi] Load leaderboard error:', error);
                 }
             }
 
@@ -3085,7 +3085,7 @@
 
             async function deleteAnime(animeId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('anime_library')
                         .delete()
                         .eq('id', animeId);
@@ -3096,7 +3096,7 @@
                     await loadAnime();
 
                 } catch (error) {
-                    console.error('[AniVerse] Delete anime error:', error);
+                    console.error('[Ztobi] Delete anime error:', error);
                     showToast('Failed to delete anime: ' + error.message, 'error');
                 }
             }
@@ -3112,7 +3112,7 @@
 
             async function editAnime(animeId) {
                 try {
-                    const { data: anime, error } = await window.AniVerse.client
+                    const { data: anime, error } = await window.Ztobi.client
                         .from('anime_library')
                         .select('*')
                         .eq('id', animeId)
@@ -3138,7 +3138,7 @@
                     document.getElementById('animeModal').classList.add('open');
 
                 } catch (error) {
-                    console.error('[AniVerse] Edit anime error:', error);
+                    console.error('[Ztobi] Edit anime error:', error);
                     showToast('Failed to load anime: ' + error.message, 'error');
                 }
             }
@@ -3182,12 +3182,12 @@
                     let result;
 
                     if (editId) {
-                        result = await window.AniVerse.client
+                        result = await window.Ztobi.client
                             .from('anime_library')
                             .update(animeData)
                             .eq('id', editId);
                     } else {
-                        result = await window.AniVerse.client
+                        result = await window.Ztobi.client
                             .from('anime_library')
                             .insert(animeData);
                     }
@@ -3199,7 +3199,7 @@
                     await loadAnime();
 
                 } catch (error) {
-                    console.error('[AniVerse] Anime submit error:', error);
+                    console.error('[Ztobi] Anime submit error:', error);
                     showToast('Failed to save anime: ' + error.message, 'error');
                 }
 
@@ -3245,7 +3245,7 @@
 
             async function editMission(missionId) {
                 try {
-                    const { data: mission, error } = await window.AniVerse.client
+                    const { data: mission, error } = await window.Ztobi.client
                         .from('missions')
                         .select('*')
                         .eq('id', missionId)
@@ -3272,7 +3272,7 @@
                     document.getElementById('missionModal').classList.add('open');
 
                 } catch (error) {
-                    console.error('[AniVerse] Edit mission error:', error);
+                    console.error('[Ztobi] Edit mission error:', error);
                     showToast('Failed to load mission: ' + error.message, 'error');
                 }
             }
@@ -3290,7 +3290,7 @@
 
             async function deleteMission(missionId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('missions')
                         .delete()
                         .eq('id', missionId);
@@ -3301,7 +3301,7 @@
                     await loadMissions();
 
                 } catch (error) {
-                    console.error('[AniVerse] Delete mission error:', error);
+                    console.error('[Ztobi] Delete mission error:', error);
                     showToast('Failed to delete mission: ' + error.message, 'error');
                 }
             }
@@ -3339,7 +3339,7 @@
 
                 try {
                     if (editId) {
-                        const { error } = await window.AniVerse.client
+                        const { error } = await window.Ztobi.client
                             .from('missions')
                             .update({
                                 title,
@@ -3356,7 +3356,7 @@
                         showToast('Mission updated successfully!', 'success');
 
                     } else {
-                        const { error } = await window.AniVerse.client
+                        const { error } = await window.Ztobi.client
                             .from('missions')
                             .insert({
                                 title,
@@ -3375,7 +3375,7 @@
                     await loadMissions();
 
                 } catch (error) {
-                    console.error('[AniVerse] Mission submit error:', error);
+                    console.error('[Ztobi] Mission submit error:', error);
                     showToast('Failed to save mission: ' + error.message, 'error');
                 }
 
@@ -3388,12 +3388,12 @@
             // ============================================================
             async function checkExistingSession() {
                 try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                    if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
                         setTimeout(checkExistingSession, 300);
                         return;
                     }
 
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
 
                     if (user && profile) {
                         const role = profile.role || user.user_metadata?.role || 'user';
@@ -3421,14 +3421,14 @@
             // INITIALIZE
             // ============================================================
             async function init() {
-                if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
+                if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
                     setTimeout(init, 300);
                     return;
                 }
 
                 await checkExistingSession();
 
-                window.AniVerse.auth.onAuthStateChange((event, session) => {
+                window.Ztobi.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN') {
                         checkExistingSession();
                     } else if (event === 'SIGNED_OUT') {
@@ -3440,7 +3440,7 @@
 
             init();
 
-            console.log('[AniVerse] Admin panel ready with Official Guild Management');
+            console.log('[Ztobi] Admin panel ready with Official Guild Management');
 
         })();
     </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anime Details · AniVerse</title>
+    <title>Anime Details · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1324,7 +1324,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1522,7 +1522,7 @@
             let currentUser = null;
 
             async function updateAuthUI() {
-                const { user, profile } = await AniVerse.auth.getCurrentUser();
+                const { user, profile } = await Ztobi.auth.getCurrentUser();
                 currentUser = user;
 
                 const isLoggedIn = !!user;
@@ -1624,9 +1624,9 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await AniVerse.auth.signOut();
+                    const { error } = await Ztobi.auth.signOut();
                     if (!error) {
-                        localStorage.removeItem('aniverse_session');
+                        localStorage.removeItem('Ztobi_session');
                         window.location.replace('index.html');
                     } else {
                         alert('Logout failed. Please try again.');
@@ -1739,7 +1739,7 @@
 
                 try {
                     // Get anime details
-                    const { data: anime, error } = await AniVerse.client
+                    const { data: anime, error } = await Ztobi.client
                         .from('anime_library')
                         .select(`
                             *,
@@ -1751,7 +1751,7 @@
                         .single();
 
                     if (error) {
-                        console.error('[AniVerse] Load anime details error:', error);
+                        console.error('[Ztobi] Load anime details error:', error);
                         document.getElementById('animeHero').innerHTML = `
                             <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
                                 <i class="fas fa-exclamation-circle" style="font-size:3rem; color:var(--color-error); opacity:0.5; display:block; margin-bottom:var(--spacing-md);"></i>
@@ -1770,7 +1770,7 @@
                     await loadRecommendations(anime);
 
                 } catch (error) {
-                    console.error('[AniVerse] Load anime details error:', error);
+                    console.error('[Ztobi] Load anime details error:', error);
                 }
             }
 
@@ -1866,7 +1866,7 @@
                     if (navigator.share) {
                         navigator.share({
                             title: title,
-                            text: `Check out ${title} on AniVerse!`,
+                            text: `Check out ${title} on Ztobi!`,
                             url: window.location.href
                         }).catch(() => {});
                     } else {
@@ -1909,7 +1909,7 @@
                     // Get recommendations based on genres
                     const genreIds = currentAnime.genres?.map(g => g.genre_id) || [];
                     
-                    let query = AniVerse.client
+                    let query = Ztobi.client
                         .from('anime_library')
                         .select('*')
                         .neq('id', currentAnime.id)
@@ -1958,7 +1958,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load recommendations error:', error);
+                    console.error('[Ztobi] Load recommendations error:', error);
                 }
             }
 
@@ -1970,7 +1970,7 @@
                 await loadAnimeDetails();
 
                 // Listen to auth changes
-                AniVerse.auth.onAuthStateChange((event, session) => {
+                Ztobith.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                         updateAuthUI();
                     }
@@ -1982,7 +1982,7 @@
             // ============================================================
             // LOG
             // ============================================================
-            console.log('[AniVerse] Anime details page loaded (Supabase integrated)');
+            console.log('[Ztobi] Anime details page loaded (Supabase integrated)');
 
         })();
     </script>

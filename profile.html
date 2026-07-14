@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profile · AniVerse</title>
+    <title>Profile · Ztobi</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1563,7 +1563,7 @@
     ============================================================ -->
     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <a href="index.html" class="sidebar-brand">
-            <img src="assets/logo.png" alt="AniVerse Logo" />
+            <img src="assets/logo.png" alt="Ztobi Logo" />
         </a>
 
         <nav class="sidebar-nav">
@@ -1953,13 +1953,13 @@
             // ============================================================
             async function updateAuthUI() {
                 try {
-                    if (typeof window.AniVerse === 'undefined' || !window.AniVerse.auth) {
-                        console.warn('[AniVerse] Auth not ready, waiting...');
+                    if (typeof window.Ztobi === 'undefined' || !window.Ztobi.auth) {
+                        console.warn('[Ztobi] Auth not ready, waiting...');
                         setTimeout(updateAuthUI, 300);
                         return;
                     }
 
-                    const { user, profile } = await window.AniVerse.auth.getCurrentUser();
+                    const { user, profile } = await window.Ztobi.auth.getCurrentUser();
                     currentUser = user;
                     currentProfile = profile;
                     isLoggedIn = !!user;
@@ -2067,7 +2067,7 @@
                         showLoginRequired();
                     }
                 } catch (error) {
-                    console.error('[AniVerse] Auth UI update error:', error);
+                    console.error('[Ztobi] Auth UI update error:', error);
                     showLoginRequired();
                 }
             }
@@ -2117,7 +2117,7 @@
             document.getElementById('logoutLink').addEventListener('click', async function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
-                    const { error } = await window.AniVerse.auth.signOut();
+                    const { error } = await window.Ztobi.auth.signOut();
                     if (!error) {
                         window.clearSupabaseStorage();
                         window.location.replace('index.html');
@@ -2177,17 +2177,17 @@
                         isOwnProfile = true;
                     }
 
-                    console.log('[AniVerse] Loading profile for user:', userId);
+                    console.log('[Ztobi] Loading profile for user:', userId);
 
                     // Load profile data from Supabase
-                    const { data: profile, error } = await window.AniVerse.client
+                    const { data: profile, error } = await window.Ztobi.client
                         .from('profiles')
                         .select('*')
                         .eq('id', userId)
                         .maybeSingle();
 
                     if (error) {
-                        console.error('[AniVerse] Profile load error:', error);
+                        console.error('[Ztobi] Profile load error:', error);
                         if (error.code === 'PGRST116') {
                             document.getElementById('displayName').textContent = 'User Not Found';
                             document.getElementById('username').textContent = '@notfound';
@@ -2199,10 +2199,10 @@
 
                     // If no profile found but user is authenticated, create one
                     if (!profile && currentUser && currentUser.id === userId) {
-                        console.log('[AniVerse] Profile missing, creating...');
+                        console.log('[Ztobi] Profile missing, creating...');
                         await createProfileForUser(currentUser);
                         // Reload profile
-                        const { data: newProfile } = await window.AniVerse.client
+                        const { data: newProfile } = await window.Ztobi.client
                             .from('profiles')
                             .select('*')
                             .eq('id', userId)
@@ -2237,7 +2237,7 @@
                     }
 
                 } catch (error) {
-                    console.error('[AniVerse] Profile load error:', error);
+                    console.error('[Ztobi] Profile load error:', error);
                 }
             }
 
@@ -2249,7 +2249,7 @@
                     const username = user.user_metadata?.username || user.email?.split('@')[0] || 'user';
                     const displayName = user.user_metadata?.display_name || username;
 
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('profiles')
                         .insert({
                             id: user.id,
@@ -2264,13 +2264,13 @@
                         });
 
                     if (error) {
-                        console.error('[AniVerse] Profile creation error:', error);
+                        console.error('[Ztobi] Profile creation error:', error);
                         throw error;
                     }
-                    console.log('[AniVerse] Profile created successfully');
+                    console.log('[Ztobi] Profile created successfully');
                     return true;
                 } catch (error) {
-                    console.error('[AniVerse] Create profile error:', error);
+                    console.error('[Ztobi] Create profile error:', error);
                     return false;
                 }
             }
@@ -2279,7 +2279,7 @@
             // RENDER PROFILE
             // ============================================================
             function renderProfile(profile) {
-                console.log('[AniVerse] Rendering profile:', {
+                console.log('[Ztobi] Rendering profile:', {
                     avatar_url: profile.avatar_url,
                     banner_url: profile.banner_url
                 });
@@ -2374,7 +2374,7 @@
                     addFriendBtn.style.display = 'inline-flex';
                 }
 
-                console.log('[AniVerse] Profile rendered successfully');
+                console.log('[Ztobi] Profile rendered successfully');
             }
 
             // ============================================================
@@ -2383,18 +2383,18 @@
             async function loadStats(userId) {
                 try {
                     // Get post count
-                    const { count: postCount } = await window.AniVerse.client
+                    const { count: postCount } = await window.Ztobi.client
                         .from('guild_posts')
                         .select('*', { count: 'exact', head: true })
                         .eq('author_id', userId)
                         .is('deleted_at', null);
 
                     // Get friends count
-                    const { friends } = await window.AniVerse.db.getFriends(userId);
+                    const { friends } = await window.Ztobi.db.getFriends(userId);
                     const friendCount = friends ? friends.length : 0;
 
                     // Get guilds count
-                    const { guilds } = await window.AniVerse.db.getUserGuilds(userId);
+                    const { guilds } = await window.Ztobi.db.getUserGuilds(userId);
                     const guildCount = guilds ? guilds.length : 0;
 
                     // Update stats
@@ -2406,7 +2406,7 @@
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Load stats error:', error);
+                    console.error('[Ztobi] Load stats error:', error);
                 }
             }
 
@@ -2429,7 +2429,7 @@
                 this.innerHTML = '<span class="spinner"></span>';
 
                 try {
-                    const { data, error } = await window.AniVerse.client
+                    const { data, error } = await window.Ztobi.client
                         .from('guild_posts')
                         .insert({
                             title: 'Status Update',
@@ -2450,7 +2450,7 @@
                         .single();
 
                     if (error) {
-                        console.error('[AniVerse] Create post error:', error);
+                        console.error('[Ztobi] Create post error:', error);
                         alert('Failed to create post: ' + error.message);
                         return;
                     }
@@ -2465,7 +2465,7 @@
                     alert('Post created successfully!');
 
                 } catch (error) {
-                    console.error('[AniVerse] Create post error:', error);
+                    console.error('[Ztobi] Create post error:', error);
                     alert('Failed to create post.');
                 } finally {
                     this.disabled = false;
@@ -2478,7 +2478,7 @@
             // ============================================================
             async function loadUserPosts(userId) {
                 try {
-                    const { data: posts, error } = await window.AniVerse.client
+                    const { data: posts, error } = await window.Ztobiient
                         .from('guild_posts')
                         .select(`
                             *,
@@ -2546,7 +2546,7 @@
                             try {
                                 if (isLiked) {
                                     // Unlike
-                                    const { error } = await window.AniVerse.client
+                                    const { error } = await window.Ztobi.client
                                         .from('post_likes')
                                         .delete()
                                         .match({ post_id: postId, user_id: currentUser?.id });
@@ -2556,14 +2556,14 @@
                                         const count = parseInt(likeCountSpan.textContent) - 1;
                                         likeCountSpan.textContent = Math.max(0, count);
                                         // Update post count
-                                        await window.AniVerse.client
+                                        await window.Ztobi.client
                                             .from('guild_posts')
                                             .update({ upvotes: Math.max(0, count) })
                                             .eq('id', postId);
                                     }
                                 } else {
                                     // Like
-                                    const { error } = await window.AniVerse.client
+                                    const { error } = await window.Ztobi.client
                                         .from('post_likes')
                                         .insert({
                                             post_id: postId,
@@ -2576,20 +2576,20 @@
                                         const count = parseInt(likeCountSpan.textContent) + 1;
                                         likeCountSpan.textContent = count;
                                         // Update post count
-                                        await window.AniVerse.client
+                                        await window.Ztobi.client
                                             .from('guild_posts')
                                             .update({ upvotes: count })
                                             .eq('id', postId);
                                     }
                                 }
                             } catch (error) {
-                                console.error('[AniVerse] Like error:', error);
+                                console.error('[Ztobi] Like error:', error);
                             }
                         });
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Load user posts error:', error);
+                    console.error('[Ztobi] Load user posts error:', error);
                 }
             }
 
@@ -2598,7 +2598,7 @@
             // ============================================================
             async function loadUserGuilds(userId) {
                 try {
-                    const { data: memberships, error } = await window.AniVerse.client
+                    const { data: memberships, error } = await window.Ztobi.client
                         .from('guild_members')
                         .select(`
                             guild_id,
@@ -2646,7 +2646,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load user guilds error:', error);
+                    console.error('[Ztobi] Load user guilds error:', error);
                 }
             }
 
@@ -2655,7 +2655,7 @@
             // ============================================================
             async function loadUserFriends(userId) {
                 try {
-                    const { friends, error } = await window.AniVerse.db.getFriends(userId);
+                    const { friends, error } = await window.Ztobi.db.getFriends(userId);
 
                     const container = document.getElementById('friendsContainer');
 
@@ -2686,7 +2686,7 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load user friends error:', error);
+                    console.error('[Ztobi] Load user friends error:', error);
                 }
             }
 
@@ -2697,7 +2697,7 @@
                 try {
                     if (!currentUser) return;
 
-                    const { requests, error } = await window.AniVerse.db.getFriendRequests(currentUser.id, 'received');
+                    const { requests, error } = await window.Ztobi.db.getFriendRequests(currentUser.id, 'received');
 
                     const container = document.getElementById('requestsContainer');
 
@@ -2755,7 +2755,7 @@
                     });
 
                 } catch (error) {
-                    console.error('[AniVerse] Load friend requests error:', error);
+                    console.error('[Ztobi] Load friend requests error:', error);
                 }
             }
 
@@ -2767,19 +2767,19 @@
                     if (!currentUser) return;
 
                     // Delete the friend request
-                    const { error: deleteError } = await window.AniVerse.client
+                    const { error: deleteError } = await window.Ztobi.client
                         .from('friend_requests')
                         .delete()
                         .eq('id', requestId);
 
                     if (deleteError) {
-                        console.error('[AniVerse] Delete request error:', deleteError);
+                        console.error('[Ztobi] Delete request error:', deleteError);
                         alert('Failed to accept request.');
                         return;
                     }
 
                     // Add to friends table
-                    const { error: addError } = await window.AniVerse.client
+                    const { error: addError } = await window.Ztobi.client
                         .from('friends')
                         .insert({
                             user_id: currentUser.id,
@@ -2789,7 +2789,7 @@
                         });
 
                     if (addError) {
-                        console.error('[AniVerse] Add friend error:', addError);
+                        console.error('[Ztobi] Add friend error:', addError);
                         alert('Failed to add friend.');
                         return;
                     }
@@ -2811,7 +2811,7 @@
                     }
 
                 } catch (error) {
-                    console.error('[AniVerse] Accept request error:', error);
+                    console.error('[Ztobi] Accept request error:', error);
                     alert('Failed to accept friend request.');
                 }
             }
@@ -2821,13 +2821,13 @@
             // ============================================================
             async function rejectFriendRequest(requestId) {
                 try {
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('friend_requests')
                         .delete()
                         .eq('id', requestId);
 
                     if (error) {
-                        console.error('[AniVerse] Reject request error:', error);
+                        console.error('[Ztobi] Reject request error:', error);
                         alert('Failed to reject request.');
                         return;
                     }
@@ -2836,7 +2836,7 @@
                     await loadFriendRequests();
 
                 } catch (error) {
-                    console.error('[AniVerse] Reject request error:', error);
+                    console.error('[Ztobi] Reject request error:', error);
                     alert('Failed to reject friend request.');
                 }
             }
@@ -2846,7 +2846,7 @@
             // ============================================================
             async function loadUserActivity(userId) {
                 try {
-                    const { activities, error } = await window.AniVerse.db.getUserActivity(userId);
+                    const { activities, error } = await window.Ztobi.db.getUserActivity(userId);
 
                     const container = document.getElementById('activityContainer');
 
@@ -2919,13 +2919,13 @@
                     }).join('');
 
                 } catch (error) {
-                    console.error('[AniVerse] Load user activity error:', error);
+                    console.error('[Ztobi] Load user activity error:', error);
                     const container = document.getElementById('activityContainer');
                     container.innerHTML = `
                         <div class="activity-item">
                             <div class="activity-icon"><i class="fas fa-user-edit"></i></div>
                             <div class="activity-content">
-                                <div class="activity-text">Joined AniVerse</div>
+                                <div class="activity-text">Joined Ztobi</div>
                                 <div class="activity-time">${new Date().toLocaleString()}</div>
                             </div>
                         </div>
@@ -2954,7 +2954,7 @@
                 }
 
                 try {
-                    const { data: existing } = await window.AniVerse.client
+                    const { data: existing } = await window.Ztobi.client
                         .from('friends')
                         .select('*')
                         .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_id.eq.${currentUser.id})`)
@@ -2967,7 +2967,7 @@
                             if (existing.user_id === currentUser.id) {
                                 alert('Friend request already sent!');
                             } else {
-                                await window.AniVerse.client
+                                await window.Ztobi.client
                                     .from('friends')
                                     .update({ status: 'accepted', updated_at: new Date().toISOString() })
                                     .eq('id', existing.id);
@@ -2979,7 +2979,7 @@
                         return;
                     }
 
-                    const { error } = await window.AniVerse.client
+                    const { error } = await window.Ztobi.client
                         .from('friend_requests')
                         .insert({
                             sender_id: currentUser.id,
@@ -2989,7 +2989,7 @@
                         });
 
                     if (error) {
-                        console.error('[AniVerse] Friend request error:', error);
+                        console.error('[Ztobi] Friend request error:', error);
                         alert('Failed to send friend request.');
                         return;
                     }
@@ -2999,7 +2999,7 @@
                     this.disabled = true;
 
                 } catch (error) {
-                    console.error('[AniVerse] Add friend error:', error);
+                    console.error('[Ztobi] Add friend error:', error);
                     alert('Failed to send friend request.');
                 }
             });
@@ -3078,12 +3078,12 @@
             // ============================================================
             // INIT
             // ============================================================
-            if (typeof window.AniVerse === 'undefined') {
-                console.log('[AniVerse] Waiting for library to load...');
+            if (typeof window.Ztobi === 'undefined') {
+                console.log('[Ztobi] Waiting for library to load...');
                 const checkReady = setInterval(function() {
-                    if (typeof window.AniVerse !== 'undefined') {
+                    if (typeof window.Ztobi !== 'undefined') {
                         clearInterval(checkReady);
-                        console.log('[AniVerse] Library ready, initializing...');
+                        console.log('[Ztobi] Library ready, initializing...');
                         updateAuthUI();
                     }
                 }, 200);
