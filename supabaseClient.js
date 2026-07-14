@@ -1,6 +1,6 @@
 /**
  * AniVerse - Centralized Supabase Client
- * Version: 2.3.0 - PURE DEBUGGING - NO CUSTOM ERRORS
+ * Version: 3.0.0 - Simplified Storage Module
  */
 
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
@@ -38,24 +38,6 @@ function clearSupabaseStorage() {
         console.log('[AniVerse] Storage cleared');
     } catch (error) {
         console.error('[AniVerse] Error clearing storage:', error);
-    }
-}
-
-function getPublicUrl(bucket, path) {
-    console.log('[DEBUG] getPublicUrl called with:', { bucket, path });
-    
-    try {
-        const result = supabaseClient.storage.from(bucket).getPublicUrl(path);
-        console.log('[DEBUG] getPublicUrl raw result:', result);
-        console.log('[DEBUG] getPublicUrl data:', result.data);
-        console.log('[DEBUG] getPublicUrl error:', result.error);
-        console.log('[DEBUG] getPublicUrl publicUrl:', result.data?.publicUrl);
-        
-        return result.data?.publicUrl || null;
-    } catch (error) {
-        console.error('[DEBUG] getPublicUrl exception:', error);
-        console.error('[DEBUG] Exception stack:', error.stack);
-        return null;
     }
 }
 
@@ -830,260 +812,236 @@ const Realtime = {
 };
 
 // ============================================================
-// STORAGE MODULE - PURE DEBUGGING - NO CUSTOM ERRORS
+// SIMPLIFIED STORAGE MODULE - NO COMPLEXITY
 // ============================================================
 
 const Storage = {
-    async upload(bucket, path, file, options = {}) {
-        console.log('========== STORAGE.UPLOAD DEBUG START ==========');
-        console.log('[DEBUG] upload() called with:');
-        console.log('[DEBUG] - bucket:', bucket);
-        console.log('[DEBUG] - path:', path);
-        console.log('[DEBUG] - file name:', file?.name);
-        console.log('[DEBUG] - file type:', file?.type);
-        console.log('[DEBUG] - file size:', file?.size);
-        console.log('[DEBUG] - options:', options);
+    /**
+     * Upload a file to Supabase Storage
+     */
+    async upload(bucket, path, file) {
+        console.log('[Storage] Uploading:', { bucket, path, fileName: file.name });
         
         try {
-            // Step 1: Upload
-            console.log('[DEBUG] Step 1: Calling supabaseClient.storage.from().upload()...');
-            const uploadResult = await supabaseClient.storage
+            const { data, error } = await supabaseClient.storage
                 .from(bucket)
                 .upload(path, file, {
                     cacheControl: '3600',
                     upsert: true
                 });
             
-            console.log('[DEBUG] Upload result (raw):', uploadResult);
-            console.log('[DEBUG] Upload data:', uploadResult.data);
-            console.log('[DEBUG] Upload error:', uploadResult.error);
-            
-            // Step 2: Check for upload error
-            if (uploadResult.error) {
-                console.error('[DEBUG] ❌ Upload error detected:');
-                console.error('[DEBUG] - Error message:', uploadResult.error.message);
-                console.error('[DEBUG] - Error status:', uploadResult.error.status);
-                console.error('[DEBUG] - Error statusText:', uploadResult.error.statusText);
-                console.error('[DEBUG] - Full error object:', uploadResult.error);
-                console.log('========== STORAGE.UPLOAD DEBUG END ==========');
-                return { url: null, error: uploadResult.error };
+            if (error) {
+                console.error('[Storage] Upload error:', error);
+                return { path: null, url: null, error };
             }
             
-            console.log('[DEBUG] ✅ Upload successful!');
-            console.log('[DEBUG] Upload response data:', uploadResult.data);
+            console.log('[Storage] Upload successful:', data);
             
-            // Step 3: Get public URL
-            console.log('[DEBUG] Step 2: Getting public URL...');
-            console.log('[DEBUG] Calling getPublicUrl with:', { bucket, path });
+            const { data: urlData } = supabaseClient.storage
+                .from(bucket)
+                .getPublicUrl(path);
             
-            const urlResult = supabaseClient.storage.from(bucket).getPublicUrl(path);
-            console.log('[DEBUG] getPublicUrl result (raw):', urlResult);
-            console.log('[DEBUG] getPublicUrl data:', urlResult.data);
-            console.log('[DEBUG] getPublicUrl error:', urlResult.error);
-            console.log('[DEBUG] getPublicUrl publicUrl:', urlResult.data?.publicUrl);
+            const url = urlData?.publicUrl || null;
+            console.log('[Storage] Public URL:', url);
             
-            const publicUrl = urlResult.data?.publicUrl || null;
-            console.log('[DEBUG] Final publicUrl:', publicUrl);
-            
-            // Step 4: Return result
-            console.log('========== STORAGE.UPLOAD DEBUG END ==========');
-            return { 
-                url: publicUrl, 
-                error: urlResult.error || null,
-                uploadData: uploadResult.data,
-                uploadError: uploadResult.error
-            };
+            return { path: data?.path || path, url, error: null };
             
         } catch (error) {
-            console.error('[DEBUG] ❌ Exception caught in upload():');
-            console.error('[DEBUG] - Error message:', error.message);
-            console.error('[DEBUG] - Error stack:', error.stack);
-            console.error('[DEBUG] - Full error:', error);
-            console.log('========== STORAGE.UPLOAD DEBUG END ==========');
-            return { url: null, error: error };
+            console.error('[Storage] Upload exception:', error);
+            return { path: null, url: null, error };
         }
     },
-
-    async delete(bucket, path) {
-        console.log('[DEBUG] delete() called with:', { bucket, path });
-        
-        try {
-            const result = await supabaseClient.storage.from(bucket).remove([path]);
-            console.log('[DEBUG] Delete result:', result);
-            return { data: result.data, error: result.error || null };
-        } catch (error) {
-            console.error('[DEBUG] Delete exception:', error);
-            return { data: null, error: error };
-        }
-    },
-
-    getPublicUrl(bucket, path) {
-        console.log('[DEBUG] getPublicUrl() called with:', { bucket, path });
-        return getPublicUrl(bucket, path);
-    },
-
-    async list(bucket, path = '') {
-        console.log('[DEBUG] list() called with:', { bucket, path });
-        
-        try {
-            const result = await supabaseClient.storage.from(bucket).list(path);
-            console.log('[DEBUG] List result:', result);
-            return { files: result.data, error: result.error || null };
-        } catch (error) {
-            console.error('[DEBUG] List exception:', error);
-            return { files: null, error: error };
-        }
-    },
-
-    // ============================================================
-    // COMPLETE AVATAR UPLOAD WITH FULL DEBUGGING
-    // ============================================================
     
+    /**
+     * Get public URL for a file
+     */
+    getPublicUrl(bucket, path) {
+        if (!bucket || !path) return null;
+        
+        const { data } = supabaseClient.storage
+            .from(bucket)
+            .getPublicUrl(path);
+        
+        return data?.publicUrl || null;
+    },
+    
+    /**
+     * Upload avatar for a user
+     */
     async uploadAvatar(userId, file) {
-        console.log('========== UPLOAD AVATAR DEBUG START ==========');
-        console.log('[DEBUG] uploadAvatar() called with:');
-        console.log('[DEBUG] - userId:', userId);
-        console.log('[DEBUG] - file name:', file?.name);
-        console.log('[DEBUG] - file type:', file?.type);
-        console.log('[DEBUG] - file size:', file?.size);
+        console.log('[Storage] Uploading avatar for user:', userId);
+        
+        if (!file || file.size === 0) {
+            return { url: null, error: new Error('Invalid file') };
+        }
+        
+        const ext = file.name.split('.').pop();
+        const path = `${userId}_${Date.now()}.${ext}`;
+        
+        const result = await this.upload('avatars', path, file);
+        
+        if (result.error) {
+            return { url: null, error: result.error };
+        }
+        
+        const { error: updateError } = await supabaseClient
+            .from('profiles')
+            .update({ avatar_url: result.url })
+            .eq('id', userId);
+        
+        if (updateError) {
+            console.error('[Storage] Profile update error:', updateError);
+            return { url: result.url, error: updateError };
+        }
+        
+        console.log('[Storage] Avatar updated successfully:', result.url);
+        return { url: result.url, error: null };
+    },
+    
+    /**
+     * Upload banner for a user
+     */
+    async uploadBanner(userId, file) {
+        console.log('[Storage] Uploading banner for user:', userId);
+        
+        if (!file || file.size === 0) {
+            return { url: null, error: new Error('Invalid file') };
+        }
+        
+        const ext = file.name.split('.').pop();
+        const path = `banners/${userId}_${Date.now()}.${ext}`;
+        
+        const result = await this.upload('banners', path, file);
+        
+        if (result.error) {
+            return { url: null, error: result.error };
+        }
+        
+        const { error: updateError } = await supabaseClient
+            .from('profiles')
+            .update({ banner_url: result.url })
+            .eq('id', userId);
+        
+        if (updateError) {
+            console.error('[Storage] Profile update error:', updateError);
+            return { url: result.url, error: updateError };
+        }
+        
+        console.log('[Storage] Banner updated successfully:', result.url);
+        return { url: result.url, error: null };
+    },
+    
+    /**
+     * Delete a file from storage
+     */
+    async delete(bucket, path) {
+        console.log('[Storage] Deleting:', { bucket, path });
         
         try {
-            // Step 1: Validate file
-            console.log('[DEBUG] Step 1: Validating file...');
-            if (!file) {
-                console.error('[DEBUG] ❌ File is null or undefined');
-                return { url: null, error: new Error('File is required') };
+            const { error } = await supabaseClient.storage
+                .from(bucket)
+                .remove([path]);
+            
+            if (error) {
+                console.error('[Storage] Delete error:', error);
+                return { error };
             }
             
-            if (file.size === 0) {
-                console.error('[DEBUG] ❌ File is empty');
-                return { url: null, error: new Error('File is empty') };
-            }
-            
-            // Step 2: Generate path
-            console.log('[DEBUG] Step 2: Generating file path...');
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${userId}_${Date.now()}.${fileExt}`;
-            const path = `avatars/${fileName}`;
-            console.log('[DEBUG] - fileExt:', fileExt);
-            console.log('[DEBUG] - fileName:', fileName);
-            console.log('[DEBUG] - full path:', path);
-            
-            // Step 3: Upload
-            console.log('[DEBUG] Step 3: Calling Storage.upload()...');
-            const uploadResult = await this.upload('avatars', path, file);
-            console.log('[DEBUG] uploadResult:', uploadResult);
-            
-            if (uploadResult.error) {
-                console.error('[DEBUG] ❌ Upload failed:');
-                console.error('[DEBUG] - Error:', uploadResult.error);
-                console.log('========== UPLOAD AVATAR DEBUG END ==========');
-                return { url: null, error: uploadResult.error };
-            }
-            
-            if (!uploadResult.url) {
-                console.error('[DEBUG] ❌ Upload returned no URL');
-                console.error('[DEBUG] - uploadResult:', uploadResult);
-                console.log('========== UPLOAD AVATAR DEBUG END ==========');
-                return { url: null, error: new Error('Upload succeeded but no URL returned') };
-            }
-            
-            console.log('[DEBUG] ✅ Upload successful with URL:', uploadResult.url);
-            
-            // Step 4: Update profile
-            console.log('[DEBUG] Step 4: Updating profile with avatar URL...');
-            console.log('[DEBUG] - Profile ID:', userId);
-            console.log('[DEBUG] - Avatar URL:', uploadResult.url);
-            
-            const updateResult = await supabaseClient
-                .from('profiles')
-                .update({ avatar_url: uploadResult.url })
-                .eq('id', userId)
-                .select();
-            
-            console.log('[DEBUG] Profile update result:');
-            console.log('[DEBUG] - Data:', updateResult.data);
-            console.log('[DEBUG] - Error:', updateResult.error);
-            console.log('[DEBUG] - Status:', updateResult.status);
-            console.log('[DEBUG] - StatusText:', updateResult.statusText);
-            
-            if (updateResult.error) {
-                console.error('[DEBUG] ❌ Profile update failed:');
-                console.error('[DEBUG] - Error:', updateResult.error);
-                console.log('========== UPLOAD AVATAR DEBUG END ==========');
-                return { 
-                    url: uploadResult.url, 
-                    error: updateResult.error,
-                    uploadData: uploadResult.uploadData
-                };
-            }
-            
-            console.log('[DEBUG] ✅ Profile updated successfully!');
-            console.log('========== UPLOAD AVATAR DEBUG END ==========');
-            
-            return { 
-                url: uploadResult.url, 
-                error: null,
-                uploadData: uploadResult.uploadData
-            };
+            console.log('[Storage] Delete successful');
+            return { error: null };
             
         } catch (error) {
-            console.error('[DEBUG] ❌ Exception in uploadAvatar():');
-            console.error('[DEBUG] - Error:', error);
-            console.error('[DEBUG] - Message:', error.message);
-            console.error('[DEBUG] - Stack:', error.stack);
-            console.log('========== UPLOAD AVATAR DEBUG END ==========');
-            return { url: null, error: error };
+            console.error('[Storage] Delete exception:', error);
+            return { error };
         }
     }
 };
 
 // ============================================================
-// EXPOSE TO WINDOW FOR DEBUGGING
+// TEST FUNCTIONS - Available in Console
 // ============================================================
 
-// Expose debug functions to window
 window.testAvatarUpload = async function() {
-    console.log('========== TEST AVATAR UPLOAD ==========');
+    console.log('=== Testing Avatar Upload ===');
     
-    try {
-        // Create test image
-        const canvas = document.createElement('canvas');
-        canvas.width = 200;
-        canvas.height = 200;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#7c5cfc';
-        ctx.fillRect(0, 0, 200, 200);
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 40px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('TEST', 100, 100);
-        
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const file = new File([blob], 'test-avatar.png', { type: 'image/png' });
-        
-        console.log('[DEBUG] Test file created:', file);
-        
-        // Get current user
-        const { user } = await Auth.getCurrentUser();
-        if (!user) {
-            console.error('[DEBUG] ❌ No user logged in');
-            return { success: false, error: 'No user logged in' };
-        }
-        
-        console.log('[DEBUG] Current user:', user.id);
-        
-        // Upload
-        const result = await Storage.uploadAvatar(user.id, file);
-        console.log('[DEBUG] Final result:', result);
-        
-        return result;
-        
-    } catch (error) {
-        console.error('[DEBUG] Test error:', error);
-        return { success: false, error: error };
+    const { user } = await Auth.getCurrentUser();
+    if (!user) {
+        console.error('❌ Please login first');
+        return;
     }
+    
+    // Create test image
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#7c5cfc';
+    ctx.fillRect(0, 0, 200, 200);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 40px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TEST', 100, 100);
+    
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], 'test-avatar.png', { type: 'image/png' });
+    
+    const result = await Storage.uploadAvatar(user.id, file);
+    
+    if (result.url) {
+        console.log('✅ Avatar uploaded successfully!');
+        console.log('📸 URL:', result.url);
+        
+        const avatarEl = document.querySelector('.profile-avatar img');
+        if (avatarEl) avatarEl.src = result.url;
+    } else {
+        console.error('❌ Upload failed:', result.error);
+    }
+    
+    return result;
+};
+
+window.testBannerUpload = async function() {
+    console.log('=== Testing Banner Upload ===');
+    
+    const { user } = await Auth.getCurrentUser();
+    if (!user) {
+        console.error('❌ Please login first');
+        return;
+    }
+    
+    // Create test banner
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 1200, 400);
+    gradient.addColorStop(0, '#7c5cfc');
+    gradient.addColorStop(1, '#5c8cfc');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1200, 400);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 60px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('BANNER', 600, 200);
+    
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], 'test-banner.png', { type: 'image/png' });
+    
+    const result = await Storage.uploadBanner(user.id, file);
+    
+    if (result.url) {
+        console.log('✅ Banner uploaded successfully!');
+        console.log('📸 URL:', result.url);
+        
+        const bannerEl = document.querySelector('.profile-banner img');
+        if (bannerEl) bannerEl.src = result.url;
+    } else {
+        console.error('❌ Upload failed:', result.error);
+    }
+    
+    return result;
 };
 
 // ============================================================
@@ -1097,8 +1055,8 @@ window.AniVerse = {
     realtime: Realtime,
     storage: Storage,
     clearStorage: clearSupabaseStorage,
-    getPublicUrl: getPublicUrl,
-    testAvatarUpload: window.testAvatarUpload
+    testAvatarUpload: window.testAvatarUpload,
+    testBannerUpload: window.testBannerUpload
 };
 
 // Backward compatibility
@@ -1111,5 +1069,6 @@ window.updateProfile = Auth.updateProfile.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
-console.log('[AniVerse] Supabase client initialized with DEBUG MODE');
-console.log('[AniVerse] Run testAvatarUpload() in console to test avatar upload');
+console.log('[AniVerse] Supabase client initialized with Simplified Storage');
+console.log('[AniVerse] Run testAvatarUpload() to test avatar upload');
+console.log('[AniVerse] Run testBannerUpload() to test banner upload');
