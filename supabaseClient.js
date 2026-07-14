@@ -1,6 +1,6 @@
 /**
  * AniVerse - Centralized Supabase Client
- * Version: 3.0.0 - Simplified Storage Module
+ * Version: 3.1.0 - Cache Busting Fix
  */
 
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
@@ -39,6 +39,66 @@ function clearSupabaseStorage() {
     } catch (error) {
         console.error('[AniVerse] Error clearing storage:', error);
     }
+}
+
+/**
+ * Add cache-busting timestamp to URL
+ * This ensures browser/CDN serves the latest image
+ */
+function addCacheBust(url) {
+    if (!url) return url;
+    const timestamp = Date.now();
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}_t=${timestamp}`;
+}
+
+/**
+ * Refresh all profile images on the page with cache-busting
+ */
+function refreshProfileImages(avatarUrl, bannerUrl) {
+    console.log('[AniVerse] Refreshing profile images with cache busting...');
+    
+    // Refresh avatar
+    if (avatarUrl) {
+        const bustedUrl = addCacheBust(avatarUrl);
+        
+        // Update header avatar
+        const headerAvatar = document.getElementById('headerAvatar');
+        if (headerAvatar) {
+            if (headerAvatar.tagName === 'IMG') {
+                headerAvatar.src = bustedUrl;
+            } else {
+                // If it's a div with background image
+                headerAvatar.style.backgroundImage = `url(${bustedUrl})`;
+                headerAvatar.textContent = '';
+            }
+        }
+        
+        // Update profile avatar
+        const profileAvatar = document.querySelector('.profile-avatar img');
+        if (profileAvatar) {
+            profileAvatar.src = bustedUrl;
+        }
+        
+        // Update any other avatar images on the page
+        document.querySelectorAll('img[alt*="avatar"], img[alt*="Avatar"]').forEach(img => {
+            if (img.src && img.src.includes(avatarUrl.split('?')[0])) {
+                img.src = addCacheBust(img.src);
+            }
+        });
+    }
+    
+    // Refresh banner
+    if (bannerUrl) {
+        const bustedUrl = addCacheBust(bannerUrl);
+        
+        const bannerImg = document.querySelector('.profile-banner img');
+        if (bannerImg) {
+            bannerImg.src = bustedUrl;
+        }
+    }
+    
+    console.log('[AniVerse] Profile images refreshed');
 }
 
 // ============================================================
@@ -269,6 +329,12 @@ const Auth = {
                 .single();
 
             if (error) throw new Error(error.message);
+            
+            // Refresh UI with cache busting if avatar or banner was updated
+            if (sanitized.avatar_url || sanitized.banner_url) {
+                refreshProfileImages(sanitized.avatar_url, sanitized.banner_url);
+            }
+            
             return { data, error: null };
         } catch (error) {
             console.error('[Auth] Update profile error:', error);
@@ -812,7 +878,7 @@ const Realtime = {
 };
 
 // ============================================================
-// SIMPLIFIED STORAGE MODULE - NO COMPLEXITY
+// SIMPLIFIED STORAGE MODULE WITH CACHE BUSTING
 // ============================================================
 
 const Storage = {
@@ -853,20 +919,27 @@ const Storage = {
     },
     
     /**
-     * Get public URL for a file
+     * Get public URL for a file with cache busting
      */
-    getPublicUrl(bucket, path) {
+    getPublicUrl(bucket, path, bustCache = true) {
         if (!bucket || !path) return null;
         
         const { data } = supabaseClient.storage
             .from(bucket)
             .getPublicUrl(path);
         
-        return data?.publicUrl || null;
+        let url = data?.publicUrl || null;
+        
+        // Add cache busting timestamp
+        if (url && bustCache) {
+            url = addCacheBust(url);
+        }
+        
+        return url;
     },
     
     /**
-     * Upload avatar for a user
+     * Upload avatar for a user with cache busting
      */
     async uploadAvatar(userId, file) {
         console.log('[Storage] Uploading avatar for user:', userId);
@@ -884,9 +957,12 @@ const Storage = {
             return { url: null, error: result.error };
         }
         
+        // Add cache busting to URL before saving
+        const bustedUrl = addCacheBust(result.url);
+        
         const { error: updateError } = await supabaseClient
             .from('profiles')
-            .update({ avatar_url: result.url })
+            .update({ avatar_url: bustedUrl })
             .eq('id', userId);
         
         if (updateError) {
@@ -894,12 +970,16 @@ const Storage = {
             return { url: result.url, error: updateError };
         }
         
-        console.log('[Storage] Avatar updated successfully:', result.url);
-        return { url: result.url, error: null };
+        console.log('[Storage] Avatar updated successfully:', bustedUrl);
+        
+        // Refresh UI immediately
+        refreshProfileImages(bustedUrl, null);
+        
+        return { url: bustedUrl, error: null };
     },
     
     /**
-     * Upload banner for a user
+     * Upload banner for a user with cache busting
      */
     async uploadBanner(userId, file) {
         console.log('[Storage] Uploading banner for user:', userId);
@@ -917,9 +997,12 @@ const Storage = {
             return { url: null, error: result.error };
         }
         
+        // Add cache busting to URL before saving
+        const bustedUrl = addCacheBust(result.url);
+        
         const { error: updateError } = await supabaseClient
             .from('profiles')
-            .update({ banner_url: result.url })
+            .update({ banner_url: bustedUrl })
             .eq('id', userId);
         
         if (updateError) {
@@ -927,8 +1010,12 @@ const Storage = {
             return { url: result.url, error: updateError };
         }
         
-        console.log('[Storage] Banner updated successfully:', result.url);
-        return { url: result.url, error: null };
+        console.log('[Storage] Banner updated successfully:', bustedUrl);
+        
+        // Refresh UI immediately
+        refreshProfileImages(null, bustedUrl);
+        
+        return { url: bustedUrl, error: null };
     },
     
     /**
@@ -954,6 +1041,90 @@ const Storage = {
             console.error('[Storage] Delete exception:', error);
             return { error };
         }
+    },
+    
+    /**
+     * Remove avatar from profile
+     */
+    async removeAvatar(userId) {
+        console.log('[Storage] Removing avatar for user:', userId);
+        
+        try {
+            // Get current profile to get avatar path
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('avatar_url')
+                .eq('id', userId)
+                .single();
+            
+            if (profile?.avatar_url) {
+                // Extract path from URL
+                const urlParts = profile.avatar_url.split('/');
+                const path = urlParts[urlParts.length - 1].split('?')[0];
+                
+                // Delete from storage
+                await this.delete('avatars', path);
+            }
+            
+            // Update profile
+            const { error } = await supabaseClient
+                .from('profiles')
+                .update({ avatar_url: null })
+                .eq('id', userId);
+            
+            if (error) throw error;
+            
+            // Refresh UI
+            refreshProfileImages(null, null);
+            
+            return { error: null };
+            
+        } catch (error) {
+            console.error('[Storage] Remove avatar error:', error);
+            return { error };
+        }
+    },
+    
+    /**
+     * Remove banner from profile
+     */
+    async removeBanner(userId) {
+        console.log('[Storage] Removing banner for user:', userId);
+        
+        try {
+            // Get current profile to get banner path
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('banner_url')
+                .eq('id', userId)
+                .single();
+            
+            if (profile?.banner_url) {
+                // Extract path from URL
+                const urlParts = profile.banner_url.split('/');
+                const path = urlParts[urlParts.length - 1].split('?')[0];
+                
+                // Delete from storage
+                await this.delete('banners', `banners/${path}`);
+            }
+            
+            // Update profile
+            const { error } = await supabaseClient
+                .from('profiles')
+                .update({ banner_url: null })
+                .eq('id', userId);
+            
+            if (error) throw error;
+            
+            // Refresh UI
+            refreshProfileImages(null, null);
+            
+            return { error: null };
+            
+        } catch (error) {
+            console.error('[Storage] Remove banner error:', error);
+            return { error };
+        }
     }
 };
 
@@ -962,7 +1133,7 @@ const Storage = {
 // ============================================================
 
 window.testAvatarUpload = async function() {
-    console.log('=== Testing Avatar Upload ===');
+    console.log('=== Testing Avatar Upload with Cache Busting ===');
     
     const { user } = await Auth.getCurrentUser();
     if (!user) {
@@ -970,30 +1141,31 @@ window.testAvatarUpload = async function() {
         return;
     }
     
-    // Create test image
+    // Create test image with random color
     const canvas = document.createElement('canvas');
     canvas.width = 200;
     canvas.height = 200;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#7c5cfc';
+    
+    // Random color for each upload to see cache busting in action
+    const colors = ['#7c5cfc', '#5c8cfc', '#ff6b6b', '#51cf66', '#ffd93d', '#ff922b'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    ctx.fillStyle = color;
     ctx.fillRect(0, 0, 200, 200);
     ctx.fillStyle = 'white';
     ctx.font = 'bold 40px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('TEST', 100, 100);
+    ctx.fillText('AVATAR', 100, 100);
     
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-    const file = new File([blob], 'test-avatar.png', { type: 'image/png' });
+    const file = new File([blob], `avatar-${Date.now()}.png`, { type: 'image/png' });
     
     const result = await Storage.uploadAvatar(user.id, file);
     
     if (result.url) {
         console.log('✅ Avatar uploaded successfully!');
-        console.log('📸 URL:', result.url);
-        
-        const avatarEl = document.querySelector('.profile-avatar img');
-        if (avatarEl) avatarEl.src = result.url;
+        console.log('📸 URL with cache busting:', result.url);
     } else {
         console.error('❌ Upload failed:', result.error);
     }
@@ -1002,7 +1174,7 @@ window.testAvatarUpload = async function() {
 };
 
 window.testBannerUpload = async function() {
-    console.log('=== Testing Banner Upload ===');
+    console.log('=== Testing Banner Upload with Cache Busting ===');
     
     const { user } = await Auth.getCurrentUser();
     if (!user) {
@@ -1010,14 +1182,18 @@ window.testBannerUpload = async function() {
         return;
     }
     
-    // Create test banner
+    // Create test banner with random colors
     const canvas = document.createElement('canvas');
     canvas.width = 1200;
     canvas.height = 400;
     const ctx = canvas.getContext('2d');
+    
+    const colors = ['#7c5cfc', '#5c8cfc', '#ff6b6b', '#51cf66', '#ffd93d', '#ff922b'];
+    const color1 = colors[Math.floor(Math.random() * colors.length)];
+    const color2 = colors[Math.floor(Math.random() * colors.length)];
     const gradient = ctx.createLinearGradient(0, 0, 1200, 400);
-    gradient.addColorStop(0, '#7c5cfc');
-    gradient.addColorStop(1, '#5c8cfc');
+    gradient.addColorStop(0, color1);
+    gradient.addColorStop(1, color2);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 1200, 400);
     ctx.fillStyle = 'white';
@@ -1027,20 +1203,51 @@ window.testBannerUpload = async function() {
     ctx.fillText('BANNER', 600, 200);
     
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-    const file = new File([blob], 'test-banner.png', { type: 'image/png' });
+    const file = new File([blob], `banner-${Date.now()}.png`, { type: 'image/png' });
     
     const result = await Storage.uploadBanner(user.id, file);
     
     if (result.url) {
         console.log('✅ Banner uploaded successfully!');
-        console.log('📸 URL:', result.url);
-        
-        const bannerEl = document.querySelector('.profile-banner img');
-        if (bannerEl) bannerEl.src = result.url;
+        console.log('📸 URL with cache busting:', result.url);
     } else {
         console.error('❌ Upload failed:', result.error);
     }
     
+    return result;
+};
+
+window.removeAvatar = async function() {
+    console.log('=== Removing Avatar ===');
+    const { user } = await Auth.getCurrentUser();
+    if (!user) {
+        console.error('❌ Please login first');
+        return;
+    }
+    
+    const result = await Storage.removeAvatar(user.id);
+    if (!result.error) {
+        console.log('✅ Avatar removed successfully');
+    } else {
+        console.error('❌ Remove failed:', result.error);
+    }
+    return result;
+};
+
+window.removeBanner = async function() {
+    console.log('=== Removing Banner ===');
+    const { user } = await Auth.getCurrentUser();
+    if (!user) {
+        console.error('❌ Please login first');
+        return;
+    }
+    
+    const result = await Storage.removeBanner(user.id);
+    if (!result.error) {
+        console.log('✅ Banner removed successfully');
+    } else {
+        console.error('❌ Remove failed:', result.error);
+    }
     return result;
 };
 
@@ -1055,8 +1262,12 @@ window.AniVerse = {
     realtime: Realtime,
     storage: Storage,
     clearStorage: clearSupabaseStorage,
+    addCacheBust: addCacheBust,
+    refreshProfileImages: refreshProfileImages,
     testAvatarUpload: window.testAvatarUpload,
-    testBannerUpload: window.testBannerUpload
+    testBannerUpload: window.testBannerUpload,
+    removeAvatar: window.removeAvatar,
+    removeBanner: window.removeBanner
 };
 
 // Backward compatibility
@@ -1069,6 +1280,9 @@ window.updateProfile = Auth.updateProfile.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
-console.log('[AniVerse] Supabase client initialized with Simplified Storage');
-console.log('[AniVerse] Run testAvatarUpload() to test avatar upload');
-console.log('[AniVerse] Run testBannerUpload() to test banner upload');
+console.log('[AniVerse] Supabase client initialized with Cache Busting');
+console.log('[AniVerse] Commands:');
+console.log('  testAvatarUpload() - Upload new avatar with cache busting');
+console.log('  testBannerUpload() - Upload new banner with cache busting');
+console.log('  removeAvatar() - Remove avatar');
+console.log('  removeBanner() - Remove banner');
