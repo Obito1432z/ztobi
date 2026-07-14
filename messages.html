@@ -38,8 +38,6 @@
             --color-error: #ff6b6b;
             --color-warning: #ffd93d;
             --color-online: #51cf66;
-            --color-idle: #ffd93d;
-            --color-dnd: #ff6b6b;
             --color-offline: #6a6a7a;
 
             --spacing-xs: 4px;
@@ -56,7 +54,6 @@
 
             --shadow-glow: 0 8px 40px rgba(124, 92, 252, 0.15);
             --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
-            --shadow-dropdown: 0 16px 48px rgba(0, 0, 0, 0.6);
 
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-size-xs: 0.75rem;
@@ -72,6 +69,11 @@
             --sidebar-width: 240px;
             --header-height: 68px;
             --conversation-width: 320px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
         }
 
         /* ============================================================
@@ -642,7 +644,6 @@
             overflow: hidden;
         }
 
-        /* Chat Header */
         .chat-header {
             padding: var(--spacing-md) var(--spacing-lg);
             border-bottom: 1px solid var(--border-glass);
@@ -701,7 +702,6 @@
             min-width: auto;
         }
 
-        /* Chat Messages */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -780,7 +780,6 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        /* Chat Input */
         .chat-input-area {
             padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
             border-top: 1px solid var(--border-glass);
@@ -872,9 +871,6 @@
             transform: none;
         }
 
-        /* ============================================================
-                   EMPTY STATE
-                   ============================================================ */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -900,7 +896,7 @@
         }
 
         /* ============================================================
-                   MODAL OVERLAY (for new conversation)
+                   MODAL
                    ============================================================ */
         .modal-overlay {
             display: none;
@@ -1018,11 +1014,6 @@
                 min-height: 0;
             }
 
-            .chat-header .chat-actions .btn {
-                padding: 4px 10px;
-                font-size: var(--font-size-xs);
-            }
-
             .chat-messages {
                 padding: var(--spacing-md);
             }
@@ -1063,10 +1054,6 @@
             .chat-header .chat-user .avatar {
                 width: 32px;
                 height: 32px;
-                font-size: var(--font-size-sm);
-            }
-
-            .chat-header .chat-user .info .name {
                 font-size: var(--font-size-sm);
             }
 
@@ -1797,13 +1784,34 @@
             }
 
             // ============================================================
-            // SEND MESSAGE
+            // SEND MESSAGE - FIXED
             // ============================================================
             async function sendMessage() {
                 const input = document.getElementById('messageInput');
                 const content = input.value.trim();
 
-                if (!content || !selectedUserId || !selectedConversationId) return;
+                if (!content) {
+                    console.log('[DEBUG] No content to send');
+                    return;
+                }
+
+                if (!selectedUserId) {
+                    console.log('[DEBUG] No user selected');
+                    alert('Please select a user to message.');
+                    return;
+                }
+
+                if (!selectedConversationId) {
+                    console.log('[DEBUG] No conversation selected');
+                    alert('Please start a conversation first.');
+                    return;
+                }
+
+                console.log('[DEBUG] Sending message:', { 
+                    receiverId: selectedUserId, 
+                    conversationId: selectedConversationId,
+                    content: content 
+                });
 
                 try {
                     const result = await window.AniVerse.auth.sendMessage({
@@ -1812,16 +1820,24 @@
                     });
 
                     if (result.error) {
+                        console.error('[DEBUG] Send message error:', result.error);
                         throw new Error(result.error);
                     }
 
+                    console.log('[DEBUG] Message sent successfully:', result.data);
+
+                    // Clear input
                     input.value = '';
+
+                    // Reload messages
                     await loadMessages(selectedConversationId);
+                    
+                    // Refresh conversation list
                     await loadFriendsAndConversations(currentUser.id);
 
                 } catch (error) {
                     console.error('[AniVerse] Send message error:', error);
-                    alert('Could not send message. Please try again.');
+                    alert('Could not send message: ' + error.message);
                 }
             }
 
@@ -2055,7 +2071,7 @@
 
             init();
 
-            console.log('[AniVerse] Messages page ready (FIXED - Friends + Conversations)');
+            console.log('[AniVerse] Messages page ready - Message sending fixed!');
 
         })();
     </script>
