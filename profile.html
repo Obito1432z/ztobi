@@ -925,6 +925,119 @@
         }
 
         /* ============================================================
+                   CREATE POST CARD
+                   ============================================================ */
+        .create-post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            transition: var(--transition-smooth);
+        }
+
+        .create-post-card:hover {
+            border-color: rgba(124, 92, 252, 0.15);
+        }
+
+        .create-post-card .post-input-area {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: flex-start;
+        }
+
+        .create-post-card .post-input-area .post-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--font-size-md);
+            color: #fff;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .create-post-card .post-input-area .post-avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .create-post-card .post-input-area .post-input-wrapper {
+            flex: 1;
+        }
+
+        .create-post-card .post-input-area .post-input-wrapper textarea {
+            width: 100%;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-size-md);
+            resize: vertical;
+            min-height: 80px;
+            transition: var(--transition-smooth);
+        }
+
+        .create-post-card .post-input-area .post-input-wrapper textarea:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+        }
+
+        .create-post-card .post-input-area .post-input-wrapper textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .create-post-card .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--spacing-md);
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .create-post-card .post-actions .post-tools {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .create-post-card .post-actions .post-tools .tool-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: var(--font-size-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .create-post-card .post-actions .post-tools .tool-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .create-post-card .post-actions .post-tools .tool-btn i {
+            font-size: var(--font-size-md);
+        }
+
+        .create-post-card .post-actions .btn {
+            padding: 8px 20px;
+            font-size: var(--font-size-sm);
+        }
+
+        /* ============================================================
                    POST CARDS
                    ============================================================ */
         .post-card {
@@ -959,6 +1072,7 @@
             color: var(--accent-1);
             font-size: var(--font-size-sm);
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .post-card .post-header .post-avatar img {
@@ -987,10 +1101,9 @@
         .post-card .post-content {
             color: var(--text-secondary);
             font-size: var(--font-size-sm);
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .post-card .post-stats {
@@ -1003,6 +1116,28 @@
 
         .post-card .post-stats i {
             color: var(--accent-1);
+        }
+
+        .post-card .post-stats .stat-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .post-card .post-stats .stat-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .post-card .post-stats .stat-btn.liked {
+            color: var(--color-error);
         }
 
         /* ============================================================
@@ -1345,6 +1480,24 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            .create-post-card .post-input-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .create-post-card .post-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .create-post-card .post-actions .post-tools {
+                justify-content: center;
+            }
+
+            .create-post-card .post-actions .btn {
+                width: 100%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1382,6 +1535,11 @@
                 width: 30px;
                 height: 30px;
                 font-size: var(--font-size-xs);
+            }
+
+            .create-post-card .post-input-area .post-input-wrapper textarea {
+                min-height: 60px;
+                font-size: var(--font-size-sm);
             }
         }
     </style>
@@ -1608,6 +1766,30 @@
                             </div>
                         </div>
 
+                        <!-- CREATE POST - Only visible to own profile -->
+                        <div id="createPostContainer" style="display:none;">
+                            <div class="create-post-card">
+                                <div class="post-input-area">
+                                    <div class="post-avatar-small" id="createPostAvatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="post-input-wrapper">
+                                        <textarea id="postContent" placeholder="What's on your mind? Share with the community..." rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="post-actions">
+                                    <div class="post-tools">
+                                        <button class="tool-btn" id="postEmojiBtn"><i class="fas fa-smile"></i> Emoji</button>
+                                        <button class="tool-btn" id="postImageBtn"><i class="fas fa-image"></i> Image</button>
+                                        <button class="tool-btn" id="postGuildBtn"><i class="fas fa-users"></i> Guild</button>
+                                    </div>
+                                    <button class="btn btn-primary" id="createPostBtn">
+                                        <i class="fas fa-pen"></i> Post
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="postsContainer">
                             <div class="empty-state">
                                 <i class="fas fa-pen-fancy"></i>
@@ -1795,6 +1977,7 @@
                     const editProfileBtn = document.getElementById('editProfileBtn');
                     const addFriendBtn = document.getElementById('addFriendBtn');
                     const friendRequestsBtn = document.getElementById('friendRequestsBtn');
+                    const createPostContainer = document.getElementById('createPostContainer');
 
                     if (isLoggedIn && profile) {
                         // Logged in - show user UI
@@ -1837,9 +2020,19 @@
                         if (isOwnProfile) {
                             editProfileBtn.style.display = 'inline-flex';
                             addFriendBtn.style.display = 'none';
+                            // Show create post
+                            createPostContainer.style.display = 'block';
+                            // Update create post avatar
+                            const avatarEl = document.getElementById('createPostAvatar');
+                            if (profile.avatar_url) {
+                                avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="Your avatar" />`;
+                            } else {
+                                avatarEl.innerHTML = `<i class="fas fa-user"></i>`;
+                            }
                         } else {
                             editProfileBtn.style.display = 'none';
                             addFriendBtn.style.display = 'inline-flex';
+                            createPostContainer.style.display = 'none';
                         }
 
                         // Always show friend requests button when logged in
@@ -1867,6 +2060,7 @@
                         editProfileBtn.style.display = 'none';
                         addFriendBtn.style.display = 'none';
                         friendRequestsBtn.style.display = 'none';
+                        createPostContainer.style.display = 'none';
                         isOwnProfile = false;
 
                         // Show login required message
@@ -2217,6 +2411,69 @@
             }
 
             // ============================================================
+            // CREATE POST
+            // ============================================================
+            document.getElementById('createPostBtn').addEventListener('click', async function() {
+                if (!isLoggedIn || !currentUser) {
+                    alert('Please login to create a post.');
+                    return;
+                }
+
+                const content = document.getElementById('postContent').value.trim();
+                if (!content) {
+                    alert('Please write something before posting.');
+                    return;
+                }
+
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner"></span>';
+
+                try {
+                    const { data, error } = await window.AniVerse.client
+                        .from('guild_posts')
+                        .insert({
+                            title: 'Status Update',
+                            content: content,
+                            author_id: currentUser.id,
+                            guild_id: null,
+                            created_at: new Date().toISOString(),
+                            upvotes: 0,
+                            downvotes: 0,
+                            comment_count: 0
+                        })
+                        .select(`
+                            *,
+                            author:profiles!author_id (
+                                id, username, display_name, avatar_url
+                            )
+                        `)
+                        .single();
+
+                    if (error) {
+                        console.error('[AniVerse] Create post error:', error);
+                        alert('Failed to create post: ' + error.message);
+                        return;
+                    }
+
+                    // Clear input
+                    document.getElementById('postContent').value = '';
+
+                    // Reload posts
+                    await loadUserPosts(currentUser.id);
+                    await loadStats(currentUser.id);
+
+                    alert('Post created successfully!');
+
+                } catch (error) {
+                    console.error('[AniVerse] Create post error:', error);
+                    alert('Failed to create post.');
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-pen"></i> Post';
+                }
+            });
+
+            // ============================================================
             // LOAD USER POSTS
             // ============================================================
             async function loadUserPosts(userId) {
@@ -2233,7 +2490,7 @@
                         .eq('author_id', userId)
                         .is('deleted_at', null)
                         .order('created_at', { ascending: false })
-                        .limit(10);
+                        .limit(20);
 
                     const container = document.getElementById('postsContainer');
 
@@ -2242,7 +2499,7 @@
                             <div class="empty-state">
                                 <i class="fas fa-pen-fancy"></i>
                                 <h3>No posts yet</h3>
-                                <p>This user hasn't created any posts.</p>
+                                <p>${isOwnProfile ? 'Share your first thought with the community!' : 'This user hasn\'t created any posts.'}</p>
                             </div>
                         `;
                         return;
@@ -2255,23 +2512,81 @@
                             `<img src="${post.author.avatar_url}" alt="${authorName}" />` :
                             initial;
 
+                        // Check if current user liked this post
+                        const isLiked = false; // TODO: Check likes
+
                         return `
-                            <div class="post-card">
+                            <div class="post-card" data-post-id="${post.id}">
                                 <div class="post-header">
                                     <div class="post-avatar">${avatarHtml}</div>
                                     <span class="post-author">${authorName}</span>
-                                    <span class="post-date">${new Date(post.created_at).toLocaleDateString()}</span>
+                                    <span class="post-date">${new Date(post.created_at).toLocaleString()}</span>
                                 </div>
-                                <div class="post-title">${post.title || 'Untitled'}</div>
+                                ${post.title ? `<div class="post-title">${post.title}</div>` : ''}
                                 <div class="post-content">${post.content || ''}</div>
                                 <div class="post-stats">
-                                    <span><i class="fas fa-heart"></i> ${post.upvotes || 0}</span>
+                                    <button class="stat-btn like-btn ${isLiked ? 'liked' : ''}" data-post-id="${post.id}">
+                                        <i class="fas fa-heart"></i> <span class="like-count">${post.upvotes || 0}</span>
+                                    </button>
                                     <span><i class="fas fa-comment"></i> ${post.comment_count || 0}</span>
                                     ${post.guild ? `<span><i class="fas fa-users"></i> ${post.guild.name}</span>` : ''}
+                                    <span><i class="fas fa-clock"></i> ${new Date(post.created_at).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         `;
                     }).join('');
+
+                    // Add like functionality
+                    document.querySelectorAll('.like-btn').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const postId = this.dataset.postId;
+                            const likeCountSpan = this.querySelector('.like-count');
+                            const isLiked = this.classList.contains('liked');
+
+                            try {
+                                if (isLiked) {
+                                    // Unlike
+                                    const { error } = await window.AniVerse.client
+                                        .from('post_likes')
+                                        .delete()
+                                        .match({ post_id: postId, user_id: currentUser?.id });
+
+                                    if (!error) {
+                                        this.classList.remove('liked');
+                                        const count = parseInt(likeCountSpan.textContent) - 1;
+                                        likeCountSpan.textContent = Math.max(0, count);
+                                        // Update post count
+                                        await window.AniVerse.client
+                                            .from('guild_posts')
+                                            .update({ upvotes: Math.max(0, count) })
+                                            .eq('id', postId);
+                                    }
+                                } else {
+                                    // Like
+                                    const { error } = await window.AniVerse.client
+                                        .from('post_likes')
+                                        .insert({
+                                            post_id: postId,
+                                            user_id: currentUser?.id,
+                                            created_at: new Date().toISOString()
+                                        });
+
+                                    if (!error) {
+                                        this.classList.add('liked');
+                                        const count = parseInt(likeCountSpan.textContent) + 1;
+                                        likeCountSpan.textContent = count;
+                                        // Update post count
+                                        await window.AniVerse.client
+                                            .from('guild_posts')
+                                            .update({ upvotes: count })
+                                            .eq('id', postId);
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('[AniVerse] Like error:', error);
+                            }
+                        });
+                    });
 
                 } catch (error) {
                     console.error('[AniVerse] Load user posts error:', error);
@@ -2531,18 +2846,11 @@
             // ============================================================
             async function loadUserActivity(userId) {
                 try {
-                    // Try to get activity from the database
-                    const { data: activities, error } = await window.AniVerse.client
-                        .from('user_activities')
-                        .select('*')
-                        .eq('user_id', userId)
-                        .order('created_at', { ascending: false })
-                        .limit(20);
+                    const { activities, error } = await window.AniVerse.db.getUserActivity(userId);
 
                     const container = document.getElementById('activityContainer');
 
                     if (error || !activities || activities.length === 0) {
-                        // Fallback: create some sample activity
                         const sampleActivities = [
                             {
                                 activity_type: 'profile_updated',
@@ -2612,7 +2920,6 @@
 
                 } catch (error) {
                     console.error('[AniVerse] Load user activity error:', error);
-                    // Show fallback activity
                     const container = document.getElementById('activityContainer');
                     container.innerHTML = `
                         <div class="activity-item">
@@ -2647,7 +2954,6 @@
                 }
 
                 try {
-                    // Check if already friends
                     const { data: existing } = await window.AniVerse.client
                         .from('friends')
                         .select('*')
@@ -2661,7 +2967,6 @@
                             if (existing.user_id === currentUser.id) {
                                 alert('Friend request already sent!');
                             } else {
-                                // Accept the request
                                 await window.AniVerse.client
                                     .from('friends')
                                     .update({ status: 'accepted', updated_at: new Date().toISOString() })
@@ -2674,7 +2979,6 @@
                         return;
                     }
 
-                    // Send friend request
                     const { error } = await window.AniVerse.client
                         .from('friend_requests')
                         .insert({
@@ -2728,7 +3032,6 @@
                 const reason = prompt('Please describe why you are reporting this user:');
                 if (reason && reason.trim().length > 0) {
                     alert('Thank you for your report. Our team will review it shortly.');
-                    // TODO: Send report to backend
                 }
             });
 
@@ -2737,22 +3040,18 @@
             // ============================================================
             document.querySelectorAll('.tab-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
-                    // Remove active from all tabs
                     document.querySelectorAll('.tab-btn').forEach(function(b) {
                         b.classList.remove('active');
                         b.setAttribute('aria-selected', 'false');
                     });
 
-                    // Add active to clicked tab
                     this.classList.add('active');
                     this.setAttribute('aria-selected', 'true');
 
-                    // Hide all tab contents
                     document.querySelectorAll('.tab-content').forEach(function(content) {
                         content.classList.remove('active');
                     });
 
-                    // Show the corresponding tab content
                     const tabId = this.getAttribute('data-tab');
                     const targetContent = document.getElementById(`tab-${tabId}`);
                     if (targetContent) {
@@ -2779,7 +3078,6 @@
             // ============================================================
             // INIT
             // ============================================================
-            // Wait for AniVerse to be ready
             if (typeof window.AniVerse === 'undefined') {
                 console.log('[AniVerse] Waiting for library to load...');
                 const checkReady = setInterval(function() {
