@@ -1285,7 +1285,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - COMPLETE MESSAGES
+    JAVASCRIPT - COMPLETE MESSAGES (FIXED)
     ============================================================ -->
     <script>
         (function() {
@@ -1642,80 +1642,115 @@
             }
 
             // ============================================================
-            // SELECT CONVERSATION
+            // SELECT CONVERSATION - FIXED
             // ============================================================
             async function selectConversation(conversationId, userId) {
-                selectedConversationId = conversationId;
-                selectedUserId = userId;
+                console.log('[DEBUG] selectConversation called:', { conversationId, userId });
 
-                document.querySelectorAll('.convo-item').forEach(item => {
-                    item.classList.remove('active');
-                    if (item.getAttribute('data-userid') === userId) {
-                        item.classList.add('active');
-                    }
-                });
+                try {
+                    selectedUserId = userId;
 
-                // Fetch user details
-                const { data: user, error } = await window.AniVerse.client
-                    .from('profiles')
-                    .select('display_name, username, avatar_url, is_online')
-                    .eq('id', userId)
-                    .single();
-
-                if (user) {
-                    const nameEl = document.getElementById('chatUserName');
-                    const statusEl = document.getElementById('chatUserStatus');
-                    const avatarEl = document.querySelector('.chat-header .chat-user .avatar');
-
-                    nameEl.textContent = user.display_name || 'Unknown User';
-                    statusEl.textContent = user.is_online ? 'Online' : 'Offline';
-
-                    if (user.avatar_url) {
-                        avatarEl.innerHTML = `<img src="${user.avatar_url}" alt="${user.display_name}" />`;
-                    } else {
-                        avatarEl.textContent = user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U';
-                        avatarEl.style.background = 'var(--bg-secondary)';
-                        avatarEl.style.color = 'var(--accent-1)';
-                    }
-                }
-
-                const messageInput = document.getElementById('messageInput');
-                const sendBtn = document.getElementById('sendBtn');
-                messageInput.disabled = false;
-                messageInput.placeholder = `Message ${user?.display_name || 'User'}...`;
-                sendBtn.disabled = false;
-
-                // If conversationId is null, create a new conversation
-                if (!conversationId) {
-                    // Create conversation
-                    try {
-                        const { data: newConvo, error: createError } = await window.AniVerse.client
-                            .from('conversations')
-                            .insert({
-                                participant1_id: currentUser.id < userId ? currentUser.id : userId,
-                                participant2_id: currentUser.id < userId ? userId : currentUser.id
-                            })
-                            .select()
-                            .single();
-                        if (createError) throw new Error(createError.message);
-                        conversationId = newConvo.id;
-                        selectedConversationId = conversationId;
-
-                        // Update the conversation list item with the new ID
-                        const itemEl = document.querySelector(`.convo-item[data-userid="${userId}"]`);
-                        if (itemEl) {
-                            itemEl.setAttribute('data-convoid', conversationId);
+                    document.querySelectorAll('.convo-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.getAttribute('data-userid') === userId) {
+                            item.classList.add('active');
                         }
-                    } catch (error) {
-                        console.error('[AniVerse] Create conversation error:', error);
-                        alert('Could not start conversation.');
+                    });
+
+                    // Fetch user details
+                    const { data: user, error } = await window.AniVerse.client
+                        .from('profiles')
+                        .select('display_name, username, avatar_url, is_online')
+                        .eq('id', userId)
+                        .single();
+
+                    if (error) {
+                        console.error('[DEBUG] Error fetching user:', error);
                         return;
                     }
-                }
 
-                await loadMessages(conversationId);
-                await subscribeToMessages(conversationId);
-                await markMessagesAsRead(conversationId);
+                    if (user) {
+                        const nameEl = document.getElementById('chatUserName');
+                        const statusEl = document.getElementById('chatUserStatus');
+                        const avatarEl = document.querySelector('.chat-header .chat-user .avatar');
+
+                        nameEl.textContent = user.display_name || 'Unknown User';
+                        statusEl.textContent = user.is_online ? 'Online' : 'Offline';
+
+                        if (user.avatar_url) {
+                            avatarEl.innerHTML = `<img src="${user.avatar_url}" alt="${user.display_name}" />`;
+                        } else {
+                            avatarEl.textContent = user.display_name ? user.display_name.charAt(0).toUpperCase() : 'U';
+                            avatarEl.style.background = 'var(--bg-secondary)';
+                            avatarEl.style.color = 'var(--accent-1)';
+                        }
+                    }
+
+                    // If conversationId is null or empty, create a new conversation
+                    if (!conversationId || conversationId === 'null' || conversationId === '') {
+                        console.log('[DEBUG] No conversation ID, creating new conversation...');
+
+                        try {
+                            // Sort IDs to ensure consistent ordering
+                            const id1 = currentUser.id;
+                            const id2 = userId;
+                            const participant1 = id1 < id2 ? id1 : id2;
+                            const participant2 = id1 < id2 ? id2 : id1;
+
+                            const { data: newConvo, error: createError } = await window.AniVerse.client
+                                .from('conversations')
+                                .insert({
+                                    participant1_id: participant1,
+                                    participant2_id: participant2,
+                                    created_at: new Date().toISOString()
+                                })
+                                .select()
+                                .single();
+
+                            if (createError) {
+                                console.error('[DEBUG] Create conversation error:', createError);
+                                alert('Could not start conversation: ' + createError.message);
+                                return;
+                            }
+
+                            conversationId = newConvo.id;
+                            selectedConversationId = conversationId;
+                            console.log('[DEBUG] New conversation created:', conversationId);
+
+                            // Update the conversation list item with the new ID
+                            const itemEl = document.querySelector(`.convo-item[data-userid="${userId}"]`);
+                            if (itemEl) {
+                                itemEl.setAttribute('data-convoid', conversationId);
+                                // Reload conversations to show it properly
+                                await loadFriendsAndConversations(currentUser.id);
+                            }
+
+                        } catch (error) {
+                            console.error('[DEBUG] Conversation creation error:', error);
+                            alert('Could not start conversation. Please try again.');
+                            return;
+                        }
+                    } else {
+                        selectedConversationId = conversationId;
+                        console.log('[DEBUG] Using existing conversation:', conversationId);
+                    }
+
+                    // Enable input
+                    const messageInput = document.getElementById('messageInput');
+                    const sendBtn = document.getElementById('sendBtn');
+                    messageInput.disabled = false;
+                    messageInput.placeholder = `Message ${user?.display_name || 'User'}...`;
+                    sendBtn.disabled = false;
+
+                    // Load messages
+                    await loadMessages(selectedConversationId);
+                    await subscribeToMessages(selectedConversationId);
+                    await markMessagesAsRead(selectedConversationId);
+
+                } catch (error) {
+                    console.error('[DEBUG] selectConversation error:', error);
+                    alert('Could not start conversation: ' + error.message);
+                }
             }
 
             // ============================================================
@@ -1932,15 +1967,6 @@
                         return;
                     }
 
-                    // Check if already friends
-                    const { friends } = await window.AniVerse.db.getFriends(currentUser.id);
-                    const isFriend = friends && friends.some(f => f.id === userId);
-                    if (!isFriend) {
-                        console.warn('[AniVerse] User is not a friend:', userId);
-                        // Still allow messaging? Could show error or just open anyway.
-                        // We'll allow it, but maybe show a warning.
-                    }
-
                     // Find existing conversation
                     const { conversations } = await window.AniVerse.db.getConversations(currentUser.id);
                     let existingConv = null;
@@ -2029,7 +2055,7 @@
 
             init();
 
-            console.log('[AniVerse] Messages page ready (Friends + Conversations)');
+            console.log('[AniVerse] Messages page ready (FIXED - Friends + Conversations)');
 
         })();
     </script>
