@@ -1063,6 +1063,68 @@
             color: var(--text-muted);
         }
 
+        /* Friend Request Cards */
+        .request-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            transition: var(--transition-smooth);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .request-card:hover {
+            border-color: rgba(124, 92, 252, 0.12);
+        }
+
+        .request-card .request-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-1);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .request-card .request-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .request-card .request-info {
+            flex: 1;
+        }
+
+        .request-card .request-info .request-name {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .request-card .request-info .request-date {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .request-card .request-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .request-card .request-actions .btn {
+            padding: 6px 14px;
+            font-size: var(--font-size-xs);
+        }
+
         /* ============================================================
                    GUILD CARDS (profile)
                    ============================================================ */
@@ -1271,6 +1333,17 @@
 
             .header .header-actions .user-level {
                 display: none;
+            }
+
+            .request-card {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .request-card .request-actions {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -1519,6 +1592,7 @@
                         <li><button class="tab-btn active" data-tab="posts" role="tab" aria-selected="true">Posts</button></li>
                         <li><button class="tab-btn" data-tab="guilds" role="tab" aria-selected="false">Guilds</button></li>
                         <li><button class="tab-btn" data-tab="friends" role="tab" aria-selected="false">Friends</button></li>
+                        <li><button class="tab-btn" data-tab="requests" role="tab" aria-selected="false">Requests</button></li>
                         <li><button class="tab-btn" data-tab="activity" role="tab" aria-selected="false">Activity</button></li>
                         <li><button class="tab-btn" data-tab="about" role="tab" aria-selected="false">About</button></li>
                     </ul>
@@ -1579,6 +1653,26 @@
                                 <i class="fas fa-user-slash"></i>
                                 <h3>No friends yet</h3>
                                 <p>This user hasn't added any friends.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============================================================
+                    TAB: REQUESTS
+                    ============================================================ -->
+                    <div class="tab-content" id="tab-requests" role="tabpanel">
+                        <div class="section-header">
+                            <div>
+                                <span class="section-tag"><i class="fas fa-user-plus"></i> Pending</span>
+                                <h2 class="section-title">Friend Requests</h2>
+                            </div>
+                        </div>
+
+                        <div id="requestsContainer">
+                            <div class="empty-state">
+                                <i class="fas fa-user-check"></i>
+                                <h3>No pending requests</h3>
+                                <p>You don't have any pending friend requests.</p>
                             </div>
                         </div>
                     </div>
@@ -1925,6 +2019,7 @@
                             await loadUserPosts(userId);
                             await loadUserGuilds(userId);
                             await loadUserFriends(userId);
+                            await loadFriendRequests();
                             await loadUserActivity(userId);
                             await loadStats(userId);
                         }
@@ -1936,6 +2031,9 @@
                         await loadUserPosts(userId);
                         await loadUserGuilds(userId);
                         await loadUserFriends(userId);
+                        if (isOwnProfile) {
+                            await loadFriendRequests();
+                        }
                         await loadUserActivity(userId);
                         await loadStats(userId);
                     } else {
@@ -2278,6 +2376,157 @@
             }
 
             // ============================================================
+            // LOAD FRIEND REQUESTS
+            // ============================================================
+            async function loadFriendRequests() {
+                try {
+                    if (!currentUser) return;
+
+                    const { requests, error } = await window.AniVerse.db.getFriendRequests(currentUser.id, 'received');
+
+                    const container = document.getElementById('requestsContainer');
+
+                    if (error || !requests || requests.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-user-check"></i>
+                                <h3>No pending requests</h3>
+                                <p>You don't have any pending friend requests.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = requests.map(request => {
+                        const sender = request.sender;
+                        const initial = sender?.display_name ? sender.display_name.charAt(0).toUpperCase() : 'U';
+                        const avatarHtml = sender?.avatar_url ?
+                            `<img src="${sender.avatar_url}" alt="${sender.display_name}" />` :
+                            initial;
+
+                        return `
+                            <div class="request-card" data-request-id="${request.id}">
+                                <div class="request-avatar">${avatarHtml}</div>
+                                <div class="request-info">
+                                    <div class="request-name">${sender?.display_name || 'Unknown User'}</div>
+                                    <div class="request-date">@${sender?.username || 'unknown'} · ${new Date(request.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <div class="request-actions">
+                                    <button class="btn btn-success accept-request" data-id="${request.id}" data-sender="${sender?.id}">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                    <button class="btn btn-danger reject-request" data-id="${request.id}">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // Add event listeners for accept/reject buttons
+                    document.querySelectorAll('.accept-request').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const requestId = this.dataset.id;
+                            const senderId = this.dataset.sender;
+                            await acceptFriendRequest(requestId, senderId);
+                        });
+                    });
+
+                    document.querySelectorAll('.reject-request').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const requestId = this.dataset.id;
+                            await rejectFriendRequest(requestId);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('[AniVerse] Load friend requests error:', error);
+                }
+            }
+
+            // ============================================================
+            // ACCEPT FRIEND REQUEST
+            // ============================================================
+            async function acceptFriendRequest(requestId, senderId) {
+                try {
+                    if (!currentUser) return;
+
+                    // Delete the friend request
+                    const { error: deleteError } = await window.AniVerse.client
+                        .from('friend_requests')
+                        .delete()
+                        .eq('id', requestId);
+
+                    if (deleteError) {
+                        console.error('[AniVerse] Delete request error:', deleteError);
+                        alert('Failed to accept request.');
+                        return;
+                    }
+
+                    // Add to friends table
+                    const { error: addError } = await window.AniVerse.client
+                        .from('friends')
+                        .insert({
+                            user_id: currentUser.id,
+                            friend_id: senderId,
+                            status: 'accepted',
+                            created_at: new Date().toISOString()
+                        });
+
+                    if (addError) {
+                        console.error('[AniVerse] Add friend error:', addError);
+                        alert('Failed to add friend.');
+                        return;
+                    }
+
+                    // Reload requests and friends
+                    await loadFriendRequests();
+                    await loadUserFriends(currentUser.id);
+                    await loadStats(currentUser.id);
+
+                    // Show success
+                    const card = document.querySelector(`[data-request-id="${requestId}"]`);
+                    if (card) {
+                        card.style.borderColor = 'var(--color-success)';
+                        card.innerHTML = `
+                            <div style="text-align:center;width:100%;padding:8px;color:var(--color-success);">
+                                <i class="fas fa-check-circle"></i> Friend request accepted!
+                            </div>
+                        `;
+                    }
+
+                } catch (error) {
+                    console.error('[AniVerse] Accept request error:', error);
+                    alert('Failed to accept friend request.');
+                }
+            }
+
+            // ============================================================
+            // REJECT FRIEND REQUEST
+            // ============================================================
+            async function rejectFriendRequest(requestId) {
+                try {
+                    const { error } = await window.AniVerse.client
+                        .from('friend_requests')
+                        .delete()
+                        .eq('id', requestId);
+
+                    if (error) {
+                        console.error('[AniVerse] Reject request error:', error);
+                        alert('Failed to reject request.');
+                        return;
+                    }
+
+                    // Reload requests
+                    await loadFriendRequests();
+
+                } catch (error) {
+                    console.error('[AniVerse] Reject request error:', error);
+                    alert('Failed to reject friend request.');
+                }
+            }
+
+            // ============================================================
             // LOAD USER ACTIVITY
             // ============================================================
             async function loadUserActivity(userId) {
@@ -2427,10 +2676,10 @@
 
                     // Send friend request
                     const { error } = await window.AniVerse.client
-                        .from('friends')
+                        .from('friend_requests')
                         .insert({
-                            user_id: currentUser.id,
-                            friend_id: targetUserId,
+                            sender_id: currentUser.id,
+                            receiver_id: targetUserId,
                             status: 'pending',
                             created_at: new Date().toISOString()
                         });
