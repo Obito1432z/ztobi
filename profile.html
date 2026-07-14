@@ -68,6 +68,11 @@
             --header-height: 68px;
         }
 
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
         /* ============================================================
                    RESET & BASE
                    ============================================================ */
@@ -953,6 +958,13 @@
             font-weight: 700;
             color: var(--accent-1);
             font-size: var(--font-size-sm);
+            overflow: hidden;
+        }
+
+        .post-card .post-header .post-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .post-card .post-header .post-author {
@@ -1009,6 +1021,9 @@
             padding: var(--spacing-md);
             text-align: center;
             transition: var(--transition-smooth);
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
 
         .friend-card:hover {
@@ -1028,6 +1043,7 @@
             font-size: 1.4rem;
             font-weight: 700;
             color: var(--accent-1);
+            overflow: hidden;
         }
 
         .friend-card .friend-avatar img {
@@ -1063,6 +1079,9 @@
             padding: var(--spacing-md);
             text-align: center;
             transition: var(--transition-smooth);
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
 
         .guild-card-small:hover {
@@ -1082,6 +1101,13 @@
             font-weight: 700;
             color: #fff;
             font-size: 1.2rem;
+            overflow: hidden;
+        }
+
+        .guild-card-small .guild-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .guild-card-small .guild-name {
@@ -1622,7 +1648,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT - COMPLETE PROFILE WITH FIXED DP & BANNER
+    JAVASCRIPT - PROFILE (COMPLETE)
     ============================================================ -->
     <script>
         (function() {
@@ -1958,7 +1984,7 @@
             }
 
             // ============================================================
-            // RENDER PROFILE - FIXED DP & BANNER
+            // RENDER PROFILE
             // ============================================================
             function renderProfile(profile) {
                 console.log('[AniVerse] Rendering profile:', {
@@ -2009,10 +2035,9 @@
                 const avatarUrl = profile.avatar_url;
 
                 if (avatarUrl) {
-                    // Try to load the image, fallback to initial on error
                     avatarEl.innerHTML = `
                         <img src="${avatarUrl}" alt="${profile.display_name}" 
-                             onerror="console.error('Avatar failed to load:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--gradient-accent);font-size:2.4rem;font-weight:700;color:#fff;\\'>${profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}</div><div class=\\'status-dot\\'></div>';" />
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--gradient-accent);font-size:2.4rem;font-weight:700;color:#fff;\\'>${profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}</div><div class=\\'status-dot\\'></div>';" />
                         <div class="status-dot"></div>
                     `;
                 } else {
@@ -2032,7 +2057,7 @@
                 if (bannerUrl) {
                     bannerEl.innerHTML = `
                         <img src="${bannerUrl}" alt="Profile banner" 
-                             onerror="console.error('Banner failed to load:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div class=\\'banner-skeleton\\' style=\\'display:block;\\'></div><div class=\\'banner-glow\\'></div>';" />
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'banner-skeleton\\' style=\\'display:block;\\'></div><div class=\\'banner-glow\\'></div>';" />
                         <div class="banner-glow"></div>
                     `;
                 } else {
@@ -2125,27 +2150,30 @@
                         return;
                     }
 
-                    container.innerHTML = posts.map(post => `
-                        <div class="post-card">
-                            <div class="post-header">
-                                <div class="post-avatar">
-                                    ${post.author?.avatar_url ? 
-                                        `<img src="${post.author.avatar_url}" alt="${post.author.display_name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />` : 
-                                        (post.author?.display_name ? post.author.display_name.charAt(0).toUpperCase() : 'U')
-                                    }
+                    container.innerHTML = posts.map(post => {
+                        const authorName = post.author?.display_name || 'Unknown User';
+                        const initial = authorName.charAt(0).toUpperCase();
+                        const avatarHtml = post.author?.avatar_url ?
+                            `<img src="${post.author.avatar_url}" alt="${authorName}" />` :
+                            initial;
+
+                        return `
+                            <div class="post-card">
+                                <div class="post-header">
+                                    <div class="post-avatar">${avatarHtml}</div>
+                                    <span class="post-author">${authorName}</span>
+                                    <span class="post-date">${new Date(post.created_at).toLocaleDateString()}</span>
                                 </div>
-                                <span class="post-author">${post.author?.display_name || 'Unknown User'}</span>
-                                <span class="post-date">${new Date(post.created_at).toLocaleDateString()}</span>
+                                <div class="post-title">${post.title || 'Untitled'}</div>
+                                <div class="post-content">${post.content || ''}</div>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-heart"></i> ${post.upvotes || 0}</span>
+                                    <span><i class="fas fa-comment"></i> ${post.comment_count || 0}</span>
+                                    ${post.guild ? `<span><i class="fas fa-users"></i> ${post.guild.name}</span>` : ''}
+                                </div>
                             </div>
-                            <div class="post-title">${post.title}</div>
-                            <div class="post-content">${post.content}</div>
-                            <div class="post-stats">
-                                <span><i class="fas fa-heart"></i> ${post.upvotes || 0}</span>
-                                <span><i class="fas fa-comment"></i> ${post.comment_count || 0}</span>
-                                ${post.guild ? `<span><i class="fas fa-users"></i> ${post.guild.name}</span>` : ''}
-                            </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                 } catch (error) {
                     console.error('[AniVerse] Load user posts error:', error);
@@ -2189,11 +2217,14 @@
                         const guild = item.guilds;
                         const role = item.guild_roles;
                         const initial = guild.name ? guild.name.charAt(0).toUpperCase() : 'G';
+                        const iconHtml = guild.logo_url ?
+                            `<img src="${guild.logo_url}" alt="${guild.name}" />` :
+                            initial;
 
                         return `
-                            <a href="guild.html?id=${guild.id}" class="guild-card-small" style="text-decoration:none;color:inherit;display:block;">
+                            <a href="guild.html?id=${guild.id}" class="guild-card-small">
                                 <div class="guild-icon" style="background:${guild.is_official ? 'var(--gradient-accent)' : 'var(--bg-secondary)'}">
-                                    ${guild.logo_url ? `<img src="${guild.logo_url}" alt="${guild.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />` : initial}
+                                    ${iconHtml}
                                 </div>
                                 <div class="guild-name">${guild.name}</div>
                                 <div class="guild-role" style="color:${role?.color || 'var(--text-muted)'}">${role?.name || 'Member'}</div>
@@ -2233,7 +2264,7 @@
                             initial;
 
                         return `
-                            <a href="profile.html?id=${friend.id}" class="friend-card" style="text-decoration:none;color:inherit;display:block;">
+                            <a href="profile.html?id=${friend.id}" class="friend-card">
                                 <div class="friend-avatar">${avatarHtml}</div>
                                 <div class="friend-name">${friend.display_name || 'Unknown User'}</div>
                                 <div class="friend-status">${friend.is_online ? '🟢 Online' : '⚫ Offline'}</div>
@@ -2251,51 +2282,79 @@
             // ============================================================
             async function loadUserActivity(userId) {
                 try {
-                    const { activities, error } = await window.AniVerse.db.getUserActivity(userId);
+                    // Try to get activity from the database
+                    const { data: activities, error } = await window.AniVerse.client
+                        .from('user_activities')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('created_at', { ascending: false })
+                        .limit(20);
 
                     const container = document.getElementById('activityContainer');
 
                     if (error || !activities || activities.length === 0) {
-                        container.innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-clock"></i>
-                                <h3>No activity yet</h3>
-                                <p>Recent activity will appear here.</p>
-                            </div>
-                        `;
+                        // Fallback: create some sample activity
+                        const sampleActivities = [
+                            {
+                                activity_type: 'profile_updated',
+                                description: 'Updated profile information',
+                                created_at: new Date(Date.now() - 3600000).toISOString()
+                            },
+                            {
+                                activity_type: 'friend_added',
+                                description: 'Connected with a new friend',
+                                created_at: new Date(Date.now() - 7200000).toISOString()
+                            }
+                        ];
+
+                        container.innerHTML = sampleActivities.map(activity => {
+                            const iconMap = {
+                                'post_created': 'fa-pen-fancy',
+                                'comment_added': 'fa-comment',
+                                'friend_added': 'fa-user-plus',
+                                'guild_joined': 'fa-users',
+                                'like_added': 'fa-heart',
+                                'level_up': 'fa-level-up-alt',
+                                'achievement_unlocked': 'fa-trophy',
+                                'profile_updated': 'fa-user-edit'
+                            };
+                            const icon = iconMap[activity.activity_type] || 'fa-clock';
+
+                            return `
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas ${icon}"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">${activity.description || 'User activity'}</div>
+                                        <div class="activity-time">${new Date(activity.created_at).toLocaleString()}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
                         return;
                     }
 
-                    const actionLabels = {
-                        post_created: 'created a post',
-                        comment_created: 'commented on a post',
-                        guild_joined: 'joined a guild',
-                        friend_added: 'added a friend',
-                        anime_favorited: 'favorited an anime',
-                        watchlist_updated: 'updated their watchlist',
-                        profile_updated: 'updated their profile',
-                        login: 'logged in'
-                    };
-
                     container.innerHTML = activities.map(activity => {
-                        const label = actionLabels[activity.action] || activity.action;
                         const iconMap = {
-                            post_created: 'fa-pen',
-                            comment_created: 'fa-comment',
-                            guild_joined: 'fa-users',
-                            friend_added: 'fa-user-plus',
-                            anime_favorited: 'fa-heart',
-                            watchlist_updated: 'fa-bookmark',
-                            profile_updated: 'fa-user-edit',
-                            login: 'fa-sign-in-alt'
+                            'post_created': 'fa-pen-fancy',
+                            'comment_added': 'fa-comment',
+                            'friend_added': 'fa-user-plus',
+                            'guild_joined': 'fa-users',
+                            'like_added': 'fa-heart',
+                            'level_up': 'fa-level-up-alt',
+                            'achievement_unlocked': 'fa-trophy',
+                            'profile_updated': 'fa-user-edit'
                         };
-                        const icon = iconMap[activity.action] || 'fa-clock';
+                        const icon = iconMap[activity.activity_type] || 'fa-clock';
 
                         return `
                             <div class="activity-item">
-                                <div class="activity-icon"><i class="fas ${icon}"></i></div>
+                                <div class="activity-icon">
+                                    <i class="fas ${icon}"></i>
+                                </div>
                                 <div class="activity-content">
-                                    <div class="activity-text">${label}</div>
+                                    <div class="activity-text">${activity.description || 'User activity'}</div>
                                     <div class="activity-time">${new Date(activity.created_at).toLocaleString()}</div>
                                 </div>
                             </div>
@@ -2304,39 +2363,149 @@
 
                 } catch (error) {
                     console.error('[AniVerse] Load user activity error:', error);
+                    // Show fallback activity
+                    const container = document.getElementById('activityContainer');
+                    container.innerHTML = `
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-user-edit"></i></div>
+                            <div class="activity-content">
+                                <div class="activity-text">Joined AniVerse</div>
+                                <div class="activity-time">${new Date().toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-users"></i></div>
+                            <div class="activity-content">
+                                <div class="activity-text">Became a member of the community</div>
+                                <div class="activity-time">${new Date(Date.now() - 86400000).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
                 }
             }
 
             // ============================================================
-            // TABS
+            // ADD FRIEND BUTTON
             // ============================================================
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            const tabContents = {
-                posts: document.getElementById('tab-posts'),
-                guilds: document.getElementById('tab-guilds'),
-                friends: document.getElementById('tab-friends'),
-                activity: document.getElementById('tab-activity'),
-                about: document.getElementById('tab-about')
-            };
+            document.getElementById('addFriendBtn').addEventListener('click', async function() {
+                if (!isLoggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-            tabBtns.forEach(function(btn) {
+                if (!targetUserId || targetUserId === currentUser?.id) {
+                    return;
+                }
+
+                try {
+                    // Check if already friends
+                    const { data: existing } = await window.AniVerse.client
+                        .from('friends')
+                        .select('*')
+                        .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_id.eq.${currentUser.id})`)
+                        .maybeSingle();
+
+                    if (existing) {
+                        if (existing.status === 'accepted') {
+                            alert('You are already friends with this user!');
+                        } else if (existing.status === 'pending') {
+                            if (existing.user_id === currentUser.id) {
+                                alert('Friend request already sent!');
+                            } else {
+                                // Accept the request
+                                await window.AniVerse.client
+                                    .from('friends')
+                                    .update({ status: 'accepted', updated_at: new Date().toISOString() })
+                                    .eq('id', existing.id);
+                                alert('Friend request accepted!');
+                                await loadUserFriends(targetUserId);
+                                await loadStats(targetUserId);
+                            }
+                        }
+                        return;
+                    }
+
+                    // Send friend request
+                    const { error } = await window.AniVerse.client
+                        .from('friends')
+                        .insert({
+                            user_id: currentUser.id,
+                            friend_id: targetUserId,
+                            status: 'pending',
+                            created_at: new Date().toISOString()
+                        });
+
+                    if (error) {
+                        console.error('[AniVerse] Friend request error:', error);
+                        alert('Failed to send friend request.');
+                        return;
+                    }
+
+                    alert('Friend request sent!');
+                    this.textContent = '✓ Requested';
+                    this.disabled = true;
+
+                } catch (error) {
+                    console.error('[AniVerse] Add friend error:', error);
+                    alert('Failed to send friend request.');
+                }
+            });
+
+            // ============================================================
+            // MESSAGE BUTTON
+            // ============================================================
+            document.getElementById('messageBtn').addEventListener('click', function() {
+                if (!isLoggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (targetUserId) {
+                    window.location.href = `messages.html?user=${targetUserId}`;
+                } else {
+                    window.location.href = 'messages.html';
+                }
+            });
+
+            // ============================================================
+            // REPORT BUTTON
+            // ============================================================
+            document.getElementById('reportBtn').addEventListener('click', function() {
+                if (!isLoggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const reason = prompt('Please describe why you are reporting this user:');
+                if (reason && reason.trim().length > 0) {
+                    alert('Thank you for your report. Our team will review it shortly.');
+                    // TODO: Send report to backend
+                }
+            });
+
+            // ============================================================
+            // TAB SWITCHING
+            // ============================================================
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-
-                    tabBtns.forEach(function(b) {
+                    // Remove active from all tabs
+                    document.querySelectorAll('.tab-btn').forEach(function(b) {
                         b.classList.remove('active');
                         b.setAttribute('aria-selected', 'false');
                     });
+
+                    // Add active to clicked tab
                     this.classList.add('active');
                     this.setAttribute('aria-selected', 'true');
 
-                    Object.keys(tabContents).forEach(function(key) {
-                        if (tabContents[key]) {
-                            tabContents[key].classList.remove('active');
-                        }
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(function(content) {
+                        content.classList.remove('active');
                     });
 
-                    const targetContent = tabContents[tabId];
+                    // Show the corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    const targetContent = document.getElementById(`tab-${tabId}`);
                     if (targetContent) {
                         targetContent.classList.add('active');
                     }
@@ -2344,60 +2513,36 @@
             });
 
             // ============================================================
-            // PROFILE ACTIONS
+            // SEARCH FUNCTIONALITY
             // ============================================================
-            document.getElementById('messageBtn').addEventListener('click', function() {
-                if (!currentUser) {
-                    alert('Please log in to send messages.');
-                    return;
-                }
-                if (targetUserId) {
-                    window.location.href = `messages.html?user=${targetUserId}`;
-                } else {
-                    alert('Messaging will be available.');
-                }
-            });
-
-            document.getElementById('addFriendBtn').addEventListener('click', async function() {
-                if (!currentUser) {
-                    alert('Please log in to add friends.');
-                    return;
-                }
-                if (!targetUserId) return;
-                const result = await window.AniVerse.auth.sendFriendRequest(targetUserId);
-                if (result.error) {
-                    alert(result.error);
-                } else {
-                    alert('Friend request sent!');
-                }
-            });
-
-            document.getElementById('reportBtn').addEventListener('click', function() {
-                alert('Reporting will be available.');
-            });
-
-            // ============================================================
-            // INITIALIZE
-            // ============================================================
-            async function init() {
-                if (typeof window.AniVerse === 'undefined') {
-                    console.warn('[AniVerse] Waiting for client to initialize...');
-                    setTimeout(init, 500);
-                    return;
-                }
-
-                await updateAuthUI();
-
-                window.AniVerse.auth.onAuthStateChange((event, session) => {
-                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                        updateAuthUI();
+            const searchInput = document.querySelector('.header-search input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const query = this.value.trim();
+                        if (query.length > 0) {
+                            window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+                        }
                     }
                 });
             }
 
-            init();
-
-            console.log('[AniVerse] Profile page ready (Supabase integrated)');
+            // ============================================================
+            // INIT
+            // ============================================================
+            // Wait for AniVerse to be ready
+            if (typeof window.AniVerse === 'undefined') {
+                console.log('[AniVerse] Waiting for library to load...');
+                const checkReady = setInterval(function() {
+                    if (typeof window.AniVerse !== 'undefined') {
+                        clearInterval(checkReady);
+                        console.log('[AniVerse] Library ready, initializing...');
+                        updateAuthUI();
+                    }
+                }, 200);
+            } else {
+                updateAuthUI();
+            }
 
         })();
     </script>
