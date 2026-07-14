@@ -1,6 +1,6 @@
 /**
  * AniVerse - Centralized Supabase Client
- * Version: 2.2.0 – Full Debugging + Storage Fix
+ * Version: 2.3.0 - PURE DEBUGGING - NO CUSTOM ERRORS
  */
 
 const SUPABASE_URL = 'https://qmcisykwfyjbjluqdthv.supabase.co';
@@ -42,30 +42,19 @@ function clearSupabaseStorage() {
 }
 
 function getPublicUrl(bucket, path) {
-    console.log(`[Storage] Getting public URL for bucket: ${bucket}, path: ${path}`);
+    console.log('[DEBUG] getPublicUrl called with:', { bucket, path });
     
     try {
-        const { data, error } = supabaseClient.storage
-            .from(bucket)
-            .getPublicUrl(path);
+        const result = supabaseClient.storage.from(bucket).getPublicUrl(path);
+        console.log('[DEBUG] getPublicUrl raw result:', result);
+        console.log('[DEBUG] getPublicUrl data:', result.data);
+        console.log('[DEBUG] getPublicUrl error:', result.error);
+        console.log('[DEBUG] getPublicUrl publicUrl:', result.data?.publicUrl);
         
-        if (error) {
-            console.error('[Storage] getPublicUrl error:', error);
-            console.error('[Storage] Error details:', {
-                message: error.message,
-                status: error.status,
-                statusText: error.statusText
-            });
-            return null;
-        }
-        
-        console.log('[Storage] getPublicUrl response:', data);
-        console.log('[Storage] Public URL generated:', data?.publicUrl);
-        
-        return data?.publicUrl || null;
-        
+        return result.data?.publicUrl || null;
     } catch (error) {
-        console.error('[Storage] getPublicUrl exception:', error);
+        console.error('[DEBUG] getPublicUrl exception:', error);
+        console.error('[DEBUG] Exception stack:', error.stack);
         return null;
     }
 }
@@ -117,7 +106,6 @@ const Auth = {
 
             console.log('[Auth] User created successfully:', response.data.user.id);
 
-            // Fallback profile creation
             let profileCreated = false;
             let retryCount = 0;
             const maxRetries = 3;
@@ -404,10 +392,6 @@ const Auth = {
         });
     },
 
-    // ============================================================
-    // GUILD MANAGEMENT
-    // ============================================================
-    
     async createGuild(guildData) {
         try {
             const { user } = await this.getCurrentUser();
@@ -464,7 +448,6 @@ const Auth = {
 
             if (error) throw new Error(error.message);
 
-            // --- CREATE DEFAULT ROLES ---
             const { data: memberRole, error: memberError } = await supabaseClient
                 .from('guild_roles')
                 .insert({
@@ -847,512 +830,261 @@ const Realtime = {
 };
 
 // ============================================================
-// STORAGE MODULE - FIXED WITH DEBUGGING
+// STORAGE MODULE - PURE DEBUGGING - NO CUSTOM ERRORS
 // ============================================================
 
 const Storage = {
     async upload(bucket, path, file, options = {}) {
-        console.log('========== STORAGE UPLOAD DEBUG START ==========');
+        console.log('========== STORAGE.UPLOAD DEBUG START ==========');
+        console.log('[DEBUG] upload() called with:');
+        console.log('[DEBUG] - bucket:', bucket);
+        console.log('[DEBUG] - path:', path);
+        console.log('[DEBUG] - file name:', file?.name);
+        console.log('[DEBUG] - file type:', file?.type);
+        console.log('[DEBUG] - file size:', file?.size);
+        console.log('[DEBUG] - options:', options);
         
         try {
-            // Step 1: Validate file
-            console.log('[Storage] Step 1: Validating file...');
-            console.log('[Storage] File name:', file.name);
-            console.log('[Storage] File type:', file.type);
-            console.log('[Storage] File size:', file.size, 'bytes');
-            console.log('[Storage] File size (KB):', (file.size / 1024).toFixed(2), 'KB');
-            console.log('[Storage] File size (MB):', (file.size / 1024 / 1024).toFixed(2), 'MB');
-            
-            if (!file || file.size === 0) {
-                console.error('[Storage] ❌ Invalid file: Empty or null');
-                return { url: null, error: 'Invalid file: Empty or null' };
-            }
-
-            // Step 2: Validate file type
-            const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'];
-            console.log('[Storage] Step 2: Validating file type...');
-            console.log('[Storage] Valid types:', validTypes);
-            console.log('[Storage] File type:', file.type);
-            
-            if (!validTypes.includes(file.type)) {
-                console.error(`[Storage] ❌ Invalid file type: ${file.type}`);
-                return { url: null, error: `Only PNG, JPG, GIF, WEBP, and SVG images are allowed. Received: ${file.type}` };
-            }
-
-            // Step 3: Validate file size
-            const maxSize = options.maxSize || 5 * 1024 * 1024;
-            console.log('[Storage] Step 3: Validating file size...');
-            console.log('[Storage] Max size:', maxSize, 'bytes', `(${maxSize / 1024 / 1024}MB)`);
-            
-            if (file.size > maxSize) {
-                console.error(`[Storage] ❌ File too large: ${file.size} > ${maxSize}`);
-                return { url: null, error: `File size must be less than ${maxSize / 1024 / 1024}MB. Current: ${(file.size / 1024 / 1024).toFixed(2)}MB` };
-            }
-
-            // Step 4: Check bucket
-            console.log('[Storage] Step 4: Checking bucket...');
-            console.log('[Storage] Bucket name:', bucket);
-            console.log('[Storage] Upload path:', path);
-            
-            const BUCKET_NAME = bucket;
-            
-            try {
-                const { data: buckets, error: bucketError } = await supabaseClient.storage.listBuckets();
-                
-                if (bucketError) {
-                    console.error('[Storage] ❌ Failed to list buckets:', bucketError);
-                } else {
-                    console.log('[Storage] Available buckets:', buckets?.map(b => b.name));
-                    const bucketExists = buckets?.some(b => b.name === BUCKET_NAME);
-                    console.log('[Storage] Bucket exists:', bucketExists);
-                    
-                    if (!bucketExists) {
-                        console.error(`[Storage] ❌ Bucket "${BUCKET_NAME}" does not exist!`);
-                        console.log('[Storage] Creating bucket...');
-                        
-                        const { data: newBucket, error: createError } = await supabaseClient.storage
-                            .createBucket(BUCKET_NAME, {
-                                public: true,
-                                allowedMimeTypes: validTypes,
-                                fileSizeLimit: maxSize
-                            });
-                        
-                        if (createError) {
-                            console.error('[Storage] ❌ Failed to create bucket:', createError);
-                            return { url: null, error: `Bucket "${BUCKET_NAME}" does not exist and could not be created: ${createError.message}` };
-                        }
-                        
-                        console.log('[Storage] ✅ Bucket created successfully!');
-                    }
-                }
-            } catch (err) {
-                console.error('[Storage] ❌ Bucket check error:', err);
-            }
-
-            // Step 5: Upload file
-            console.log('[Storage] Step 5: Uploading file...');
-            console.log('[Storage] Upload parameters:');
-            console.log('[Storage] - Bucket:', BUCKET_NAME);
-            console.log('[Storage] - Path:', path);
-            console.log('[Storage] - File size:', file.size);
-            console.log('[Storage] - File type:', file.type);
-            console.log('[Storage] - Options:', { cacheControl: '3600', upsert: true });
-            
-            const startTime = Date.now();
-            
-            const { data, error } = await supabaseClient.storage
-                .from(BUCKET_NAME)
+            // Step 1: Upload
+            console.log('[DEBUG] Step 1: Calling supabaseClient.storage.from().upload()...');
+            const uploadResult = await supabaseClient.storage
+                .from(bucket)
                 .upload(path, file, {
                     cacheControl: '3600',
                     upsert: true
                 });
             
-            const endTime = Date.now();
-            console.log('[Storage] Upload time:', (endTime - startTime), 'ms');
-
-            // Step 6: Check upload result
-            console.log('[Storage] Step 6: Upload result');
-            console.log('[Storage] Upload successful:', !error);
-            console.log('[Storage] Upload data:', data);
+            console.log('[DEBUG] Upload result (raw):', uploadResult);
+            console.log('[DEBUG] Upload data:', uploadResult.data);
+            console.log('[DEBUG] Upload error:', uploadResult.error);
             
-            if (error) {
-                console.error('[Storage] ❌ Upload failed with error:');
-                console.error('[Storage] - Error object:', error);
-                console.error('[Storage] - Error message:', error.message);
-                console.error('[Storage] - Error status:', error.status);
-                console.error('[Storage] - Error statusText:', error.statusText);
-                
-                // Check for specific errors
-                if (error.message?.includes('bucket') || error.status === 404) {
-                    console.error('[Storage] ❌ Bucket not found or not accessible');
-                } else if (error.message?.includes('permission') || error.status === 403) {
-                    console.error('[Storage] ❌ Permission denied - Check RLS policies');
-                } else if (error.message?.includes('duplicate')) {
-                    console.warn('[Storage] ⚠️ File already exists, overwriting...');
-                }
-                
-                return { 
-                    url: null, 
-                    error: error.message || 'Upload failed',
-                    details: error
-                };
+            // Step 2: Check for upload error
+            if (uploadResult.error) {
+                console.error('[DEBUG] ❌ Upload error detected:');
+                console.error('[DEBUG] - Error message:', uploadResult.error.message);
+                console.error('[DEBUG] - Error status:', uploadResult.error.status);
+                console.error('[DEBUG] - Error statusText:', uploadResult.error.statusText);
+                console.error('[DEBUG] - Full error object:', uploadResult.error);
+                console.log('========== STORAGE.UPLOAD DEBUG END ==========');
+                return { url: null, error: uploadResult.error };
             }
-
-            console.log('[Storage] ✅ Upload completed successfully!');
-            console.log('[Storage] Upload response:', JSON.stringify(data, null, 2));
-
-            // Step 7: Get public URL
-            console.log('[Storage] Step 7: Getting public URL...');
-            console.log('[Storage] Using bucket:', BUCKET_NAME);
-            console.log('[Storage] Using path:', path);
-            console.log('[Storage] Exact path from upload:', data?.path || 'No path in response');
-
-            let publicUrl = null;
-            let urlError = null;
-
-            try {
-                // Method 1: Using getPublicUrl
-                console.log('[Storage] Method 1: Using getPublicUrl()...');
-                const { data: urlData, error: urlErrorObj } = supabaseClient.storage
-                    .from(BUCKET_NAME)
-                    .getPublicUrl(path);
-                
-                if (urlErrorObj) {
-                    console.error('[Storage] ❌ getPublicUrl() error:', urlErrorObj);
-                    urlError = urlErrorObj.message;
-                } else {
-                    publicUrl = urlData?.publicUrl;
-                    console.log('[Storage] getPublicUrl() result:', urlData);
-                    console.log('[Storage] Public URL (Method 1):', publicUrl);
-                    
-                    if (!publicUrl) {
-                        console.warn('[Storage] ⚠️ getPublicUrl() returned empty/null');
-                        urlError = 'getPublicUrl() returned empty';
-                    }
-                }
-            } catch (err) {
-                console.error('[Storage] ❌ getPublicUrl() threw error:', err);
-                urlError = err.message;
-            }
-
-            // Step 8: Try alternative URL construction (if needed)
-            if (!publicUrl) {
-                console.log('[Storage] Step 8: Trying alternative URL construction...');
-                
-                try {
-                    // Method 2: Manual URL construction
-                    const supabaseUrl = SUPABASE_URL || 'https://qmcisykwfyjbjluqdthv.supabase.co';
-                    console.log('[Storage] Supabase URL:', supabaseUrl);
-                    
-                    // Construct URL manually
-                    const altUrl = `${supabaseUrl}/storage/v1/object/public/${BUCKET_NAME}/${path}`;
-                    console.log('[Storage] Alternative URL:', altUrl);
-                    
-                    // Test if URL is accessible
-                    try {
-                        const testResponse = await fetch(altUrl, { method: 'HEAD' });
-                        console.log('[Storage] URL test response:', testResponse.status, testResponse.statusText);
-                        
-                        if (testResponse.ok) {
-                            publicUrl = altUrl;
-                            console.log('[Storage] ✅ Alternative URL works!');
-                        } else {
-                            console.warn('[Storage] ⚠️ Alternative URL not accessible:', testResponse.status);
-                        }
-                    } catch (fetchErr) {
-                        console.warn('[Storage] ⚠️ Could not test URL:', fetchErr.message);
-                    }
-                } catch (err) {
-                    console.error('[Storage] ❌ Alternative URL construction failed:', err);
-                }
-            }
-
-            // Step 9: Final result
-            console.log('[Storage] Step 9: Final result');
-            console.log('[Storage] Success:', publicUrl ? 'YES' : 'NO');
-            console.log('[Storage] Final URL:', publicUrl || 'NO URL');
-            console.log('[Storage] Error:', urlError || 'None');
-            console.log('========== STORAGE UPLOAD DEBUG END ==========');
-
-            if (!publicUrl) {
-                return { url: null, error: urlError || 'Failed to get public URL' };
-            }
-
-            console.log('[Storage] ✅ File uploaded successfully!');
-            console.log('[Storage] Public URL:', publicUrl);
             
-            return { url: publicUrl, error: null };
-
-        } catch (error) {
-            console.error('[Storage] ❌ Unexpected error in upload process:', error);
-            console.error('[Storage] Error stack:', error.stack);
-            console.log('========== STORAGE UPLOAD DEBUG END (ERROR) ==========');
+            console.log('[DEBUG] ✅ Upload successful!');
+            console.log('[DEBUG] Upload response data:', uploadResult.data);
             
+            // Step 3: Get public URL
+            console.log('[DEBUG] Step 2: Getting public URL...');
+            console.log('[DEBUG] Calling getPublicUrl with:', { bucket, path });
+            
+            const urlResult = supabaseClient.storage.from(bucket).getPublicUrl(path);
+            console.log('[DEBUG] getPublicUrl result (raw):', urlResult);
+            console.log('[DEBUG] getPublicUrl data:', urlResult.data);
+            console.log('[DEBUG] getPublicUrl error:', urlResult.error);
+            console.log('[DEBUG] getPublicUrl publicUrl:', urlResult.data?.publicUrl);
+            
+            const publicUrl = urlResult.data?.publicUrl || null;
+            console.log('[DEBUG] Final publicUrl:', publicUrl);
+            
+            // Step 4: Return result
+            console.log('========== STORAGE.UPLOAD DEBUG END ==========');
             return { 
-                url: null, 
-                error: error.message || 'Upload failed',
-                stack: error.stack
+                url: publicUrl, 
+                error: urlResult.error || null,
+                uploadData: uploadResult.data,
+                uploadError: uploadResult.error
             };
+            
+        } catch (error) {
+            console.error('[DEBUG] ❌ Exception caught in upload():');
+            console.error('[DEBUG] - Error message:', error.message);
+            console.error('[DEBUG] - Error stack:', error.stack);
+            console.error('[DEBUG] - Full error:', error);
+            console.log('========== STORAGE.UPLOAD DEBUG END ==========');
+            return { url: null, error: error };
         }
     },
 
     async delete(bucket, path) {
-        console.log(`[Storage] Deleting file: ${bucket}/${path}`);
+        console.log('[DEBUG] delete() called with:', { bucket, path });
         
         try {
-            const { data, error } = await supabaseClient.storage
-                .from(bucket)
-                .remove([path]);
-
-            if (error) {
-                console.error('[Storage] Delete error:', error);
-                throw new Error(error.message);
-            }
-            
-            console.log('[Storage] Delete successful:', data);
-            return { data, error: null };
+            const result = await supabaseClient.storage.from(bucket).remove([path]);
+            console.log('[DEBUG] Delete result:', result);
+            return { data: result.data, error: result.error || null };
         } catch (error) {
-            console.error('[Storage] Delete error:', error);
-            return { data: null, error: error.message };
+            console.error('[DEBUG] Delete exception:', error);
+            return { data: null, error: error };
         }
     },
 
     getPublicUrl(bucket, path) {
-        console.log(`[Storage] Getting public URL for: ${bucket}/${path}`);
+        console.log('[DEBUG] getPublicUrl() called with:', { bucket, path });
         return getPublicUrl(bucket, path);
     },
 
     async list(bucket, path = '') {
-        console.log(`[Storage] Listing files: ${bucket}/${path}`);
+        console.log('[DEBUG] list() called with:', { bucket, path });
         
         try {
-            const { data, error } = await supabaseClient.storage
-                .from(bucket)
-                .list(path);
-
-            if (error) throw new Error(error.message);
-            console.log(`[Storage] Found ${data?.length || 0} files`);
-            return { files: data, error: null };
+            const result = await supabaseClient.storage.from(bucket).list(path);
+            console.log('[DEBUG] List result:', result);
+            return { files: result.data, error: result.error || null };
         } catch (error) {
-            console.error('[Storage] List error:', error);
-            return { files: null, error: error.message };
+            console.error('[DEBUG] List exception:', error);
+            return { files: null, error: error };
         }
     },
 
     // ============================================================
-    // VERIFY BUCKET - Debugging Tool
-    // ============================================================
-    
-    async verifyBucket(bucketName) {
-        console.log('========== VERIFY BUCKET ==========');
-        console.log('[Storage] Verifying bucket:', bucketName);
-        
-        try {
-            const { data: buckets, error } = await supabaseClient.storage.listBuckets();
-            
-            if (error) {
-                console.error('[Storage] ❌ Failed to list buckets:', error);
-                return { exists: false, error: error.message };
-            }
-            
-            console.log('[Storage] All buckets:', buckets.map(b => ({
-                name: b.name,
-                id: b.id,
-                public: b.public,
-                created_at: b.created_at
-            })));
-            
-            const bucket = buckets.find(b => b.name === bucketName);
-            
-            if (!bucket) {
-                console.error(`[Storage] ❌ Bucket "${bucketName}" not found!`);
-                return { exists: false, bucket: null };
-            }
-            
-            console.log(`[Storage] ✅ Bucket "${bucketName}" exists!`);
-            console.log('[Storage] Bucket details:', bucket);
-            console.log('[Storage] Is public:', bucket.public);
-            
-            return { exists: true, bucket, isPublic: bucket.public };
-            
-        } catch (error) {
-            console.error('[Storage] ❌ Verification error:', error);
-            return { exists: false, error: error.message };
-        }
-    },
-
-    // ============================================================
-    // CREATE BUCKET IF NOT EXISTS - Auto-fix
-    // ============================================================
-    
-    async ensureBucket(bucketName, options = {}) {
-        console.log(`[Storage] Ensuring bucket exists: ${bucketName}`);
-        
-        try {
-            const { exists, bucket } = await this.verifyBucket(bucketName);
-            
-            if (exists) {
-                console.log(`[Storage] ✅ Bucket "${bucketName}" already exists`);
-                
-                // Make sure it's public
-                if (!bucket.public) {
-                    console.log(`[Storage] Making bucket "${bucketName}" public...`);
-                    const { error: updateError } = await supabaseClient.storage
-                        .updateBucket(bucketName, {
-                            public: true,
-                            allowedMimeTypes: options.allowedMimeTypes || ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
-                            fileSizeLimit: options.fileSizeLimit || 5242880
-                        });
-                    
-                    if (updateError) {
-                        console.error(`[Storage] ❌ Failed to make bucket public:`, updateError);
-                        return { success: false, error: updateError.message };
-                    }
-                    
-                    console.log(`[Storage] ✅ Bucket "${bucketName}" is now public!`);
-                }
-                
-                return { success: true, bucket };
-            }
-            
-            console.log(`[Storage] Creating bucket "${bucketName}"...`);
-            
-            const { data: newBucket, error: createError } = await supabaseClient.storage
-                .createBucket(bucketName, {
-                    public: true,
-                    allowedMimeTypes: options.allowedMimeTypes || ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
-                    fileSizeLimit: options.fileSizeLimit || 5242880
-                });
-            
-            if (createError) {
-                console.error(`[Storage] ❌ Failed to create bucket:`, createError);
-                return { success: false, error: createError.message };
-            }
-            
-            console.log(`[Storage] ✅ Bucket "${bucketName}" created successfully!`);
-            return { success: true, bucket: newBucket };
-            
-        } catch (error) {
-            console.error(`[Storage] ❌ ensureBucket error:`, error);
-            return { success: false, error: error.message };
-        }
-    },
-
-    // ============================================================
-    // UPLOAD AVATAR - Simplified with auto-bucket creation
+    // COMPLETE AVATAR UPLOAD WITH FULL DEBUGGING
     // ============================================================
     
     async uploadAvatar(userId, file) {
-        console.log('[Storage] Uploading avatar for user:', userId);
+        console.log('========== UPLOAD AVATAR DEBUG START ==========');
+        console.log('[DEBUG] uploadAvatar() called with:');
+        console.log('[DEBUG] - userId:', userId);
+        console.log('[DEBUG] - file name:', file?.name);
+        console.log('[DEBUG] - file type:', file?.type);
+        console.log('[DEBUG] - file size:', file?.size);
         
         try {
-            // Ensure avatars bucket exists
-            const bucketResult = await this.ensureBucket('avatars', {
-                allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
-                fileSizeLimit: 5 * 1024 * 1024
-            });
-            
-            if (!bucketResult.success) {
-                return { url: null, error: bucketResult.error };
+            // Step 1: Validate file
+            console.log('[DEBUG] Step 1: Validating file...');
+            if (!file) {
+                console.error('[DEBUG] ❌ File is null or undefined');
+                return { url: null, error: new Error('File is required') };
             }
             
-            // Generate path
+            if (file.size === 0) {
+                console.error('[DEBUG] ❌ File is empty');
+                return { url: null, error: new Error('File is empty') };
+            }
+            
+            // Step 2: Generate path
+            console.log('[DEBUG] Step 2: Generating file path...');
             const fileExt = file.name.split('.').pop();
             const fileName = `${userId}_${Date.now()}.${fileExt}`;
             const path = `avatars/${fileName}`;
+            console.log('[DEBUG] - fileExt:', fileExt);
+            console.log('[DEBUG] - fileName:', fileName);
+            console.log('[DEBUG] - full path:', path);
             
-            // Upload
-            const result = await this.upload('avatars', path, file);
+            // Step 3: Upload
+            console.log('[DEBUG] Step 3: Calling Storage.upload()...');
+            const uploadResult = await this.upload('avatars', path, file);
+            console.log('[DEBUG] uploadResult:', uploadResult);
             
-            if (result.error) {
-                return result;
+            if (uploadResult.error) {
+                console.error('[DEBUG] ❌ Upload failed:');
+                console.error('[DEBUG] - Error:', uploadResult.error);
+                console.log('========== UPLOAD AVATAR DEBUG END ==========');
+                return { url: null, error: uploadResult.error };
             }
             
-            // Update profile
-            const { error: updateError } = await supabaseClient
+            if (!uploadResult.url) {
+                console.error('[DEBUG] ❌ Upload returned no URL');
+                console.error('[DEBUG] - uploadResult:', uploadResult);
+                console.log('========== UPLOAD AVATAR DEBUG END ==========');
+                return { url: null, error: new Error('Upload succeeded but no URL returned') };
+            }
+            
+            console.log('[DEBUG] ✅ Upload successful with URL:', uploadResult.url);
+            
+            // Step 4: Update profile
+            console.log('[DEBUG] Step 4: Updating profile with avatar URL...');
+            console.log('[DEBUG] - Profile ID:', userId);
+            console.log('[DEBUG] - Avatar URL:', uploadResult.url);
+            
+            const updateResult = await supabaseClient
                 .from('profiles')
-                .update({ avatar_url: result.url })
-                .eq('id', userId);
+                .update({ avatar_url: uploadResult.url })
+                .eq('id', userId)
+                .select();
             
-            if (updateError) {
-                console.error('[Storage] ❌ Failed to update profile:', updateError);
-                return { url: result.url, error: null, profileUpdateError: updateError };
+            console.log('[DEBUG] Profile update result:');
+            console.log('[DEBUG] - Data:', updateResult.data);
+            console.log('[DEBUG] - Error:', updateResult.error);
+            console.log('[DEBUG] - Status:', updateResult.status);
+            console.log('[DEBUG] - StatusText:', updateResult.statusText);
+            
+            if (updateResult.error) {
+                console.error('[DEBUG] ❌ Profile update failed:');
+                console.error('[DEBUG] - Error:', updateResult.error);
+                console.log('========== UPLOAD AVATAR DEBUG END ==========');
+                return { 
+                    url: uploadResult.url, 
+                    error: updateResult.error,
+                    uploadData: uploadResult.uploadData
+                };
             }
             
-            console.log('[Storage] ✅ Avatar uploaded and profile updated!');
-            return { url: result.url, error: null };
+            console.log('[DEBUG] ✅ Profile updated successfully!');
+            console.log('========== UPLOAD AVATAR DEBUG END ==========');
+            
+            return { 
+                url: uploadResult.url, 
+                error: null,
+                uploadData: uploadResult.uploadData
+            };
             
         } catch (error) {
-            console.error('[Storage] ❌ Upload avatar error:', error);
-            return { url: null, error: error.message };
+            console.error('[DEBUG] ❌ Exception in uploadAvatar():');
+            console.error('[DEBUG] - Error:', error);
+            console.error('[DEBUG] - Message:', error.message);
+            console.error('[DEBUG] - Stack:', error.stack);
+            console.log('========== UPLOAD AVATAR DEBUG END ==========');
+            return { url: null, error: error };
         }
     }
 };
 
 // ============================================================
-// DEBUG FUNCTIONS - Available in Console
+// EXPOSE TO WINDOW FOR DEBUGGING
 // ============================================================
 
-// Bucket verification
-window.verifyBucket = async function(bucketName = 'avatars') {
-    return await Storage.verifyBucket(bucketName);
-};
-
-// Test upload
+// Expose debug functions to window
 window.testAvatarUpload = async function() {
     console.log('========== TEST AVATAR UPLOAD ==========');
     
     try {
-        // Create a test image
+        // Create test image
         const canvas = document.createElement('canvas');
         canvas.width = 200;
         canvas.height = 200;
         const ctx = canvas.getContext('2d');
-        
-        // Gradient background
-        const gradient = ctx.createLinearGradient(0, 0, 200, 200);
-        gradient.addColorStop(0, '#7c5cfc');
-        gradient.addColorStop(1, '#5c8cfc');
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = '#7c5cfc';
         ctx.fillRect(0, 0, 200, 200);
-        
-        // Text
         ctx.fillStyle = 'white';
         ctx.font = 'bold 40px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('TEST', 100, 100);
         
-        // Border
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(10, 10, 180, 180);
-        
-        // Convert to blob
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         const file = new File([blob], 'test-avatar.png', { type: 'image/png' });
         
-        console.log('Test file created:', file);
-        console.log('File size:', file.size, 'bytes');
+        console.log('[DEBUG] Test file created:', file);
         
         // Get current user
         const { user } = await Auth.getCurrentUser();
         if (!user) {
-            console.error('❌ No user logged in');
-            return;
+            console.error('[DEBUG] ❌ No user logged in');
+            return { success: false, error: 'No user logged in' };
         }
         
-        console.log('Current user:', user.id);
+        console.log('[DEBUG] Current user:', user.id);
         
-        // Upload test avatar
+        // Upload
         const result = await Storage.uploadAvatar(user.id, file);
+        console.log('[DEBUG] Final result:', result);
         
-        if (result.url) {
-            console.log('✅ Test upload successful!');
-            console.log('📸 Avatar URL:', result.url);
-            return result;
-        } else {
-            console.error('❌ Test upload failed:', result.error);
-            return result;
-        }
+        return result;
         
     } catch (error) {
-        console.error('❌ Test upload error:', error);
-        return { url: null, error: error.message };
+        console.error('[DEBUG] Test error:', error);
+        return { success: false, error: error };
     }
 };
-
-console.log(`
-🔍 Avatar Upload Debugging Tool
-================================
-Commands available:
-1. verifyBucket() - Check if 'avatars' bucket exists and is public
-2. testAvatarUpload() - Test upload with a test image
-3. Storage.verifyBucket('avatars') - Detailed bucket check
-4. Storage.ensureBucket('avatars') - Create bucket if not exists
-
-Make sure you're logged in before running testAvatarUpload()
-`);
 
 // ============================================================
 // EXPOSE GLOBALLY
@@ -1366,8 +1098,6 @@ window.AniVerse = {
     storage: Storage,
     clearStorage: clearSupabaseStorage,
     getPublicUrl: getPublicUrl,
-    // Debug tools
-    verifyBucket: window.verifyBucket,
     testAvatarUpload: window.testAvatarUpload
 };
 
@@ -1381,5 +1111,5 @@ window.updateProfile = Auth.updateProfile.bind(Auth);
 window.onAuthStateChange = Auth.onAuthStateChange.bind(Auth);
 window.clearSupabaseStorage = clearSupabaseStorage;
 
-console.log('[AniVerse] Supabase client fully initialized with debugging tools');
-console.log('[AniVerse] Storage module ready with auto-bucket creation');
+console.log('[AniVerse] Supabase client initialized with DEBUG MODE');
+console.log('[AniVerse] Run testAvatarUpload() in console to test avatar upload');
